@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ClanGameScore extends GameScore {
-    
+
     @Column(name = "clan_id", nullable = false)
     private Long clanId;
 
@@ -25,14 +25,21 @@ public class ClanGameScore extends GameScore {
     @Column(name = "score", nullable = false)
     private int score;
 
+    // Many ClanGameScores belong to one ClanTournamentScore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tournament_score_id", nullable = false)
+    private ClanTournamentScore tournamentScore;
+
     // No-Arg Constructor (required by JPA)
     protected ClanGameScore() {
         super(null); // Pass null for GameScore since it's abstract and doesn't hold logic in the default constructor
     }
+
     // Constructor
-    public ClanGameScore(Long gameId, Long clanId, boolean result) {
+    public ClanGameScore(Long gameId, Long clanId, boolean result, ClanTournamentScore tournamentScore) {
         super(gameId);
         this.clanId = clanId;
         this.result = result;
+        this.tournamentScore = tournamentScore;
     }
 }
