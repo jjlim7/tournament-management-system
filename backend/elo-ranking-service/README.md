@@ -1,4 +1,4 @@
-# elo ranking service
+# Elo Ranking Service
 
 
 ### Enhanced Elo Algorithm with TrueSkill and Role-Specific Performance Metrics
@@ -22,8 +22,6 @@ This algorithm integrates Microsoft's TrueSkill system with role-specific perfor
         - Metrics might include damage dealt, kills, survival time, and placement.
 
   Each metric is given a weight that reflects its importance to the role. The combined weighted metrics produce a Role Performance Score (RPS) for each player, representing their individual contribution to the match.
-
-To make the formula readable in Markdown (which doesn't support LaTeX), you can convert it to plain text or use basic Markdown formatting. Here’s how you can present it in a Markdown-friendly format:
 
 ---
 
@@ -88,6 +86,126 @@ This means Player A’s contribution is factored into the match outcome, rewardi
 - Rating Decay: For players who become inactive, their σ may gradually increase, reflecting growing uncertainty about their current skill level. This allows the system to recalibrate their rating when they return to active play.
 
 ---
+
+### Process Flow
+- Integrating role-specific performance metrics and TrueSkill. Using a **5v5 Clan War scenario** where each team has players with distinct roles (e.g., Tank, Healer, Damage Dealers).
+- **Team A vs. Team B**: A 5v5 match.
+- **Roles**:
+  - **Team A**: Player A1 (Tank), A2 (Healer), A3-A5 (Damage Dealers).
+  - **Team B**: Similar role distribution.
+- **Match Outcome**: Team A wins the match.
+- **Role-Specific Metrics**: Damage mitigated, healing done, and damage dealt are recorded for each player.
+
+---
+
+#### **Step 1: Gather Pre-Match TrueSkill Ratings**
+Each player starts with **μ (mean skill)** and **σ (skill uncertainty)** from previous matches.
+
+| Player | Role           | μ  | σ   |
+|--------|----------------|----|-----|
+| A1     | Tank           | 28 | 7.5 |
+| A2     | Healer         | 25 | 8.0 |
+| A3     | Damage Dealer  | 30 | 6.5 |
+| A4     | Damage Dealer  | 27 | 7.0 |
+| A5     | Damage Dealer  | 26 | 7.2 |
+| B1     | Tank           | 27 | 7.4 |
+| B2     | Healer         | 24 | 8.1 |
+| B3     | Damage Dealer  | 29 | 6.8 |
+| B4     | Damage Dealer  | 26 | 7.3 |
+| B5     | Damage Dealer  | 27 | 7.0 |
+
+#### **Step 2: Gather Role-Specific Performance Metrics**
+During the match, specific metrics are gathered based on each player's role:
+
+| Player | Role           | Damage Mitigated | Healing Done | Damage Dealt |
+|--------|----------------|------------------|--------------|--------------|
+| A1     | Tank           | 10,000           | N/A          | 3,000        |
+| A2     | Healer         | N/A              | 12,000       | 2,000        |
+| A3     | Damage Dealer  | N/A              | N/A          | 20,000       |
+| A4     | Damage Dealer  | N/A              | N/A          | 18,000       |
+| A5     | Damage Dealer  | N/A              | N/A          | 15,000       |
+| B1     | Tank           | 8,000            | N/A          | 4,000        |
+| B2     | Healer         | N/A              | 9,000        | 3,000        |
+| B3     | Damage Dealer  | N/A              | N/A          | 18,000       |
+| B4     | Damage Dealer  | N/A              | N/A          | 17,000       |
+| B5     | Damage Dealer  | N/A              | N/A          | 16,000       |
+
+#### **Step 3: Calculate Role Performance Scores (RPS)**
+Using predefined weights for each metric, calculate the **Role Performance Score (RPS)** for each player.
+
+- **Weights**:
+  - For **Tanks**: 70% damage mitigated, 30% damage dealt.
+  - For **Healers**: 80% healing done, 20% damage dealt.
+  - For **Damage Dealers**: 100% damage dealt.
+
+| Player | Role           | RPS Calculation                                                 | RPS   |
+|--------|----------------|-----------------------------------------------------------------|-------|
+| A1     | Tank           | (0.7 * 10,000) + (0.3 * 3,000)                                 | 8,100 |
+| A2     | Healer         | (0.8 * 12,000) + (0.2 * 2,000)                                 | 10,400|
+| A3     | Damage Dealer  | (1.0 * 20,000)                                                  | 20,000|
+| A4     | Damage Dealer  | (1.0 * 18,000)                                                  | 18,000|
+| A5     | Damage Dealer  | (1.0 * 15,000)                                                  | 15,000|
+| B1     | Tank           | (0.7 * 8,000) + (0.3 * 4,000)                                  | 7,200 |
+| B2     | Healer         | (0.8 * 9,000) + (0.2 * 3,000)                                  | 8,400 |
+| B3     | Damage Dealer  | (1.0 * 18,000)                                                  | 18,000|
+| B4     | Damage Dealer  | (1.0 * 17,000)                                                  | 17,000|
+| B5     | Damage Dealer  | (1.0 * 16,000)                                                  | 16,000|
+
+#### **Step 4: Adjust Performance-Based Outcomes (PBO)**
+We adjust the **match outcome** for each player using their RPS. Assume that the match outcome for Team A is a **win (1)** and for Team B a **loss (0)**.
+
+- Use the formula:  
+  `PBO_i = Match Outcome * (1 + α * Normalized RPS_i)`
+- Assume **α = 0.1** and that RPS is normalized between -1 and 1 (subtract the mean and divide by the range).
+
+| Player | Role           | Normalized RPS (approx.) | Match Outcome | PBO   |
+|--------|----------------|--------------------------|---------------|-------|
+| A1     | Tank           | 0.2                      | 1             | 1.02  |
+| A2     | Healer         | 0.5                      | 1             | 1.05  |
+| A3     | Damage Dealer  | 1.0                      | 1             | 1.10  |
+| A4     | Damage Dealer  | 0.8                      | 1             | 1.08  |
+| A5     | Damage Dealer  | 0.5                      | 1             | 1.05  |
+| B1     | Tank           | 0.1                      | 0             | 0.00  |
+| B2     | Healer         | 0.2                      | 0             | 0.00  |
+| B3     | Damage Dealer  | 0.6                      | 0             | 0.00  |
+| B4     | Damage Dealer  | 0.4                      | 0             | 0.00  |
+| B5     | Damage Dealer  | 0.3                      | 0             | 0.00  |
+
+#### **Step 5: Modify μ and σ Based on PBO**
+Before passing these values to TrueSkill for updating, we slightly adjust **μ** and **σ** based on the performance (PBO).
+
+For Team A (winning team), each player’s μ is adjusted **upwards**, and their σ is slightly reduced because they performed well. For Team B (losing team), μ is adjusted **downwards**, with σ increasing for players with high uncertainty.
+
+- Example adjustments:
+  - **Player A3**: High PBO (1.10), strong performance → μ increases more significantly, σ decreases.
+  - **Player B1**: Poor performance → μ decreases, σ increases.
+
+| Player | Role           | Pre-Match μ | Pre-Match σ | Δμ    | Δσ    | New μ | New σ |
+|--------|----------------|-------------|-------------|-------|-------|-------|-------|
+| A1     | Tank           | 28          | 7.5         | +0.5  | -0.2  | 28.5  | 7.3   |
+| A2     | Healer         | 25          | 8.0         | +0.8  | -0.3  | 25.8  | 7.7   |
+| A3     | Damage Dealer  | 30          | 6.5         | +1.0  | -0.4  | 31.0  | 6.1   |
+| A4     | Damage Dealer  | 27          | 7.0         | +0.9  | -0.3  | 27.9  | 6.7   |
+| A5     | Damage Dealer  | 26          | 7.2         | +0.8  | -0.3  | 26.8  | 6.9   |
+| B1     | Tank           | 27          | 7.4         | -0.4  | +0.3  | 26.6  | 7.7   |
+| B2     | Healer         | 24          | 8.1         | -0.3  | +0.2  | 23.7  | 8.3   |
+| B3     | Damage Dealer  | 29          | 6.8         | -0.6  | +0.3  | 28.4  | 7.1   |
+| B4     | Damage Dealer  | 26          | 7.3         | -0.5  | +0.3  | 25.5  | 7.6   |
+| B5     | Damage Dealer  | 27          | 7.0         | -0.4  | +0.2  | 26.6  | 7.2   |
+
+#### **Step 6: Update μ and σ with TrueSkill**
+Finally, we pass the updated μ and σ values into the **TrueSkill algorithm** to perform the final update. TrueSkill will further refine the ratings based on the match outcome (PBO) and the uncertainties (σ), providing the updated skill ratings for the next match.
+
+---
+
+### Summary
+This process flow integrates role-specific performance metrics into TrueSkill by:
+1. **Collecting role-specific data** during the match.
+2. **Calculating performance scores** (RPS) based on that data.
+3. **Adjusting match outcomes** (PBO) based on player performance.
+4. **Modifying μ and σ** values before updating them with TrueSkill to reflect performance more accurately.
+
+By following this process, players are rewarded or penalized based not only on whether their team won or lost but also on how well they contributed to their specific role in the match.
 
 ### Key Benefits of This Algorithm
 1. Fairer Ratings: Players are rewarded based on both match outcomes and their individual role-based performance, leading to more accurate skill estimates.
