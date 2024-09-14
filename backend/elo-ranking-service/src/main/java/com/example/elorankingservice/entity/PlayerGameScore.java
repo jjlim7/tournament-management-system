@@ -3,8 +3,12 @@ package com.example.elorankingservice.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Column;
 import java.time.Duration;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 public class PlayerGameScore extends GameScore {
     
     @Column(name = "player_id", nullable = false)
@@ -18,53 +22,54 @@ public class PlayerGameScore extends GameScore {
 
     // General Metrics
     @Column(name = "kills", nullable = false)
-    private int kills; // General, also important for damage dealers
+    private int kills;
     
     @Column(name = "deaths", nullable = false)
-    private int deaths;            // General
+    private int deaths;
     
     @Column(name = "placement", nullable = true) // nullable only for clan wars
-    private float placement;       // General (placement in Battle Royale games)
+    private float placement;
     
     @Column(name = "survival_time", nullable = false)
-    private Duration survival_time; // General
+    private Duration survival_time;
     
     @Column(name = "distance_traveled", nullable = false)
-    private double distance_traveled; // General (mobility and positioning)
+    private double distance_traveled;
     
     @Column(name = "shots_fired", nullable = false)
-    private int shots_fired;       // General (accuracy), important for damage dealers
+    private int shots_fired;
     
     @Column(name = "shots_hit", nullable = false)
-    private int shots_hit;         // General (accuracy), important for damage dealers
+    private int shots_hit;
     
     @Column(name = "longest_kill_streak", nullable = false)
     private int longest_kill_streak;
 
     // Healer-Specific Metrics
     @Column(name = "healing_done", nullable = false)
-    private int healing_done;      // Healer
+    private int healing_done;
         
     @Column(name = "revives", nullable = false)
-    private int revives;           // Healer
+    private int revives;
 
     // Damage Dealer-Specific Metrics
     @Column(name = "damage_done", nullable = false)
-    private int damage_done;       // Damage Dealer
+    private int damage_done;
         
     @Column(name = "headshots", nullable = false)
-    private int headshots;         // Damage Dealer
+    private int headshots;
 
     // Tank-Specific Metrics
     @Column(name = "damage_taken", nullable = false)
-    private int damage_taken;      // Tank
+    private int damage_taken;
     
     @Column(name = "damage_mitigated", nullable = false)
-    private int damage_mitigated; // Tank
+    private int damage_mitigated;
 
     @Column(name = "assists", nullable = false)
-    private int assists;           // Tank, General
+    private int assists;
 
+    // Constructor (if needed)
     public PlayerGameScore(
             Long playerId,
             Long gameId,
@@ -103,70 +108,7 @@ public class PlayerGameScore extends GameScore {
         this.longest_kill_streak = longest_kill_streak;
     }
 
-    public Long getPlayerId() {
-        return playerId;
-    }
-
-    public int getKills() {
-        return kills;
-    }
-
-    public int getDeaths() {
-        return deaths;
-    }
-
-    public float getPlacement() {
-        return placement;
-    }
-
-    public Duration getSurvivalTime() {
-        return survival_time;
-    }
-    
-    public double getDistanceTraveled() {
-        return distance_traveled;
-    }
-
-    public int getShotsFired() {
-        return shots_fired;
-    }
-    
-    public int getShotsHit() {
-        return shots_hit;
-    }
-
-    public int getHealingDone() {
-        return healing_done;
-    }
-    
-    public int getRevives() {
-        return revives;
-    }
-
-    public int getLongestKillStreak() {
-        return longest_kill_streak;
-    }
-
-    public int getDamageDone() {
-        return damage_done;
-    }
-    
-    public int getHeadshots() {
-        return headshots;
-    }
-
-    public int getDamageMitigated() {
-        return damage_mitigated;
-    }
-
-    public int getAssists() {
-        return assists;
-    }
-
-    public int getDamageTaken() {
-        return damage_taken;
-    }
-
+    // Derived or computed methods
     public double getKillDeathRatio() {
         return (double) kills / (double) deaths;
     }
@@ -175,27 +117,22 @@ public class PlayerGameScore extends GameScore {
         return (double) shots_hit / (double) shots_fired;
     }
 
-    // general but more for damage dealers
     public double getEffectiveDamage() {
         return (double) damage_done / (double) shots_fired;
     }
 
-    // for healers
     public double getHealingDonePerMinute() {
         return (double) healing_done / (double) survival_time.toMinutes();
     }
 
-    // for tanks
     public double getDamageMitigatedPerMinute() {
         return (double) damage_mitigated / (double) survival_time.toMinutes();
     }
-    
-    // for damage dealers
+
     public double getHeadshotAccuracy() {
         return (double) headshots / (double) shots_fired;
     }
 
-    // for damage dealers
     public double getDamageDonePerMinute() {
         return (double) damage_done / (double) survival_time.toMinutes();
     }

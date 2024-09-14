@@ -1,11 +1,17 @@
 package com.example.elorankingservice.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
-
 @Entity
+@Getter
+@Setter
 public class ClanGameScore extends GameScore {
+    
+    @Column(name = "clan_id", nullable = false)
     private Long clanId;
 
     // One clan game score can have multiple player game scores
@@ -19,29 +25,10 @@ public class ClanGameScore extends GameScore {
     @Column(name = "score", nullable = false)
     private int score;
 
+    // Constructor
     public ClanGameScore(Long gameId, Long clanId, boolean result) {
         super(gameId);
         this.clanId = clanId;
         this.result = result;
-    }
-
-    public Long getClanId() {
-        return clanId;
-    }
-
-    public boolean getResult() {
-        return result;
-    }
-
-    public List<PlayerGameScore> getPlayerScores() {
-        return playerScores;
-    }
-
-    public int getScore() {
-        return score;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
     }
 }
