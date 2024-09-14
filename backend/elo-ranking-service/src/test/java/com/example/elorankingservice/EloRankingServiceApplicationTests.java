@@ -1,10 +1,10 @@
-package com.csd.project;
+package com.example.elorankingservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ProjectApplicationTests {
+class EloRankingServiceApplicationTests {
 
 	@Test
 	void contextLoads() {
