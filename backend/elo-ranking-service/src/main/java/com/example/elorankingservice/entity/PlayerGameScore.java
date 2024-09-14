@@ -10,6 +10,12 @@ public class PlayerGameScore extends GameScore {
     @Column(name = "player_id", nullable = false)
     private Long playerId;
 
+    @Column(name = "game_mode", nullable = false)
+    private GameMode gameMode;
+
+    @Column(name = "role", nullable = true)
+    private Role role;
+
     // General Metrics
     @Column(name = "kills", nullable = false)
     private int kills; // General, also important for damage dealers
