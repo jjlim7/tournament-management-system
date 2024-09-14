@@ -13,5 +13,13 @@ public class ClanGameScore extends GameScore {
     @JoinColumn(name = "")  // Creates the foreign key in PlayerGameScore
     private List<PlayerGameScore> playerScores;
 
+    public ClanGameScore(Long gameId, Long clanId) {
+        super(gameId);
+        this.clanId = clanId;
+    }
+
+    public Long getClanId() {
+        return clanId;
+    }
 
 }

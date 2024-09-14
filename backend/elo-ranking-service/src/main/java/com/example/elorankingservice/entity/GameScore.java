@@ -9,4 +9,12 @@ public abstract class GameScore {
     @Id
     private Long id;
     private Long gameId;
+
+    public GameScore(Long gameId) {
+        this.gameId = gameId;
+    }
+
+    public Long getGameId() {
+        return gameId;
+    }
 }

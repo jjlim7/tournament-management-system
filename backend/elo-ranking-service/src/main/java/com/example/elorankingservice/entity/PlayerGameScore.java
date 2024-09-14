@@ -1,37 +1,67 @@
 package com.example.elorankingservice.entity;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.Column;
 import java.time.Duration;
 
 @Entity
 public class PlayerGameScore extends GameScore {
-
+    
+    @Column(name = "player_id", nullable = false)
     private Long playerId;
 
     // General Metrics
-    private int kills;             // General, also important for damage dealers
+    @Column(name = "kills", nullable = false)
+    private int kills; // General, also important for damage dealers
+    
+    @Column(name = "deaths", nullable = false)
     private int deaths;            // General
+    
+    @Column(name = "placement", nullable = true) // nullable only for clan wars
     private float placement;       // General (placement in Battle Royale games)
+    
+    @Column(name = "survival_time", nullable = false)
     private Duration survival_time; // General
+    
+    @Column(name = "distance_traveled", nullable = false)
     private double distance_traveled; // General (mobility and positioning)
+    
+    @Column(name = "shots_fired", nullable = false)
     private int shots_fired;       // General (accuracy), important for damage dealers
+    
+    @Column(name = "shots_hit", nullable = false)
     private int shots_hit;         // General (accuracy), important for damage dealers
+    
+    @Column(name = "longest_kill_streak", nullable = false)
     private int longest_kill_streak;
 
     // Healer-Specific Metrics
+    @Column(name = "healing_done", nullable = false)
     private int healing_done;      // Healer
+        
+    @Column(name = "revives", nullable = false)
     private int revives;           // Healer
 
     // Damage Dealer-Specific Metrics
+    @Column(name = "damage_done", nullable = false)
     private int damage_done;       // Damage Dealer
+        
+    @Column(name = "headshots", nullable = false)
     private int headshots;         // Damage Dealer
 
     // Tank-Specific Metrics
+    @Column(name = "damage_taken", nullable = false)
     private int damage_taken;      // Tank
-    private int damage_mitigated;  // Tank
+    
+    @Column(name = "damage_mitigated", nullable = false)
+    private int damage_mitigated; // Tank
+
+    @Column(name = "assists", nullable = false)
     private int assists;           // Tank, General
 
     public PlayerGameScore(
             Long playerId,
+            Long gameId,
             int kills,
             int deaths,
             float placement,
@@ -48,6 +78,7 @@ public class PlayerGameScore extends GameScore {
             int assists,
             int longest_kill_streak
     ) {
+        super(gameId);
         this.playerId = playerId;
         this.kills = kills;
         this.deaths = deaths;
