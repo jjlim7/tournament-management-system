@@ -18,6 +18,10 @@ public class ClanTournamentScore extends TournamentScore {
 
     private Long clanId;
 
+    // No-Arg Constructor (required by JPA)
+    protected ClanTournamentScore() {
+        super(null); // Pass null for TournamentScore since it's abstract and doesn't hold logic in the default constructor
+    }
     // Constructor
     public ClanTournamentScore(Long tournamentId, Long clanId) {
         super(tournamentId);

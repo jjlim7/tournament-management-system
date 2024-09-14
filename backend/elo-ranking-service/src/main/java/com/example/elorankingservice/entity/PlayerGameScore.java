@@ -69,6 +69,11 @@ public class PlayerGameScore extends GameScore {
     @Column(name = "assists", nullable = false)
     private int assists;
 
+    // No-Arg Constructor (required by JPA)
+    protected PlayerGameScore() {
+        super(null); // Pass null for GameScore since it's abstract and doesn't hold logic in the default constructor
+    }
+
     // Constructor (if needed)
     public PlayerGameScore(
             Long playerId,

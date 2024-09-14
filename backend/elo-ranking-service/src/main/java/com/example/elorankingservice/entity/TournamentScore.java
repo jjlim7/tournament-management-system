@@ -15,7 +15,6 @@ public abstract class TournamentScore {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Long tournamentId;
 
     // Constructor
