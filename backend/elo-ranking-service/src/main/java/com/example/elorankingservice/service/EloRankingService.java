@@ -8,17 +8,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-
 @Service
 public class EloRankingService {
-    // Constants for the simplified TrueSkill algorithm
-    private static final double INITIAL_MEAN = 25.0;
-    private static final double INITIAL_SIGMA = 8.333;
-    private static final double K = 0.1; // Learning rate
-    private static final double LAMBDA = 0.05; // Uncertainty decay factor
+
+    private static final double K = 0.2;         // Base K value
+    private static final double MAX_ALPHA = 1.5; // Cap for alpha scaling
+    private static final double BASE_LAMBDA = 0.1; // Base uncertainty reduction factor
+    private static final double DECAY_RATE = 0.3;  // Decay rate for placement outcome
+    private static final double INITIAL_SIGMA = 8.333; // Default uncertainty for new players
+    private static final double LAMBDA_ADJUSTMENT_FACTOR = 0.3; // Factor to adjust uncertainty by surprise performance
 
     // Role-based performance configuration (RPConfig)
-    // this will determine the weightages for each metrics
     private static final Map<Role, Map<String, Double>> RPConfig = Map.of(
             Role.DAMAGE_DEALER, Map.of(
                     "kdr", 0.4,           // Kill/Death Ratio
@@ -37,7 +37,7 @@ public class EloRankingService {
                     "assists", 0.2            // Assists
             ),
             Role.DEFAULT, Map.of(
-                "kdr", 0.4,
+                    "kdr", 0.4,
                     "acc", 0.1,
                     "effective_dmg", 0.2,
                     "dps", 0.2,
@@ -45,7 +45,7 @@ public class EloRankingService {
             )
     );
 
-    // for player and clan tournament elo rank
+    // Repositories for player and clan elo rank data
     private final ClanEloRankRepository clanEloRankRepository;
     private final PlayerEloRankRepository playerEloRankRepository;
 
@@ -73,43 +73,14 @@ public class EloRankingService {
 
     public Map<Long, List<Double>> computeResultantPlayerEloRating(List<PlayerEloRank> playersEloRank, List<PlayerGameScore> playerGameScoreList) {
 
-        // compute the performance-based outcome (PBO) for each player
-        // FORMULA: PBO_i = Match Outcome * (1 + α * Normalized RPS_i)
-        // RPS weightage will be different depending on player's selected role
-        // Normalized RPS_i = (RPS_i - μ_RPS) / (R_max - R_min)
-        // for battle royal: α will be K constant * (average rating of all players / current rating of player)
-        // for battle royal: match outcome is a range from 0 to 1 depending on the placement of the player
-        // for clan war: α will be K constant * (average rating of both clans / current rating of clan)
-        // for clan war: the match outcome is either 0 or 1 depending on either win/loss
-
-        // get initial elo ranking of all players in game
-        // check game mode
-        // retrieve the metric weightages of game mode
-        // calculate the rps of each player based on the metrics and their weightages
-        // for clan war, create a hashmap of the => role: {metrics: weightage}
-        // for battle royale, add another entry called => default: {metrics: weightages} with its own weightages
-        // calculate the RPS for each of the players wrt to their roles
-        // normalise the RPS for all the players
-        // calculate the alpha depending on the gamemode
-        // calculate the match outcome
-        // using the match outcome, alpha, normalised RPS for each player
-        // calculate the Δμ	and Δσ based on PBO
-        // update the elo rank of all players
-        // extra step for clan war,
-        // accumulate the total Δμ and Δσ based on PBO
-        // update the elo rank of the clan
-
         // Sort both lists by player ID to align them
         playersEloRank.sort(Comparator.comparing(PlayerEloRank::getPlayerId));
         playerGameScoreList.sort(Comparator.comparing(PlayerGameScore::getPlayerId));
 
         HashMap<Long, List<Double>> finalPlayerEloRating = new HashMap<>();
 
-        // Array of current ratings (mean skill estimates)
-        List<Double> initialRatings = playersEloRank.stream().map(PlayerEloRank::getMeanSkillEstimate).toList();
-
-        // Calculate the average rating of the game
-        double averageRating = initialRatings.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+        // Extract player IDs for convenience
+        List<Long> playerIds = playersEloRank.stream().map(PlayerEloRank::getPlayerId).toList();
 
         // Step 1: Calculate RPS for all players and store it in a list
         List<Double> rpsList = new ArrayList<>();
@@ -122,41 +93,62 @@ public class EloRankingService {
             rpsList.add(rps);
         }
 
-        // Step 2: Calculate the min, max, and average RPS to normalize the values
-        double maxRPS = rpsList.stream().max(Double::compare).orElse(1.0);
-        double minRPS = rpsList.stream().min(Double::compare).orElse(0.0);
+        // Step 2: Calculate Z-score normalization
         double avgRPS = rpsList.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+        double stdRPS = Math.sqrt(rpsList.stream().mapToDouble(rps -> Math.pow(rps - avgRPS, 2)).average().orElse(1));
 
-        // Edge case handling for normalization (avoid division by zero)
-        double denominator = maxRPS - minRPS;
-        if (denominator == 0) {
-            denominator = 1; // Prevent division by zero
-        }
+        // Step 3: Prepare for Expected Performance Calculation
+        // Get the list of mean skill estimates
+        List<Double> meanSkillEstimates = playersEloRank.stream().map(PlayerEloRank::getMeanSkillEstimate).toList();
 
-        // Step 3: Normalize the RPS and calculate the performance-based outcome (PBO)
+        // Step 4: Compute Expected Performance (E_i) for each player
+        List<Double> expectedPerformances = new ArrayList<>();
         for (int i = 0; i < playersEloRank.size(); i++) {
             PlayerEloRank playerRank = playersEloRank.get(i);
-            PlayerGameScore playerScore = playerGameScoreList.get(i);
+            double R_i = playerRank.getMeanSkillEstimate();
 
+            // Compute R_opponents: average rating of all other players
+            double sumRatings = meanSkillEstimates.stream().mapToDouble(Double::doubleValue).sum();
+            double R_opponents = (sumRatings - R_i) / (playersEloRank.size() - 1);
+
+            // Calculate Expected Performance E_i
+            double E_i = 1 / (1 + Math.pow(10, (R_opponents - R_i) / 400));
+            expectedPerformances.add(E_i);
+        }
+
+        // Step 5: Calculate Performance-Based Outcome (PBO) and update ratings
+        for (int i = 0; i < playersEloRank.size(); i++) {
+
+            PlayerEloRank playerRank = playersEloRank.get(i);
+            PlayerGameScore playerScore = playerGameScoreList.get(i);
             double meanSkillEstimate = playerRank.getMeanSkillEstimate();
             double uncertainty = playerRank.getUncertainty();
             double rps_i = rpsList.get(i);
+            double E_i = expectedPerformances.get(i);
 
-            // Normalize the RPS: Normalized RPS_i = (RPS_i - μ_RPS) / (R_max - R_min)
-            double playerNormalizedRPS = (rps_i - avgRPS) / denominator;
+            // Z-score normalization for RPS: Z_RPS_i = (RPS_i - μ_RPS) / σ_RPS
+            double zNormalizedRPS = (rps_i - avgRPS) / stdRPS;
 
-            // Calculate Alpha (scaling factor): α = K * (average rating / current player rating)
-            double ALPHA = playerRank.getMeanSkillEstimate() != 0 ? K * (averageRating / playerRank.getMeanSkillEstimate()) : 0;
+            // Calculate Alpha (scaling factor): α = K * (average rating / current player rating), capped by MAX_ALPHA
+            double averageRating = meanSkillEstimates.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+            double ALPHA = Math.min(K * (averageRating / meanSkillEstimate), MAX_ALPHA);
 
-            // Calculate the match outcome (between 0 and 1 based on placement)
-            double matchOutcome = 1.0 - ((playerScore.getPlacement() - 1) / (playerGameScoreList.size() - 1) * 0.1);
+            // Calculate the match outcome (between 0 and 1 based on placement) with decay
+            double matchOutcome = Math.pow(1.0 - ((playerScore.getPlacement() - 1) / (double) (playerGameScoreList.size() - 1)), DECAY_RATE);
 
-            // Calculate the Performance Based Outcome (PBO): PBO = Match Outcome * (1 + α * Normalized RPS_i)
-            double performanceBasedOutcome = matchOutcome * (1 + ALPHA * playerNormalizedRPS);
+            // Calculate the Performance-Based Outcome (PBO): PBO = Match Outcome * (1 + α * Z_RPS_i)
+            double performanceBasedOutcome = matchOutcome * (1 + ALPHA * zNormalizedRPS);
 
-            // Calculate the new mean skill estimate and uncertainty
-            double newMeanSkillEstimate = meanSkillEstimate + K * (performanceBasedOutcome - meanSkillEstimate);
-            double newUncertainty = Math.max(uncertainty * (1 - LAMBDA), INITIAL_SIGMA * 0.1);
+            // Step 6: Update Mean Skill Estimate using Expected Performance
+            double newMeanSkillEstimate = meanSkillEstimate + K * (performanceBasedOutcome - E_i);
+
+            // Step 7: Refine Uncertainty Adjustment
+            // Compute variance v_i
+            double v_i = 1 / (E_i * (1 - E_i));
+
+            // Update uncertainty sigma_new
+            double sigmaSquaredInverse = (1 / (uncertainty * uncertainty)) + (1 / v_i);
+            double newUncertainty = getNewUncertainty(sigmaSquaredInverse, performanceBasedOutcome, meanSkillEstimate);
 
             // Store the result in the final map
             finalPlayerEloRating.put(
@@ -168,7 +160,16 @@ public class EloRankingService {
         return finalPlayerEloRating;
     }
 
-    public Map<Long, List<Float>> computeClanEloRatingAdjustments(ClanEloRank clanEloRank, ClanGameScore clanGameScore) {}
+    private static double getNewUncertainty(double sigmaSquaredInverse, double performanceBasedOutcome, double meanSkillEstimate) {
+        double newUncertainty = Math.sqrt(1 / sigmaSquaredInverse);
+
+        // Step 8: Apply Lambda for uncertainty decay based on surprise performance
+        double surpriseFactor = Math.abs(performanceBasedOutcome - meanSkillEstimate) / meanSkillEstimate;
+        double lambda = BASE_LAMBDA + surpriseFactor * LAMBDA_ADJUSTMENT_FACTOR;
+        newUncertainty *= (1 - lambda);
+
+        // Ensure uncertainty doesn't drop below a minimum threshold
+        newUncertainty = Math.max(newUncertainty, INITIAL_SIGMA * 0.5);
+        return newUncertainty;
+    }
 }
-
-
