@@ -33,7 +33,7 @@ public class PlayerGameScore extends GameScore {
     private int deaths;
     
     @Column(name = "placement", nullable = false)
-    private float placement;
+    private double placement;
     
     @Column(name = "survival_time", nullable = false)
     private Duration survival_time;
@@ -131,24 +131,20 @@ public class PlayerGameScore extends GameScore {
         return (double) damage_done / (double) shots_fired;
     }
 
-    public double getHealingDonePerMinute() {
-        return (double) healing_done / (double) survival_time.toMinutes();
-    }
-
-    public double getDamageMitigatedPerMinute() {
-        return (double) damage_mitigated / (double) survival_time.toMinutes();
+    public double getHealingDonePerSecond() {
+        return (double) healing_done / (double) survival_time.toSeconds();
     }
 
     public double getHeadshotAccuracy() {
         return (double) headshots / (double) shots_fired;
     }
 
-    public double getDamageDonePerMinute() {
-        return (double) damage_done / (double) survival_time.toMinutes();
+    public double getDamageDonePerSecond() {
+        return (double) damage_done / (double) survival_time.toSeconds();
     }
 
     public double getDamageTanked() {
-        return (double) damage_taken / (double) damage_mitigated;
+        return (double) damage_taken / (double) survival_time.toSeconds();
     }
 
     public double getRolePerformanceScore(Map<String, Double> roleWeightageConfig) {
@@ -166,11 +162,31 @@ public class PlayerGameScore extends GameScore {
                     rps += weight * getAccuracy();
                     break;
                 case "healing":
-                    rps += weight * getHealingDonePerMinute();
+                    rps += weight * getHealingDonePerSecond();
                     break;
-
+                case "tanked":
+                    rps += weight * getDamageTanked();
+                    break;
+                case "effective_dmg":
+                    rps += weight * getEffectiveDamage();
+                    break;
+                case "headshot_acc":
+                    rps += weight * getHeadshotAccuracy();
+                    break;
+                case "dps":
+                    rps += weight * getDamageDonePerSecond();
+                    break;
+                case "revives":
+                    rps += weight * getRevives();
+                    break;
+                case "assists":
+                    rps += weight * getAssists();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown metric " + metric);
             }
         }
 
+        return rps;
     }
 }
