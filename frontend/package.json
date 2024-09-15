@@ -21,6 +21,7 @@
     "sweetalert": "^2.1.2",
     "tournamentsystemfrontend": "file:",
     "vue": "^3.4.29",
+    "vue-cookies": "^1.8.4",
     "vue-router": "^4.3.3"
   },
   "devDependencies": {

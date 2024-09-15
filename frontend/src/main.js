@@ -11,6 +11,7 @@ import 'bootstrap/dist/js/bootstrap.min.js'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import 'sweetalert/dist/sweetalert.min.js'
+import VueCookies from 'vue-cookies'
 
 //for Font awesome
 
@@ -27,5 +28,6 @@ AOS.init()
 app.component('font-awesome-icon', FontAwesomeIcon);
 app.use(createPinia())
 app.use(router)
+app.use(VueCookies, { expires: '7d'})
 
 app.mount('#app')
