@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
+
+@MappedSuperclass
 @Getter
 @Setter
 public abstract class EloRank {
@@ -22,7 +23,7 @@ public abstract class EloRank {
     private int rating;
 
     // Many EloRanks can be associated with one Tournament
-    @Column(name = "tournament_id", nullable = false) // Defines tournamentId as FK
+    @Column(name = "tournament_id", nullable = false)
     private Long tournamentId;
 
     // No-arg constructor required by JPA
@@ -35,3 +36,4 @@ public abstract class EloRank {
         this.tournamentId = tournamentId;
     }
 }
+
