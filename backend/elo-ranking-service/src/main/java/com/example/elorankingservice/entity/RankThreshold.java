@@ -14,6 +14,7 @@ public class RankThreshold {
     private Long id;
 
     @Column(name="rank", nullable=false)
+    @Enumerated(EnumType.STRING)
     private Rank rank;
 
     @Column(name="start_rating", nullable=false)

@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-public class ClanTournamentEloRank extends EloRank {
+public class ClanEloRank extends EloRank {
 
     @Column(name = "clan_id", nullable = false)
     private Long clanId;
@@ -19,15 +19,16 @@ public class ClanTournamentEloRank extends EloRank {
     @OneToMany(mappedBy = "clanTournamentEloRank", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ClanGameScore> clanGameScores;
 
-    public ClanTournamentEloRank() {}
+    public ClanEloRank() {}
 
-    public ClanTournamentEloRank(
+    public ClanEloRank(
             Long clanId,
             RankThreshold rankThreshold,
-            int rating,
+            double skillMeanEstimate,
+            double uncertainty,
             Long tournamentId
     ) {
-        super(rankThreshold, rating, tournamentId);
+        super(rankThreshold, skillMeanEstimate, uncertainty, tournamentId);
         this.clanId = clanId;
     }
 }

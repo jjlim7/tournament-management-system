@@ -19,8 +19,11 @@ public abstract class EloRank {
     @JoinColumn(name = "rank_threshold_id", nullable = false) // Defines rankId as FK
     private RankThreshold rankThreshold;
 
-    @Column(name="rating", nullable = false)
-    private int rating;
+    @Column(name="mean_skill_estimate", nullable = false)
+    private double meanSkillEstimate;
+
+    @Column(name="uncertainty", nullable = false)
+    private double uncertainty;
 
     // Many EloRanks can be associated with one Tournament
     @Column(name = "tournament_id", nullable = false)
@@ -30,9 +33,10 @@ public abstract class EloRank {
     protected EloRank() {}
 
     // Parameterized constructor for easy creation
-    public EloRank(RankThreshold rankThreshold, int rating, Long tournamentId) {
+    public EloRank(RankThreshold rankThreshold, double meanSkillEstimate, double uncertainty, Long tournamentId) {
         this.rankThreshold = rankThreshold;
-        this.rating = rating;
+        this.meanSkillEstimate = meanSkillEstimate;
+        this.uncertainty = uncertainty;
         this.tournamentId = tournamentId;
     }
 }

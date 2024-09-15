@@ -37,15 +37,63 @@ PBO Formula:
 - Match Outcome: The raw result of the match:
     - 1 if the player’s team won.
     - 0 if the player’s team lost.
-- α (alpha): A scaling factor that determines how much the player's performance (RPS) affects the outcome. This allows us to fine-tune the impact of the player’s role-specific performance on the final score.
+    - use placement as the outcome - range of 0 to 1, `placement = 1.0 - ((Position - 1) / (Total Players - 1) * 0.1)
+      `.
+  
+- α (alpha): A scaling factor that determines how much the player's performance (RPS) affects the outcome. This allows us to fine-tune the impact of the player’s role-specific performance on the final score based on relative rating of the opponents.
+  - for Battle Royale:
+    - `K constant * (average rating of all players / current rating of player)`, `K constant` to be decided.
+  - for Clan War:
+    - `K constant * (average rating of both clans / current rating of clan)`, `K constant` to be decided.
+  
 - Normalized RPS: The Role Performance Score (RPS) for player i, normalized to a range (e.g., between -1 and 1), ensuring that all performance metrics are comparable across different roles and matches.
+#### Normalization Formula
 
-### Example:
-If Player A's team wins, and their normalized RPS is 0.5, with an α value of 0.1, the PBO would be calculated as:
+For each player `i`, the formula is:
 
-`PBO_A = 1 * (1 + 0.1 * 0.5) = 1.05`
+```
+Normalized RPS_i = (RPS_i - μ_RPS) / (R_max - R_min)
+```
 
-This means Player A’s contribution is factored into the match outcome, rewarding them slightly more for their higher performance.
+Where:
+- `RPS_i` is the Role Performance Score of player `i`.
+- `μ_RPS` is the mean **RPS** of all players / teams in the match.
+- `R_max` is the maximum **RPS** among all players.
+- `R_min` is the minimum **RPS** among all players.
+
+This formula ensures that the highest performer gets a normalized score close to 1, the lowest performer gets a score close to -1, and other players are distributed proportionally in between.
+---
+
+### Example for Clan war / Battle royale
+
+Let’s assume we have the following **RPS** values for players:
+
+| Player   | RPS  |
+|----------|------|
+| Player 1 | 5.96 |
+| Player 2 | 4.08 |
+| Player 3 | 10.88|
+| Player 4 | 8.82 |
+| Player 5 | 2.32 |
+
+1. **Mean `μ_RPS`**:
+    ``` 
+    μ_RPS = (5.96 + 4.08 + 10.88 + 8.82 + 2.32) / 5 = 6.41
+    ```
+
+2. **Max `R_max`**: 10.88
+3. **Min `R_min`**: 2.32
+
+Now, to normalize Player 1’s score:
+
+```
+Normalized RPS_1 = (5.96 - 6.41) / (10.88 - 2.32) 
+                 = (-0.45) / 8.56 
+                 ≈ -0.053
+```
+
+Similar calculations would be applied to the other players to normalize their **RPS**.
+
 
 ---
 
@@ -53,50 +101,28 @@ This means Player A’s contribution is factored into the match outcome, rewardi
 - Once the PBO is calculated for each player, their μ (mean skill estimate) and σ (uncertainty) are adjusted to reflect their performance:
     - Players with high PBO scores (due to good performance) will see their μ increase and σ decrease (indicating a more confident skill estimate).
     - Players with low PBO scores will experience a decrease in μ, and their σ may increase if their performance was unexpected (e.g., a top-ranked player performing poorly).
-
   These adjustments are made before passing the final values into TrueSkill for Bayesian updates.
 
 #### 5. TrueSkill Bayesian Update
 - After the match, TrueSkill’s core algorithm is used to update each player's μ and σ based on the adjusted performance scores. TrueSkill accounts for:
     - The probability of the match outcome based on pre-match μ and σ values.
     - Surprising outcomes: If a low-ranked player defeats a high-ranked player or if a team with lower combined skill wins, TrueSkill will adjust ratings more drastically.
-
   The Bayesian update further refines each player’s skill distribution, gradually reducing σ as more matches are played, making the system more confident in the player’s rating over time.
 
 #### 6. Composite Skill Rating for Matchmaking
 - In team-based games, a composite team skill rating is calculated by combining the μ values of all players on the team. The TrueSkill system also combines the uncertainties (σ values) to calculate the overall team uncertainty.
-
   This composite rating ensures that players are matched with teams of similar skill levels, while accounting for the variability in performance (uncertainty). As σ decreases over time, players’ ratings stabilize, leading to more accurate matchmaking.
-
-#### 7. Handling Free-for-All Game Modes
-- In Free-for-All (FFA) games like Battle Royale, TrueSkill handles multiple players by evaluating each player’s placement in the match. Players who survive longer or place higher are ranked better than those who are eliminated early.
-    - FFA-specific adjustments: Performance metrics (e.g., kills, damage dealt, survival time) are factored into the ranking to account for individual contributions beyond just final placement.
 
 #### 8. Contextual Factors and Multi-Factor Adjustments
 - The system supports adjustments for contextual factors like:
-    - Map difficulty: Harder maps may increase the uncertainty (σ) adjustment.
-    - Opponent strength: Matches against significantly stronger opponents may result in smaller μ reductions for losses and larger μ gains for wins.
-    - Environmental factors: Random events (e.g., weather conditions, game-specific modifiers) can also affect the rating adjustments, allowing the system to reflect the difficulty of different match conditions.
+    - Opponent strength: Matches against significantly stronger opponents may result in smaller μ reductions for losses and larger μ gains for wins, which is the α (alpha).
 
-#### 9. Dynamic Matchmaking and Leaderboards
-- Matchmaking: Players with similar μ and σ values are matched together to ensure balanced games. The system can also use role-based matchmaking to create teams with complementary skills (e.g., pairing strong damage dealers with strong healers).
-
-- Leaderboards: Players are ranked based on their μ value. The system can support role-specific leaderboards, allowing players to see how they rank within their specific role (e.g., top Tanks, top Healers, etc.).
-
-- Rating Decay: For players who become inactive, their σ may gradually increase, reflecting growing uncertainty about their current skill level. This allows the system to recalibrate their rating when they return to active play.
+---
+### Process Flow (Clan War and Battle Royale)
 
 ---
 
-### Process Flow
-- Integrating role-specific performance metrics and TrueSkill. Using a **5v5 Clan War scenario** where each team has players with distinct roles (e.g., Tank, Healer, Damage Dealers).
-- **Team A vs. Team B**: A 5v5 match.
-- **Roles**:
-  - **Team A**: Player A1 (Tank), A2 (Healer), A3-A5 (Damage Dealers).
-  - **Team B**: Similar role distribution.
-- **Match Outcome**: Team A wins the match.
-- **Role-Specific Metrics**: Damage mitigated, healing done, and damage dealt are recorded for each player.
-
----
+### **5v5 Clan War Scenario**
 
 #### **Step 1: Gather Pre-Match TrueSkill Ratings**
 Each player starts with **μ (mean skill)** and **σ (skill uncertainty)** from previous matches.
@@ -115,7 +141,7 @@ Each player starts with **μ (mean skill)** and **σ (skill uncertainty)** from 
 | B5     | Damage Dealer  | 27 | 7.0 |
 
 #### **Step 2: Gather Role-Specific Performance Metrics**
-During the match, specific metrics are gathered based on each player's role:
+During the match, specific metrics are gathered based on each player's role.
 
 | Player | Role           | Damage Mitigated | Healing Done | Damage Dealt |
 |--------|----------------|------------------|--------------|--------------|
@@ -151,12 +177,22 @@ Using predefined weights for each metric, calculate the **Role Performance Score
 | B4     | Damage Dealer  | (1.0 * 17,000)                                                  | 17,000|
 | B5     | Damage Dealer  | (1.0 * 16,000)                                                  | 16,000|
 
-#### **Step 4: Adjust Performance-Based Outcomes (PBO)**
-We adjust the **match outcome** for each player using their RPS. Assume that the match outcome for Team A is a **win (1)** and for Team B a **loss (0)**.
+#### **Step 4: Normalize RPS and Adjust Performance-Based Outcomes (PBO)**
 
-- Use the formula:  
-  `PBO_i = Match Outcome * (1 + α * Normalized RPS_i)`
-- Assume **α = 0.1** and that RPS is normalized between -1 and 1 (subtract the mean and divide by the range).
+1. **Normalization**:
+  - **Mean RPS for Team A**:  
+    `(8,100 + 10,400 + 20,000 + 18,000 + 15,000) / 5 = 14,300`
+  - **Mean RPS for Team B**:  
+    `(7,200 + 8,400 + 18,000 + 17,000 + 16,000) / 5 = 13,320`
+  - Normalization Formula:
+   ```
+   Normalized RPS_i = (RPS_i - μ_RPS) / (R_max - R_min)
+   ```
+
+2. **PBO Calculation**:  
+   Use the formula:  
+   `PBO_i = Match Outcome * (1 + α * Normalized RPS_i)`  
+   Assume **α = 0.1**.
 
 | Player | Role           | Normalized RPS (approx.) | Match Outcome | PBO   |
 |--------|----------------|--------------------------|---------------|-------|
@@ -172,13 +208,8 @@ We adjust the **match outcome** for each player using their RPS. Assume that the
 | B5     | Damage Dealer  | 0.3                      | 0             | 0.00  |
 
 #### **Step 5: Modify μ and σ Based on PBO**
-Before passing these values to TrueSkill for updating, we slightly adjust **μ** and **σ** based on the performance (PBO).
 
-For Team A (winning team), each player’s μ is adjusted **upwards**, and their σ is slightly reduced because they performed well. For Team B (losing team), μ is adjusted **downwards**, with σ increasing for players with high uncertainty.
-
-- Example adjustments:
-  - **Player A3**: High PBO (1.10), strong performance → μ increases more significantly, σ decreases.
-  - **Player B1**: Poor performance → μ decreases, σ increases.
+Adjust **μ** and **σ** before passing values to TrueSkill.
 
 | Player | Role           | Pre-Match μ | Pre-Match σ | Δμ    | Δσ    | New μ | New σ |
 |--------|----------------|-------------|-------------|-------|-------|-------|-------|
@@ -194,7 +225,134 @@ For Team A (winning team), each player’s μ is adjusted **upwards**, and their
 | B5     | Damage Dealer  | 27          | 7.0         | -0.4  | +0.2  | 26.6  | 7.2   |
 
 #### **Step 6: Update μ and σ with TrueSkill**
-Finally, we pass the updated μ and σ values into the **TrueSkill algorithm** to perform the final update. TrueSkill will further refine the ratings based on the match outcome (PBO) and the uncertainties (σ), providing the updated skill ratings for the next match.
+Finally, we pass the updated μ and σ values into the **TrueSkill algorithm** for the final update.
+
+---
+
+
+
+### **Battle Royale Scenario**
+
+#### **Step 1: Gather Pre-Match TrueSkill Ratings**
+
+| Player | μ  | σ   |
+|--------|----|-----|
+| P1     | 28 | 7.5 |
+| P2     | 25 | 8.0 |
+| P3     | 30 | 6.5 |
+| P4     | 27 | 7.0 |
+| P5     | 26 | 7.2 |
+
+#### **Step 2: Gather Role-Specific Performance Metrics**
+
+| Player | Kills | Damage Dealt | Survival Time (seconds) | Placement |
+|--------|-------|--------------|-------------------------|-----------|
+| P1     | 5     | 8,000        | 1,200                   | 3rd       |
+| P2     | 2     | 5,000        | 900                     | 6th       |
+| P3     | 10    | 12,000       | 1,400                   | 1st       |
+| P4     | 7     | 9,000        | 1,300                   | 2nd       |
+| P5     | 1     | 4,000        | 600                     | 10th      |
+
+#### **Step 3: Calculate Role Performance Scores (RPS)**
+
+| Player | RPS Calculation                                          | RPS   |
+|--------|----------------------------------------------------------|-------|
+| P1     | (0.4 * 5) + (0.4 * 8,000/1,000) + (0.2 * 1,200/1,000)    | 5.96  |
+| P2     | (0.4 * 2) + (0.4 * 5,000/1,000) + (0.2 * 900/1,000)      | 4.08  |
+| P3     | (0.4 * 10) + (0.4 * 12,000/1,000) + (0.2 * 1,400/1,000)  | 10.88 |
+| P4     | (0.4 * 7) + (0.4 * 9,000/1,000) + (0.2 * 1,300/1,000)    | 8.82  |
+| P5     | (0.4 * 1) + (0.4 * 4,000/1,000) + (0.2 * 600/1,000)      | 2.32  |
+
+#### **Step 4: Normalize RPS and Adjust PBO**
+
+1. **Match Outcome Calculation**:
+
+   The match outcome is calculated as:
+
+   ```plaintext
+   Match Outcome = 1.0 - ((Position - 1) / (Total Players - 1) * 0.1)
+   ```
+
+   For the example with 10 players, the outcomes would be:
+
+   | Player | Placement | Match Outcome |
+      |--------|-----------|---------------|
+   | P1     | 3rd       | 0.8           |
+   | P2     | 6th       | 0.5           |
+   | P3     | 1st       | 1.0           |
+   | P4     | 2nd       | 0.9           |
+   | P5     | 10th      | 0.1           |
+
+2. **Normalization**:
+
+   To normalize the Role Performance Score (RPS), we use the following formula:
+
+   ```plaintext
+   Normalized RPS_i = (RPS_i - μ_RPS) / (R_max - R_min)
+   ```
+
+   Where:
+    - **RPS_i** is the Role Performance Score for player *i*.
+    - **μ_RPS** is the average RPS for all players.
+    - **R_max** is the maximum RPS among all players.
+    - **R_min** is the minimum RPS among all players.
+
+   For this example:
+
+    - **Mean RPS**:
+
+      ```
+      μ_RPS = (5.96 + 4.08 + 10.88 + 8.82 + 2.32) / 5
+            = 6.41
+      ```
+
+    - **Max RPS**: `10.88`
+    - **Min RPS**: `2.32`
+
+   Now, let's normalize the RPS for Player 1:
+
+   ```plaintext
+   Normalized RPS_1 = (5.96 - 6.41) / (10.88 - 2.32)
+                    = (-0.45) / 8.56
+                    ≈ -0.053
+   ```
+
+   This calculation shows that Player 1's performance, relative to others, is slightly below average, with a normalized RPS of approximately `-0.053`.
+
+
+3. **PBO Calculation**:
+
+   The **Performance-Based Outcome (PBO)** is calculated using the formula:
+
+   ```plaintext
+   PBO_i = Match Outcome * (1 + α * Normalized RPS_i)
+   ```
+
+   Assuming **α = 0.1**, the PBO values are:
+
+   | Player | Normalized RPS | Placement Outcome | PBO   |
+      |--------|----------------|-------------------|-------|
+   | P1     | -0.053         | 0.8               | 0.796 |
+   | P2     | -0.273         | 0.5               | 0.486 |
+   | P3     | 1.0            | 1.0               | 1.1   |
+   | P4     | 0.71           | 0.9               | 0.971 |
+   | P5     | -0.478         | 0.1               | 0.052 |
+
+#### **Step 5: Modify μ and σ Based on PBO**
+
+After calculating the **PBO** for each player, use it to adjust the **μ (mean skill)** and **σ (uncertainty)** values for each player:
+
+| Player | Pre-Match μ | Pre-Match σ | Δμ    | Δσ    | New μ | New σ |
+|--------|-------------|-------------|-------|-------|-------|-------|
+| P1     | 28          | 7.5         | +0.4  | -0.2  | 28.4  | 7.3   |
+| P2     | 25          | 8.0         | -0.3  | +0.3  | 24.7  | 8.3   |
+| P3     | 30          | 6.5         | +1.0  | -0.4  | 31.0  | 6.1   |
+| P4     | 27          | 7.0         | +0.8  | -0.3  | 27.8  | 6.7   |
+| P5     | 26          | 7.2         | -0.5  | +0.3  | 25.5  | 7.5   |
+
+#### **Step 6: Update μ and σ with TrueSkill**
+
+The adjusted **μ** and **σ** values are fed into TrueSkill for the final Bayesian update.
 
 ---
 

@@ -3,6 +3,10 @@ package com.example.elorankingservice.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Column;
 import java.time.Duration;
+import java.util.Map;
+
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +19,7 @@ public class PlayerGameScore extends GameScore {
     private Long playerId;
 
     @Column(name = "game_mode", nullable = false)
+    @Enumerated(EnumType.STRING)
     private GameMode gameMode;
 
     @Column(name = "role", nullable = true)
@@ -27,7 +32,7 @@ public class PlayerGameScore extends GameScore {
     @Column(name = "deaths", nullable = false)
     private int deaths;
     
-    @Column(name = "placement", nullable = true) // nullable only for clan wars
+    @Column(name = "placement", nullable = false)
     private float placement;
     
     @Column(name = "survival_time", nullable = false)
@@ -140,5 +145,32 @@ public class PlayerGameScore extends GameScore {
 
     public double getDamageDonePerMinute() {
         return (double) damage_done / (double) survival_time.toMinutes();
+    }
+
+    public double getDamageTanked() {
+        return (double) damage_taken / (double) damage_mitigated;
+    }
+
+    public double getRolePerformanceScore(Map<String, Double> roleWeightageConfig) {
+        double rps = 0.0;
+
+        for (Map.Entry<String, Double> entry : roleWeightageConfig.entrySet()) {
+            String metric = entry.getKey();
+            double weight = entry.getValue();
+
+            switch (metric) {
+                case "kdr":
+                    rps += weight * getKillDeathRatio();
+                    break;
+                case "acc":
+                    rps += weight * getAccuracy();
+                    break;
+                case "healing":
+                    rps += weight * getHealingDonePerMinute();
+                    break;
+
+            }
+        }
+
     }
 }

@@ -8,20 +8,21 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class PlayerTournamentEloRank extends EloRank {
+public class PlayerEloRank extends EloRank {
 
     @Column(name = "player_id", nullable = false)
     private Long playerId;
 
-    public PlayerTournamentEloRank() {}
+    public PlayerEloRank() {}
 
-    public PlayerTournamentEloRank(
+    public PlayerEloRank(
             Long playerId,
             RankThreshold rankThreshold,
-            int rating,
+            float skillMeanEstimate,
+            float uncertainty,
             Long tournamentId
     ) {
-        super(rankThreshold, rating, tournamentId);
+        super(rankThreshold, skillMeanEstimate, uncertainty, tournamentId);
         this.playerId = playerId;
     }
 }

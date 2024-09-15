@@ -28,7 +28,7 @@ public class ClanGameScore extends GameScore {
     // Many ClanGameScores are associated with one ClanTournamentEloRank
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clan_tournament_elo_rank_id", nullable = false)
-    private ClanTournamentEloRank clanTournamentEloRank;
+    private ClanEloRank clanTournamentEloRank;
 
     // No-Arg Constructor (required by JPA)
     protected ClanGameScore() {
