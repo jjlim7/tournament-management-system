@@ -5,7 +5,7 @@ import NavbarLandingPage from './components/Navbar/NavbarLandingPage.vue'
 </script>
 
 <template>
-  <div class="background text-white m-0 p-0">
+  <div class="maxWidth mx-auto text-white m-0 p-0">
     <!-- <NavbarLandingPage/> -->
     <Navbar/>
     <RouterView />
@@ -15,8 +15,7 @@ import NavbarLandingPage from './components/Navbar/NavbarLandingPage.vue'
 
 
 <style scoped>
-.background {
-  height: 100vh; /* Full viewport height */
-  background: linear-gradient(to bottom,#000000,#424242 );
+.maxWidth{
+  max-width: 1280px;
 }
 </style>
