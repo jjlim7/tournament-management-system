@@ -7,7 +7,7 @@ import org.springframework.data.repository.NoRepositoryBean;
 import java.util.List;
 
 @NoRepositoryBean
-public interface BaseGameScoreRepository<T extends  GameScore> extends JpaRepository<T, Long> {
+public interface BaseGameScoreRepository<T extends GameScore> extends JpaRepository<T, Long> {
     // Create
     List<T> saveAll(List<T> gameScores);
 
