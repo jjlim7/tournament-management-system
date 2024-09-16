@@ -49,9 +49,35 @@ public class EloRankingService {
     );
 
     @Autowired
-    public EloRankingService(ClanEloRankRepository clanEloRankRepository, PlayerEloRankRepository playerEloRankRepository) {
+    public EloRankingService(ClanEloRankRepository clanEloRankRepository,
+            PlayerEloRankRepository playerEloRankRepository) {
         this.clanEloRankRepository = clanEloRankRepository;
         this.playerEloRankRepository = playerEloRankRepository;
+    }
+    
+    // Update Player Elo rankings
+    public void updatePlayerEloRanking(Map<Long, List<Double>> finalPlayerEloRating) {
+        for (Map.Entry<Long, List<Double>> entry : finalPlayerEloRating.entrySet()) {
+            long playerId = entry.getKey();
+            List<Double> newEloRank = entry.getValue();
+            PlayerEloRank playerEloRank = playerEloRankRepository.findById(playerId)
+                    .orElseThrow(() -> new IllegalArgumentException("Player not found with ID: " + playerId));
+            playerEloRank.setMeanSkillEstimate(newEloRank.get(0));
+            playerEloRank.setUncertainty(newEloRank.get(1));
+            playerEloRankRepository.save(playerEloRank);
+        }
+    }
+
+    // Update Clan Elo rankings
+    public void updateClanEloRanking(Map<Long, Double> finalClanEloRating) {
+        for (Map.Entry<Long, Double> entry : finalClanEloRating.entrySet()) {
+            long clanId = entry.getKey();
+            double newEloRank = entry.getValue();
+            ClanEloRank clanEloRank = clanEloRankRepository.findById(clanId)
+                    .orElseThrow(() -> new IllegalArgumentException("Clan not found with ID: " + clanId));
+            clanEloRank.setMeanSkillEstimate(newEloRank);
+            clanEloRankRepository.save(clanEloRank);
+        }
     }
 
     // Compute resultant player Elo ratings
