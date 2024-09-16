@@ -6,8 +6,8 @@ import NavbarLandingPage from './components/Navbar/NavbarLandingPage.vue'
 
 <template>
   <div class="maxWidth mx-auto text-white m-0 p-0">
-    <!-- <NavbarLandingPage/> -->
-    <Navbar/>
+    <NavbarLandingPage/>
+    <!-- <Navbar/> -->
     <RouterView />
   </div>
 </template>

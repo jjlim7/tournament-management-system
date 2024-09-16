@@ -1,6 +1,6 @@
 <template>
   <div class="text-center">
-    <RouterLink class="navbar-brand p-0 m-0" to="/">
+    <RouterLink class="navbar-brand p-0 m-0" to="/about">
       <li style="list-style: none">
         <img src="https://promotions.lenovo.com/uploads/assets/f848702b3458c766a8af753da6d227d6.png" alt="" class="logo">
       </li>
