@@ -14,14 +14,15 @@ public class EloRankingService {
     private static final double K = 0.2;         // Fixed K value (no dynamic K)
     private static final double MAX_ALPHA = 1.5; // Cap for alpha scaling
     private static final double BASE_LAMBDA = 0.1; // Base uncertainty reduction factor
-    private static final double DECAY_RATE = 0.3;  // Decay rate for placement outcome
+    private static final double DECAY_RATE = 0.3; // Decay rate for placement outcome
+    private static final double INITIAL_MEAN = 25; // Default uncertainty for new players
     private static final double INITIAL_SIGMA = 8.333; // Default uncertainty for new players
     private static final double LAMBDA_ADJUSTMENT_FACTOR = 0.3; // Factor to adjust uncertainty by surprise performance
 
     private final ClanEloRankRepository clanEloRankRepository;
     private final PlayerEloRankRepository playerEloRankRepository;
 
-       // Role-based performance configuration (RPConfig)
+    // Role-based performance configuration (RPConfig)
     private static final Map<Role, Map<String, Double>> RPConfig = Map.of(
             Role.DAMAGE_DEALER, Map.of(
                     "kdr", 0.4,           // Kill/Death Ratio
@@ -53,6 +54,31 @@ public class EloRankingService {
             PlayerEloRankRepository playerEloRankRepository) {
         this.clanEloRankRepository = clanEloRankRepository;
         this.playerEloRankRepository = playerEloRankRepository;
+    }
+
+    // Create Player Elo ranking
+    public void createNewPlayerEloRanking(long playerId, RankThreshold rankThreshold, long tournamentId)
+            throws IllegalArgumentException {
+        // check if player already has an Elo ranking
+        playerEloRankRepository.findById(playerId).ifPresent(playerEloRank -> {
+            throw new IllegalArgumentException("Player already has an Elo ranking");
+        });
+        // Create new PlayerEloRank entity with default values
+        PlayerEloRank playerEloRank = new PlayerEloRank(playerId, rankThreshold, INITIAL_MEAN, INITIAL_SIGMA,
+                tournamentId);
+        playerEloRankRepository.save(playerEloRank);
+    }
+    
+    // Create Clan Elo ranking
+    public void createNewClanEloRanking(long clanId, RankThreshold rankThreshold, long tournamentId)
+            throws IllegalArgumentException {
+        // check if clan already has an Elo ranking
+        clanEloRankRepository.findById(clanId).ifPresent(clanEloRank -> {
+            throw new IllegalArgumentException("Clan already has an Elo ranking");
+        });
+        // Create new ClanEloRank entity with default values
+        ClanEloRank clanEloRank = new ClanEloRank(clanId, rankThreshold, INITIAL_MEAN, INITIAL_SIGMA, tournamentId);
+        clanEloRankRepository.save(clanEloRank);
     }
     
     // Update Player Elo rankings

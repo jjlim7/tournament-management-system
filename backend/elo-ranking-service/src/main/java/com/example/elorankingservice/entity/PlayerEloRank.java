@@ -18,8 +18,8 @@ public class PlayerEloRank extends EloRank {
     public PlayerEloRank(
             Long playerId,
             RankThreshold rankThreshold,
-            float skillMeanEstimate,
-            float uncertainty,
+            double skillMeanEstimate,
+            double uncertainty,
             Long tournamentId
     ) {
         super(rankThreshold, skillMeanEstimate, uncertainty, tournamentId);
