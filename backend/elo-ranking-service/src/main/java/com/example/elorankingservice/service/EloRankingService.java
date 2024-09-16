@@ -11,14 +11,17 @@ import java.util.*;
 @Service
 public class EloRankingService {
 
-    private static final double K = 0.2;         // Base K value
+    private static final double K = 0.2;         // Fixed K value (no dynamic K)
     private static final double MAX_ALPHA = 1.5; // Cap for alpha scaling
     private static final double BASE_LAMBDA = 0.1; // Base uncertainty reduction factor
     private static final double DECAY_RATE = 0.3;  // Decay rate for placement outcome
     private static final double INITIAL_SIGMA = 8.333; // Default uncertainty for new players
     private static final double LAMBDA_ADJUSTMENT_FACTOR = 0.3; // Factor to adjust uncertainty by surprise performance
 
-    // Role-based performance configuration (RPConfig)
+    private final ClanEloRankRepository clanEloRankRepository;
+    private final PlayerEloRankRepository playerEloRankRepository;
+
+       // Role-based performance configuration (RPConfig)
     private static final Map<Role, Map<String, Double>> RPConfig = Map.of(
             Role.DAMAGE_DEALER, Map.of(
                     "kdr", 0.4,           // Kill/Death Ratio
@@ -44,9 +47,6 @@ public class EloRankingService {
                     "headshot_acc", 0.1
             )
     );
-
-    private final ClanEloRankRepository clanEloRankRepository;
-    private final PlayerEloRankRepository playerEloRankRepository;
 
     @Autowired
     public EloRankingService(ClanEloRankRepository clanEloRankRepository, PlayerEloRankRepository playerEloRankRepository) {
@@ -129,8 +129,6 @@ public class EloRankingService {
             List<Double> rpsList, double avgRPS, double stdRPS,
             List<Double> expectedPerformances) {
 
-        List<Double> meanSkillEstimates = playersEloRank.stream().map(PlayerEloRank::getMeanSkillEstimate).toList();
-
         for (int i = 0; i < playersEloRank.size(); i++) {
             PlayerEloRank playerRank = playersEloRank.get(i);
             PlayerGameScore playerScore = playerGameScoreList.get(i);
@@ -140,7 +138,7 @@ public class EloRankingService {
             double E_i = expectedPerformances.get(i);
 
             double zNormalizedRPS = (rps_i - avgRPS) / stdRPS;
-            double ALPHA = Math.min(K * (calculateAverage(meanSkillEstimates) / meanSkillEstimate), MAX_ALPHA);
+            double ALPHA = dynamicAlpha(avgRPS, stdRPS, rps_i, meanSkillEstimate);
             double matchOutcome = calculateMatchOutcome(playerScore, playerGameScoreList.size());
 
             double performanceBasedOutcome = matchOutcome * (1 + ALPHA * zNormalizedRPS);
@@ -156,6 +154,18 @@ public class EloRankingService {
         return Math.pow(1.0 - ((playerScore.getPlacement() - 1) / (double) (totalPlayers - 1)), DECAY_RATE);
     }
 
+    // Dynamic alpha to control RPS influence based on performance variation
+    private double dynamicAlpha(double avgRPS, double stdRPS, double rps, double meanSkillEstimate) {
+        double dynamicCap = Math.min(K * (avgRPS / meanSkillEstimate), MAX_ALPHA);
+
+        if (stdRPS > 0) {
+            double performanceDeviation = Math.abs(rps - avgRPS) / stdRPS;
+            return Math.min(dynamicCap, 1 / (1 + performanceDeviation));
+        }
+
+        return dynamicCap;
+    }
+
     // Calculate the new uncertainty value for a player
     private double calculateNewUncertainty(double uncertainty, double E_i, double performanceBasedOutcome, double meanSkillEstimate) {
         double v_i = 1 / (E_i * (1 - E_i));
@@ -167,5 +177,74 @@ public class EloRankingService {
         newUncertainty *= (1 - lambda);
 
         return Math.max(newUncertainty, INITIAL_SIGMA * 0.5);
+    }
+
+    // Clan Elo computation remains unchanged, using fixed K for updates
+    public Map<Long, Double> computeResultantClanEloRating(
+            ClanGameScore winnerGameScore,
+            ClanGameScore loserGameScore,
+            ClanEloRank winnerEloRank,
+            ClanEloRank loserEloRank,
+            List<PlayerGameScore> winnerPlayerGameScore,
+            List<PlayerGameScore> loserPlayerGameScore,
+            List<PlayerEloRank> winnerPlayerEloRank,
+            List<PlayerEloRank> loserPlayerEloRank
+    ) {
+
+        Map<Long, Double> finalClanEloRating = new HashMap<>();
+
+        // Calculate the average RPS for each clan
+        double avgRPSWinner = calculateAverageRPS(winnerPlayerGameScore);
+        double avgRPSLoser = calculateAverageRPS(loserPlayerGameScore);
+
+        // Get the expected performance for each clan
+        double expectedPerformanceWinner = calculateExpectedPerformance(winnerPlayerEloRank);
+        double expectedPerformanceLoser = calculateExpectedPerformance(loserPlayerEloRank);
+
+        // Update Elo ratings based on PBO
+        updateClanRatingsBasedOnPBO(
+                winnerEloRank, loserEloRank,
+                avgRPSWinner, avgRPSLoser,
+                expectedPerformanceWinner, expectedPerformanceLoser,
+                finalClanEloRating
+        );
+
+        return finalClanEloRating;
+    }
+
+    // Calculate the average RPS for a clan
+    private double calculateAverageRPS(List<PlayerGameScore> playerGameScoreList) {
+        return playerGameScoreList.stream()
+                .mapToDouble(player -> player.getRolePerformanceScore(RPConfig.getOrDefault(player.getRole(), RPConfig.get(Role.DEFAULT))))
+                .average()
+                .orElse(0);
+    }
+
+    // Calculate the expected performance for a clan
+    private double calculateExpectedPerformance(List<PlayerEloRank> playerEloRankList) {
+        double totalRatings = playerEloRankList.stream().mapToDouble(PlayerEloRank::getMeanSkillEstimate).sum();
+        double averageRating = totalRatings / playerEloRankList.size();
+        return 1 / (1 + Math.pow(10, (averageRating - totalRatings / playerEloRankList.size()) / 400));
+    }
+
+    // Update clan ratings based on Performance-Based Outcome (PBO)
+    private void updateClanRatingsBasedOnPBO(
+            ClanEloRank winnerEloRank, ClanEloRank loserEloRank,
+            double avgRPSWinner, double avgRPSLoser,
+            double expectedPerformanceWinner, double expectedPerformanceLoser,
+            Map<Long, Double> finalClanEloRating) {
+
+        // Winner's new Elo rating
+        double winnerPerformanceOutcome = 1 + MAX_ALPHA * avgRPSWinner;
+        double winnerNewElo = winnerEloRank.getMeanSkillEstimate() +
+                K * (winnerPerformanceOutcome - expectedPerformanceWinner);
+
+        // Loser's new Elo rating
+        double loserPerformanceOutcome = 0 + MAX_ALPHA * avgRPSLoser;
+        double loserNewElo = loserEloRank.getMeanSkillEstimate() +
+                K * (loserPerformanceOutcome - expectedPerformanceLoser);
+
+        finalClanEloRating.put(winnerEloRank.getClanId(), winnerNewElo);
+        finalClanEloRating.put(loserEloRank.getClanId(), loserNewElo);
     }
 }
