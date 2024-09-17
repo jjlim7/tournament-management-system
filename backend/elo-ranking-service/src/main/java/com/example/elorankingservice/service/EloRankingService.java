@@ -1,6 +1,7 @@
 package com.example.elorankingservice.service;
 
 import com.example.elorankingservice.entity.*;
+
 import com.example.elorankingservice.repository.ClanEloRankRepository;
 import com.example.elorankingservice.repository.PlayerEloRankRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,28 +20,28 @@ public class EloRankingService {
     private static final double INITIAL_SIGMA = 8.333; // Default uncertainty for new players
     private static final double LAMBDA_ADJUSTMENT_FACTOR = 0.3; // Factor to adjust uncertainty by surprise performance
 
-    private final ClanEloRankRepository clanEloRankRepository;
     private final PlayerEloRankRepository playerEloRankRepository;
-
+    private final ClanEloRankRepository clanEloRankRepository;
+    
     // Role-based performance configuration (RPConfig)
-    private static final Map<Role, Map<String, Double>> RPConfig = Map.of(
-            Role.DAMAGE_DEALER, Map.of(
+    private static final Map<PlayerGameScore.Role, Map<String, Double>> RPConfig = Map.of(
+            PlayerGameScore.Role.DAMAGE_DEALER, Map.of(
                     "kdr", 0.4,           // Kill/Death Ratio
                     "acc", 0.2,           // Accuracy
                     "dps", 0.3,           // Damage Per Second
                     "headshot_acc", 0.1   // Headshot Accuracy
             ),
-            Role.TANK, Map.of(
+            PlayerGameScore.Role.TANK, Map.of(
                     "tanked", 0.5,            // Damage Tanked
                     "healing", 0.3,           // Damage Mitigated
                     "assists", 0.2            // Assists
             ),
-            Role.HEALER, Map.of(
+            PlayerGameScore.Role.HEALER, Map.of(
                     "healing", 0.6,           // Healing Done per Minute
                     "revives", 0.2,           // Revives
                     "assists", 0.2            // Assists
             ),
-            Role.DEFAULT, Map.of(
+            PlayerGameScore.Role.DEFAULT, Map.of(
                     "kdr", 0.4,
                     "acc", 0.1,
                     "effective_dmg", 0.2,
@@ -55,6 +56,17 @@ public class EloRankingService {
         this.clanEloRankRepository = clanEloRankRepository;
         this.playerEloRankRepository = playerEloRankRepository;
     }
+
+    // Read Player Elo ranking
+    public Optional<ClanEloRank> retrieveClanEloRank(Long clanId, Long tournamentId) {
+        return clanEloRankRepository.findClanEloRankByClanIdAndTournamentId(clanId, tournamentId);
+    }
+
+    // Read Clan Elo ranking
+    public Optional<PlayerEloRank> retrievePlayerEloRank(Long playerId, Long tournamentId) {
+        return playerEloRankRepository.findByPlayerEloRankByPlayerIdAndTournamentId(playerId, tournamentId);
+    }
+
 
     // Create Player Elo ranking
     public void createNewPlayerEloRanking(long playerId, RankThreshold rankThreshold, long tournamentId)
@@ -140,8 +152,8 @@ public class EloRankingService {
         List<Double> rpsList = new ArrayList<>();
         for (int i = 0; i < playersEloRank.size(); i++) {
             PlayerGameScore playerScore = playerGameScoreList.get(i);
-            Role role = playerScore.getRole();
-            double rps = playerScore.getRolePerformanceScore(RPConfig.getOrDefault(role, RPConfig.get(Role.DEFAULT)));
+            PlayerGameScore.Role role = playerScore.getRole();
+            double rps = playerScore.getRolePerformanceScore(RPConfig.getOrDefault(role, RPConfig.get(PlayerGameScore.Role.DEFAULT)));
             rpsList.add(rps);
         }
         return rpsList;
@@ -233,8 +245,6 @@ public class EloRankingService {
 
     // Clan Elo computation remains unchanged, using fixed K for updates
     public Map<Long, Double> computeResultantClanEloRating(
-            ClanGameScore winnerGameScore,
-            ClanGameScore loserGameScore,
             ClanEloRank winnerEloRank,
             ClanEloRank loserEloRank,
             List<PlayerGameScore> winnerPlayerGameScore,
@@ -267,7 +277,7 @@ public class EloRankingService {
     // Calculate the average RPS for a clan
     private double calculateAverageRPS(List<PlayerGameScore> playerGameScoreList) {
         return playerGameScoreList.stream()
-                .mapToDouble(player -> player.getRolePerformanceScore(RPConfig.getOrDefault(player.getRole(), RPConfig.get(Role.DEFAULT))))
+                .mapToDouble(player -> player.getRolePerformanceScore(RPConfig.getOrDefault(player.getRole(), RPConfig.get(PlayerGameScore.Role.DEFAULT))))
                 .average()
                 .orElse(0);
     }

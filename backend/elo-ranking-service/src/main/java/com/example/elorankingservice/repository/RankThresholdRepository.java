@@ -1,6 +1,6 @@
 package com.example.elorankingservice.repository;
 
-import com.example.elorankingservice.entity.Rank;
+import com.example.elorankingservice.entity.RankThreshold.Rank;
 import com.example.elorankingservice.entity.RankThreshold;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;

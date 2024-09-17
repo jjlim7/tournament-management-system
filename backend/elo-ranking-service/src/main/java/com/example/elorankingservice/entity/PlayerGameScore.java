@@ -14,7 +14,20 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PlayerGameScore extends GameScore {
-    
+
+    public enum GameMode {
+        BATTLE_ROYALE,
+        CLAN_WAR,
+    }
+
+    public enum Role {
+        DEFAULT,
+        DAMAGE_DEALER,
+        HEALER,
+        TANK,
+    }
+
+
     @Column(name = "player_id", nullable = false)
     private Long playerId;
 
