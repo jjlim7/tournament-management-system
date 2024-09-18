@@ -28,16 +28,35 @@ public class EloRankingController {
         return playerEloRank.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    @GetMapping("/clan/{clanId}/tournament/{tournamentId}")
+    public ResponseEntity<ClanEloRank> getClanEloRank(@PathVariable Long clanId, @PathVariable Long tournamentId) {
+        Optional<ClanEloRank> clanEloRank = eloRankingService.retrieveClanEloRank(clanId, tournamentId);
+        return clanEloRank.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @PostMapping("/clan")
+    public ResponseEntity<ClanEloRank> createClanEloRank(@RequestBody Request.CreateNewClanEloRank newClanEloRankRequest) {
+        ClanEloRank newEloRank = eloRankingService.createNewClanEloRanking(newClanEloRankRequest.getClanId(), newClanEloRankRequest.getTournamentId());
+        return new ResponseEntity<>(newEloRank, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/player")
+    public ResponseEntity<PlayerEloRank> createPlayerEloRank(@RequestBody Request.CreateNewPlayerEloRank newPlayerEloRankRequest) {
+        PlayerEloRank newEloRank = eloRankingService.createNewPlayerEloRanking(newPlayerEloRankRequest.getPlayerId(), newPlayerEloRankRequest.getTournamentId());
+        return new ResponseEntity<>(newEloRank, HttpStatus.CREATED);
+    }
 
     @PostMapping("/battle-royale")
-    public ResponseEntity<List<PlayerEloRank>> processBattleRoyaleResults(Request.CreateBattleRoyalePlayerGameScore battleRoyaleResult) throws Exception {
-        List<PlayerEloRank> finalResult = eloRankingService.processUpdateBattleRoyaleResults(battleRoyaleResult.getRawPlayerGameScores());
+    public ResponseEntity<List<PlayerEloRank>> processBattleRoyaleResults(@RequestBody Request.CreateBattleRoyalePlayerGameScore processResultRequest) throws Exception {
+        List<PlayerEloRank> finalResult = eloRankingService.processUpdateBattleRoyaleResults(processResultRequest.getRawPlayerGameScores());
         return new ResponseEntity<>(finalResult, HttpStatus.CREATED);
     }
 
     @PostMapping("/clan-war")
-    public ResponseEntity<List<ClanEloRank>> processClanWarResults(Request.CreateClanWarGameScore clanWarResult) throws Exception {
-        List<ClanEloRank> finalResult = eloRankingService.processUpdateClanWarResults(clanWarResult.getWinnerRawPlayerGameScores(), clanWarResult.getLoserRawPlayerGameScores());
+    public ResponseEntity<List<ClanEloRank>> processClanWarResults(@RequestBody Request.CreateClanWarGameScore processResultRequest) throws Exception {
+        List<ClanEloRank> finalResult = eloRankingService.processUpdateClanWarResults(processResultRequest.getWinnerRawPlayerGameScores(), processResultRequest.getLoserRawPlayerGameScores());
         return new ResponseEntity<>(finalResult, HttpStatus.CREATED);
     }
+
+
 }
