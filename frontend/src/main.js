@@ -8,6 +8,10 @@ import router from './router'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.min.js'
+import 'bootstrap';
+//customising bootstrap default colour
+import './assets/custom.scss'
+
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import 'sweetalert/dist/sweetalert.min.js'
