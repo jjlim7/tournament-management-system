@@ -10,13 +10,44 @@ import java.util.List;
 
 @Service
 public class RankService {
-    // for rank threshold
+
+    private static final double INITIAL_MIN_RATING = 0;      // Starting rating for the first rank (IRON)
+    private static final double INITIAL_RANGE = 10;          // Initial range for the first rank
+    private static final double GROWTH_RATE = 1.5;           // Growth rate of 50% per rank
 
     private final RankThresholdRepository rankThresholdRepository;
 
     @Autowired
-    public RankService(RankThresholdRepository rtr) {
-        this.rankThresholdRepository = rtr;
+    public RankService(RankThresholdRepository rankThresholdRepository) {
+        this.rankThresholdRepository = rankThresholdRepository;
+    }
+
+    // Seed data with increasing ranges for each rank
+    private static final List<RankThreshold> SEED_RANK_THRESHOLDS = createRankThresholds();
+
+    private static List<RankThreshold> createRankThresholds() {
+        double minRating = INITIAL_MIN_RATING;
+        double range = INITIAL_RANGE;
+
+        return List.of(
+                new RankThreshold(RankThreshold.Rank.IRON, minRating, minRating += range),
+                new RankThreshold(RankThreshold.Rank.BRONZE, minRating, minRating += (range *= GROWTH_RATE)),
+                new RankThreshold(RankThreshold.Rank.SILVER, minRating, minRating += (range *= GROWTH_RATE)),
+                new RankThreshold(RankThreshold.Rank.GOLD, minRating, minRating += (range *= GROWTH_RATE)),
+                new RankThreshold(RankThreshold.Rank.PLATINUM, minRating, minRating += (range *= GROWTH_RATE)),
+                new RankThreshold(RankThreshold.Rank.DIAMOND, minRating, minRating += (range *= GROWTH_RATE)),
+                new RankThreshold(RankThreshold.Rank.MASTER, minRating, minRating += (range *= GROWTH_RATE)),
+                new RankThreshold(RankThreshold.Rank.GRANDMASTER, minRating, minRating += (range *= GROWTH_RATE)),
+                new RankThreshold(RankThreshold.Rank.CHALLENGER, minRating, minRating + range * GROWTH_RATE)
+        );
+    }
+
+    public void seedRankThresholds() {
+        // Check if rank thresholds are already seeded
+        if (rankThresholdRepository.count() == 0) {
+            // Seed the rank thresholds in the repository
+            rankThresholdRepository.saveAll(SEED_RANK_THRESHOLDS);
+        }
     }
 
     public List<RankThreshold> retrieveRankThresholds() {
