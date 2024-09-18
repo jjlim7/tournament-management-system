@@ -5,5 +5,4 @@ import java.util.Optional;
 
 
 public interface PlayerEloRankRepository extends BaseEloRankRepository<PlayerEloRank>{
-    Optional<PlayerEloRank> findByPlayerEloRankByPlayerIdAndTournamentId(Long playerId, Long tournamentId);
 }

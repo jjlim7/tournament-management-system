@@ -26,21 +26,21 @@ public class RankThreshold {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="rank", nullable=false)
+    @Column(name="rank", nullable=false, unique = true)
     @Enumerated(EnumType.STRING)
     private Rank rank;
 
-    @Column(name="start_rating", nullable=false)
-    private int startRating;
+    @Column(name="min_rating", nullable=false)
+    private double minRating;
 
-    @Column(name="end_rating", nullable=false)
-    private int endRating;
+    @Column(name="max_rating", nullable=false)
+    private double maxRating;
 
     public RankThreshold() {}
 
-    public RankThreshold(Rank rank, int startRating, int endRating) {
+    public RankThreshold(Rank rank, double minRating, double maxRating) {
         this.rank = rank;
-        this.startRating = startRating;
-        this.endRating = endRating;
+        this.minRating = minRating;
+        this.maxRating = maxRating;
     }
 }

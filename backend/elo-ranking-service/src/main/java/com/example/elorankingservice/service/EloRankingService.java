@@ -22,6 +22,7 @@ public class EloRankingService {
 
     private final PlayerEloRankRepository playerEloRankRepository;
     private final ClanEloRankRepository clanEloRankRepository;
+    private final RankService rankService;
     
     // Role-based performance configuration (RPConfig)
     private static final Map<PlayerGameScore.Role, Map<String, Double>> RPConfig = Map.of(
@@ -51,38 +52,62 @@ public class EloRankingService {
     );
 
     @Autowired
-    public EloRankingService(ClanEloRankRepository clanEloRankRepository,
-            PlayerEloRankRepository playerEloRankRepository) {
+    public EloRankingService(
+            ClanEloRankRepository clanEloRankRepository,
+            PlayerEloRankRepository playerEloRankRepository,
+            RankService rankService
+    ) {
         this.clanEloRankRepository = clanEloRankRepository;
         this.playerEloRankRepository = playerEloRankRepository;
+        this.rankService = rankService;
     }
 
-    // Read Player Elo ranking
+    // Retrieve the Clan Elo Rank for a specific clan in a particular tournament
     public Optional<ClanEloRank> retrieveClanEloRank(Long clanId, Long tournamentId) {
-        return clanEloRankRepository.findClanEloRankByClanIdAndTournamentId(clanId, tournamentId);
+        return clanEloRankRepository.findEloRankByIdAndTournamentId(clanId, tournamentId);
     }
 
-    // Read Clan Elo ranking
+    // Retrieve the Player Elo Rank for a specific player in a particular tournament
     public Optional<PlayerEloRank> retrievePlayerEloRank(Long playerId, Long tournamentId) {
-        return playerEloRankRepository.findByPlayerEloRankByPlayerIdAndTournamentId(playerId, tournamentId);
+        return playerEloRankRepository.findEloRankByIdAndTournamentId(playerId, tournamentId);
+    }
+
+    // Retrieve all Clan Elo Ranks for a given tournament
+    public List<ClanEloRank> retrieveClanEloRanksByTournament(Long tournamentId) {
+        return clanEloRankRepository.findEloRanksByTournamentId(tournamentId);
+    }
+
+    // Retrieve all Player Elo Ranks for a given tournament
+    public List<PlayerEloRank> retrievePlayerEloRanksByTournament(Long tournamentId) {
+        return playerEloRankRepository.findEloRanksByTournamentId(tournamentId);
+    }
+
+    // Retrieve Player Elo Ranks within a specific rating range for a tournament
+    public List<PlayerEloRank> retrievePlayerEloRanksByRatingRange(Long tournamentId, double minRating, double maxRating) {
+        return playerEloRankRepository.findByMeanSkillEstimateBetweenAndTournamentId(maxRating, minRating, tournamentId);
+    }
+
+    // Retrieve Clan Elo Ranks within a specific rating range for a tournament
+    public List<ClanEloRank> retrieveClanEloRanksByRatingRange(Long tournamentId, double minRating, double maxRating) {
+        return clanEloRankRepository.findByMeanSkillEstimateBetweenAndTournamentId(maxRating, minRating, tournamentId);
     }
 
 
     // Create Player Elo ranking
-    public void createNewPlayerEloRanking(long playerId, RankThreshold rankThreshold, long tournamentId)
+    public PlayerEloRank createNewPlayerEloRanking(long playerId, RankThreshold rankThreshold, long tournamentId)
             throws IllegalArgumentException {
         // check if player already has an Elo ranking
         playerEloRankRepository.findById(playerId).ifPresent(playerEloRank -> {
             throw new IllegalArgumentException("Player already has an Elo ranking");
         });
         // Create new PlayerEloRank entity with default values
-        PlayerEloRank playerEloRank = new PlayerEloRank(playerId, rankThreshold, INITIAL_MEAN, INITIAL_SIGMA,
-                tournamentId);
+        PlayerEloRank playerEloRank = new PlayerEloRank(playerId, rankThreshold, INITIAL_MEAN, INITIAL_SIGMA, tournamentId);
         playerEloRankRepository.save(playerEloRank);
+        return playerEloRank;
     }
-    
+
     // Create Clan Elo ranking
-    public void createNewClanEloRanking(long clanId, RankThreshold rankThreshold, long tournamentId)
+    public ClanEloRank createNewClanEloRanking(long clanId, RankThreshold rankThreshold, long tournamentId)
             throws IllegalArgumentException {
         // check if clan already has an Elo ranking
         clanEloRankRepository.findById(clanId).ifPresent(clanEloRank -> {
@@ -91,6 +116,7 @@ public class EloRankingService {
         // Create new ClanEloRank entity with default values
         ClanEloRank clanEloRank = new ClanEloRank(clanId, rankThreshold, INITIAL_MEAN, INITIAL_SIGMA, tournamentId);
         clanEloRankRepository.save(clanEloRank);
+        return clanEloRank;
     }
     
     // Update Player Elo rankings
