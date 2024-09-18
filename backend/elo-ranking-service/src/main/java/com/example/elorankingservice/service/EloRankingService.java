@@ -15,10 +15,10 @@ public class EloRankingService {
     private static final double MAX_ALPHA = 1.5; // Cap for alpha scaling
     private static final double BASE_LAMBDA = 0.1; // Base uncertainty reduction factor
     private static final double DECAY_RATE = 0.3; // Decay rate for placement outcome
-    private static final double INITIAL_MEAN = 25; // Default uncertainty for new players
-    private static final double INITIAL_SIGMA = 8.333; // Default uncertainty for new players
+    public static final double INITIAL_MEAN = 25; // Default uncertainty for new players
+    public static final double INITIAL_SIGMA = 8.333; // Default uncertainty for new players
     private static final double LAMBDA_ADJUSTMENT_FACTOR = 0.3; // Factor to adjust uncertainty by surprise performance
-    private static final RankThreshold.Rank ORIGIN_RANK = RankThreshold.Rank.BRONZE;
+    public static final RankThreshold.Rank ORIGIN_RANK = RankThreshold.Rank.BRONZE;
 
     private final PlayerEloRankRepository playerEloRankRepository;
     private final ClanEloRankRepository clanEloRankRepository;
