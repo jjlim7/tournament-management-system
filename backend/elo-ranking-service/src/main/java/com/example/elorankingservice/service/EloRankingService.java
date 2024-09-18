@@ -118,7 +118,7 @@ public class EloRankingService {
     }
 
     // Update Player Elo rankings
-    public void updatePlayerEloRanking(Map<Long, List<Double>> finalPlayerEloRating) {
+    public void updatePlayerEloRanking(Map<Long, List<Double>> finalPlayerEloRating) throws Exception {
         for (Map.Entry<Long, List<Double>> entry : finalPlayerEloRating.entrySet()) {
             long playerId = entry.getKey();
             List<Double> newEloRank = entry.getValue();
@@ -140,14 +140,22 @@ public class EloRankingService {
     }
 
     // Update Clan Elo rankings
-    public void updateClanEloRanking(Map<Long, List<Double>> finalClanEloRating) {
+    public void updateClanEloRanking(Map<Long, List<Double>> finalClanEloRating) throws Exception {
         for (Map.Entry<Long, List<Double>> entry : finalClanEloRating.entrySet()) {
             long clanId = entry.getKey();
             List<Double> newEloRank = entry.getValue();
             ClanEloRank clanEloRank = clanEloRankRepository.findById(clanId)
                     .orElseThrow(() -> new IllegalArgumentException("Clan not found with ID: " + clanId));
-            clanEloRank.setMeanSkillEstimate(newEloRank.get(0));
-            clanEloRank.setUncertainty(newEloRank.get(1));
+
+            // get new mse and uncertainty and rank threshold based on new mse
+            double newMeanSkillEstimate = newEloRank.get(0);
+            double newUncertainty = newEloRank.get(1);
+            RankThreshold newRankThreshold = rankService.retrieveRankThresholdByRating(newMeanSkillEstimate);
+
+            clanEloRank.setMeanSkillEstimate(newMeanSkillEstimate);
+            clanEloRank.setUncertainty(newUncertainty);
+            clanEloRank.setRankThreshold(newRankThreshold);
+
             clanEloRankRepository.save(clanEloRank);
         }
     }

@@ -30,9 +30,15 @@ public class RankService {
     public RankThreshold retrieveRankThresholdByRank(RankThreshold.Rank rank) {
         return rankThresholdRepository.findByRank(rank).orElse(null);
     }
-    
-    public RankThreshold retrieveRankThresholdByRating(double rating) {
-        return rankThresholdRepository.findByMinRatingLessThanEqualAndMaxRatingGreaterThanEqual(rating);
+
+    public RankThreshold retrieveRankThresholdByRating(double rating) throws Exception {
+        List<RankThreshold> rankThresholds = retrieveRankThresholds();
+        for (RankThreshold rankThreshold : rankThresholds) {
+            if (rankThreshold.getMinRating() >= rating && rankThreshold.getMaxRating() <= rating) {
+                return rankThreshold;
+            }
+        }
+        throw new Exception("Rank threshold could not be found");
     }
 
     public RankThreshold createNewRankThreshold(RankThreshold rankThreshold) {
