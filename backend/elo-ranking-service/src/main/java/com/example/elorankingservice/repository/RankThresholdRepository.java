@@ -9,5 +9,6 @@ import java.util.Optional;
 
 public interface RankThresholdRepository extends JpaRepository<RankThreshold, Long> {
     Optional<RankThreshold> findByRank(Rank rank);
+    RankThreshold findByMinRatingLessThanEqualAndMaxRatingGreaterThanEqual(double rating);
     RankThreshold updateMinRatingAndMaxRatingByRank(Rank rank, double minRating, double maxRating);
 }

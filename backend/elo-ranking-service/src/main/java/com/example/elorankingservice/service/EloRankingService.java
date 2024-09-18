@@ -1,7 +1,6 @@
 package com.example.elorankingservice.service;
 
 import com.example.elorankingservice.entity.*;
-
 import com.example.elorankingservice.repository.ClanEloRankRepository;
 import com.example.elorankingservice.repository.PlayerEloRankRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ public class EloRankingService {
     private final PlayerEloRankRepository playerEloRankRepository;
     private final ClanEloRankRepository clanEloRankRepository;
     private final RankService rankService;
-    
+
     // Role-based performance configuration (RPConfig)
     private static final Map<PlayerGameScore.Role, Map<String, Double>> RPConfig = Map.of(
             PlayerGameScore.Role.DAMAGE_DEALER, Map.of(
@@ -92,7 +91,6 @@ public class EloRankingService {
         return clanEloRankRepository.findByMeanSkillEstimateBetweenAndTournamentId(maxRating, minRating, tournamentId);
     }
 
-
     // Create Player Elo ranking
     public PlayerEloRank createNewPlayerEloRanking(long playerId, RankThreshold rankThreshold, long tournamentId)
             throws IllegalArgumentException {
@@ -118,7 +116,7 @@ public class EloRankingService {
         clanEloRankRepository.save(clanEloRank);
         return clanEloRank;
     }
-    
+
     // Update Player Elo rankings
     public void updatePlayerEloRanking(Map<Long, List<Double>> finalPlayerEloRating) {
         for (Map.Entry<Long, List<Double>> entry : finalPlayerEloRating.entrySet()) {
@@ -126,20 +124,30 @@ public class EloRankingService {
             List<Double> newEloRank = entry.getValue();
             PlayerEloRank playerEloRank = playerEloRankRepository.findById(playerId)
                     .orElseThrow(() -> new IllegalArgumentException("Player not found with ID: " + playerId));
-            playerEloRank.setMeanSkillEstimate(newEloRank.get(0));
-            playerEloRank.setUncertainty(newEloRank.get(1));
+
+            // get new mse and uncertainty and rank threshold based on new mse
+            double newMeanSkillEstimate = newEloRank.get(0);
+            double newUncertainty = newEloRank.get(1);
+            RankThreshold newRankThreshold = rankService.retrieveRankThresholdByRating(newMeanSkillEstimate);
+
+            // update and save
+            playerEloRank.setMeanSkillEstimate(newMeanSkillEstimate);
+            playerEloRank.setUncertainty(newUncertainty);
+            playerEloRank.setRankThreshold(newRankThreshold);
+
             playerEloRankRepository.save(playerEloRank);
         }
     }
 
     // Update Clan Elo rankings
-    public void updateClanEloRanking(Map<Long, Double> finalClanEloRating) {
-        for (Map.Entry<Long, Double> entry : finalClanEloRating.entrySet()) {
+    public void updateClanEloRanking(Map<Long, List<Double>> finalClanEloRating) {
+        for (Map.Entry<Long, List<Double>> entry : finalClanEloRating.entrySet()) {
             long clanId = entry.getKey();
-            double newEloRank = entry.getValue();
+            List<Double> newEloRank = entry.getValue();
             ClanEloRank clanEloRank = clanEloRankRepository.findById(clanId)
                     .orElseThrow(() -> new IllegalArgumentException("Clan not found with ID: " + clanId));
-            clanEloRank.setMeanSkillEstimate(newEloRank);
+            clanEloRank.setMeanSkillEstimate(newEloRank.get(0));
+            clanEloRank.setUncertainty(newEloRank.get(1));
             clanEloRankRepository.save(clanEloRank);
         }
     }
@@ -256,21 +264,8 @@ public class EloRankingService {
         return dynamicCap;
     }
 
-    // Calculate the new uncertainty value for a player
-    private double calculateNewUncertainty(double uncertainty, double E_i, double performanceBasedOutcome, double meanSkillEstimate) {
-        double v_i = 1 / (E_i * (1 - E_i));
-        double sigmaSquaredInverse = (1 / (uncertainty * uncertainty)) + (1 / v_i);
-        double newUncertainty = Math.sqrt(1 / sigmaSquaredInverse);
-
-        double surpriseFactor = Math.abs(performanceBasedOutcome - meanSkillEstimate) / meanSkillEstimate;
-        double lambda = BASE_LAMBDA + surpriseFactor * LAMBDA_ADJUSTMENT_FACTOR;
-        newUncertainty *= (1 - lambda);
-
-        return Math.max(newUncertainty, INITIAL_SIGMA * 0.5);
-    }
-
-    // Clan Elo computation remains unchanged, using fixed K for updates
-    public Map<Long, Double> computeResultantClanEloRating(
+    // Clan Elo computation with uncertainty
+    public Map<Long, List<Double>> computeResultantClanEloRating(
             ClanEloRank winnerEloRank,
             ClanEloRank loserEloRank,
             List<PlayerGameScore> winnerPlayerGameScore,
@@ -279,7 +274,7 @@ public class EloRankingService {
             List<PlayerEloRank> loserPlayerEloRank
     ) {
 
-        Map<Long, Double> finalClanEloRating = new HashMap<>();
+        Map<Long, List<Double>> finalClanEloRating = new HashMap<>();
 
         // Calculate the average RPS for each clan
         double avgRPSWinner = calculateAverageRPS(winnerPlayerGameScore);
@@ -289,15 +284,40 @@ public class EloRankingService {
         double expectedPerformanceWinner = calculateExpectedPerformance(winnerPlayerEloRank);
         double expectedPerformanceLoser = calculateExpectedPerformance(loserPlayerEloRank);
 
-        // Update Elo ratings based on PBO
-        updateClanRatingsBasedOnPBO(
-                winnerEloRank, loserEloRank,
-                avgRPSWinner, avgRPSLoser,
-                expectedPerformanceWinner, expectedPerformanceLoser,
-                finalClanEloRating
-        );
+        // Calculate the winner's and loser's performance outcomes
+        double winnerPerformanceOutcome = 1 + MAX_ALPHA * avgRPSWinner;
+        double loserPerformanceOutcome = 0 + MAX_ALPHA * avgRPSLoser;
+
+        // Update winner's Elo rating and uncertainty
+        double winnerNewMeanSkillEstimate = winnerEloRank.getMeanSkillEstimate() +
+                K * (winnerPerformanceOutcome - expectedPerformanceWinner);
+        double winnerNewUncertainty = calculateNewUncertainty(
+                winnerEloRank.getUncertainty(), expectedPerformanceWinner, winnerPerformanceOutcome, winnerEloRank.getMeanSkillEstimate());
+
+        // Update loser's Elo rating and uncertainty
+        double loserNewMeanSkillEstimate = loserEloRank.getMeanSkillEstimate() +
+                K * (loserPerformanceOutcome - expectedPerformanceLoser);
+        double loserNewUncertainty = calculateNewUncertainty(
+                loserEloRank.getUncertainty(), expectedPerformanceLoser, loserPerformanceOutcome, loserEloRank.getMeanSkillEstimate());
+
+        // Store the new Elo and uncertainty for both clans in the map
+        finalClanEloRating.put(winnerEloRank.getClanId(), Arrays.asList(winnerNewMeanSkillEstimate, winnerNewUncertainty));
+        finalClanEloRating.put(loserEloRank.getClanId(), Arrays.asList(loserNewMeanSkillEstimate, loserNewUncertainty));
 
         return finalClanEloRating;
+    }
+
+
+    private double calculateNewUncertainty(double uncertainty, double expectedPerformance, double performanceOutcome, double meanSkillEstimate) {
+        double v_i = 1 / (expectedPerformance * (1 - expectedPerformance));
+        double sigmaSquaredInverse = (1 / (uncertainty * uncertainty)) + (1 / v_i);
+        double newUncertainty = Math.sqrt(1 / sigmaSquaredInverse);
+
+        double surpriseFactor = Math.abs(performanceOutcome - meanSkillEstimate) / meanSkillEstimate;
+        double lambda = BASE_LAMBDA + surpriseFactor * LAMBDA_ADJUSTMENT_FACTOR;
+        newUncertainty *= (1 - lambda);
+
+        return Math.max(newUncertainty, INITIAL_SIGMA * 0.5); // Ensure uncertainty does not fall below a threshold
     }
 
     // Calculate the average RPS for a clan
@@ -313,26 +333,5 @@ public class EloRankingService {
         double totalRatings = playerEloRankList.stream().mapToDouble(PlayerEloRank::getMeanSkillEstimate).sum();
         double averageRating = totalRatings / playerEloRankList.size();
         return 1 / (1 + Math.pow(10, (averageRating - totalRatings / playerEloRankList.size()) / 400));
-    }
-
-    // Update clan ratings based on Performance-Based Outcome (PBO)
-    private void updateClanRatingsBasedOnPBO(
-            ClanEloRank winnerEloRank, ClanEloRank loserEloRank,
-            double avgRPSWinner, double avgRPSLoser,
-            double expectedPerformanceWinner, double expectedPerformanceLoser,
-            Map<Long, Double> finalClanEloRating) {
-
-        // Winner's new Elo rating
-        double winnerPerformanceOutcome = 1 + MAX_ALPHA * avgRPSWinner;
-        double winnerNewElo = winnerEloRank.getMeanSkillEstimate() +
-                K * (winnerPerformanceOutcome - expectedPerformanceWinner);
-
-        // Loser's new Elo rating
-        double loserPerformanceOutcome = 0 + MAX_ALPHA * avgRPSLoser;
-        double loserNewElo = loserEloRank.getMeanSkillEstimate() +
-                K * (loserPerformanceOutcome - expectedPerformanceLoser);
-
-        finalClanEloRating.put(winnerEloRank.getClanId(), winnerNewElo);
-        finalClanEloRating.put(loserEloRank.getClanId(), loserNewElo);
     }
 }

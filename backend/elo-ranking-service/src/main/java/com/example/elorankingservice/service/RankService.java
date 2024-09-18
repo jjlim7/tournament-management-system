@@ -15,8 +15,8 @@ public class RankService {
     private final RankThresholdRepository rankThresholdRepository;
 
     @Autowired
-    public RankService(RankThresholdRepository rankThresholdRepository) {
-        this.rankThresholdRepository = rankThresholdRepository;
+    public RankService(RankThresholdRepository rtr) {
+        this.rankThresholdRepository = rtr;
     }
 
     public List<RankThreshold> retrieveRankThresholds() {
@@ -29,6 +29,10 @@ public class RankService {
 
     public RankThreshold retrieveRankThresholdByRank(RankThreshold.Rank rank) {
         return rankThresholdRepository.findByRank(rank).orElse(null);
+    }
+    
+    public RankThreshold retrieveRankThresholdByRating(double rating) {
+        return rankThresholdRepository.findByMinRatingLessThanEqualAndMaxRatingGreaterThanEqual(rating);
     }
 
     public RankThreshold createNewRankThreshold(RankThreshold rankThreshold) {
