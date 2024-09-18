@@ -16,9 +16,11 @@ public abstract class GameScore {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long gameId;
+    private Long tournamentId;
 
     // Constructor
-    public GameScore(Long gameId) {
+    public GameScore(Long gameId, Long tournamentId) {
         this.gameId = gameId;
+        this.tournamentId = tournamentId;
     }
 }

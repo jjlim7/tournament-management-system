@@ -3,6 +3,8 @@ package com.example.elorankingservice.service;
 import com.example.elorankingservice.entity.*;
 import com.example.elorankingservice.repository.ClanEloRankRepository;
 import com.example.elorankingservice.repository.PlayerEloRankRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +13,7 @@ import java.util.*;
 @Service
 public class EloRankingService {
 
-    private static final double K = 0.2;         // Fixed K value (no dynamic K)
+    private static final double K = 0.5;         // Fixed K value (no dynamic K)
     private static final double MAX_ALPHA = 1.5; // Cap for alpha scaling
     private static final double BASE_LAMBDA = 0.1; // Base uncertainty reduction factor
     private static final double DECAY_RATE = 0.3; // Decay rate for placement outcome
@@ -19,10 +21,21 @@ public class EloRankingService {
     public static final double INITIAL_SIGMA = 8.333; // Default uncertainty for new players
     private static final double LAMBDA_ADJUSTMENT_FACTOR = 0.3; // Factor to adjust uncertainty by surprise performance
     public static final RankThreshold.Rank ORIGIN_RANK = RankThreshold.Rank.BRONZE;
+    private static final Logger logger = LoggerFactory.getLogger(EloRankingService.class);
 
     private final PlayerEloRankRepository playerEloRankRepository;
     private final ClanEloRankRepository clanEloRankRepository;
     private final RankService rankService;
+
+    public void seedPlayerEloRanks() {
+        // Check if rank thresholds are already seeded
+        if (playerEloRankRepository.count() == 0) {
+            // Seed the rank thresholds in the repository
+            for (int i = 1; i < 51; i++) {
+                createNewPlayerEloRanking(i, 1001);
+            }
+        }
+    }
 
     // Role-based performance configuration (RPConfig)
     private static final Map<PlayerGameScore.Role, Map<String, Double>> RPConfig = Map.of(
@@ -125,7 +138,7 @@ public class EloRankingService {
 
     // Update Player Elo rankings
     public List<PlayerEloRank> updatePlayerEloRanking(Map<Long, List<Double>> finalPlayerEloRating) throws Exception {
-        List<PlayerEloRank> finalPlayerEloRanks = new ArrayList<PlayerEloRank>();
+        List<PlayerEloRank> finalPlayerEloRanks = new ArrayList<>();
         for (Map.Entry<Long, List<Double>> entry : finalPlayerEloRating.entrySet()) {
             long playerId = entry.getKey();
             List<Double> newEloRank = entry.getValue();
@@ -149,7 +162,7 @@ public class EloRankingService {
     }
 
     public List<PlayerEloRank> processUpdateBattleRoyaleResults(List<PlayerGameScore> battleRoyaleResults) throws Exception {
-        List<PlayerEloRank> playersEloRank = new ArrayList<PlayerEloRank>();
+        List<PlayerEloRank> playersEloRank = new ArrayList<>();
         for (PlayerGameScore playerGameScore : battleRoyaleResults) {
             Long playerId = playerGameScore.getPlayerId();
             Long tournamentId = playerGameScore.getTournamentId();
@@ -160,6 +173,7 @@ public class EloRankingService {
             playersEloRank.add(playerEloRank.get());
         }
         Map<Long, List<Double>> finalResult = computeResultantPlayerEloRating(playersEloRank, battleRoyaleResults);
+        logger.error("Final result: {}", finalResult);
         return updatePlayerEloRanking(finalResult);
     }
 
@@ -173,13 +187,17 @@ public class EloRankingService {
 
         // Step 1: Calculate Role Performance Score (RPS) for all players
         List<Double> rpsList = calculateRPSForAllPlayers(playersEloRank, playerGameScoreList);
-
+        logger.error("rps list: {}", rpsList);
         // Step 2: Normalize the RPS using Z-score
         double avgRPS = calculateAverage(rpsList);
+        logger.error("avg rps: {}", avgRPS);
+
         double stdRPS = calculateStandardDeviation(rpsList, avgRPS);
+        logger.error("std rps: {}", stdRPS);
 
         // Step 3: Calculate Expected Performance (E_i) for each player
         List<Double> expectedPerformances = calculateExpectedPerformances(playersEloRank);
+        logger.error("expected perf: {}", expectedPerformances);
 
         // Step 4: Update ratings based on Performance-Based Outcome (PBO)
         updateRatingsBasedOnPBO(playersEloRank, playerGameScoreList, finalPlayerEloRating, rpsList, avgRPS, stdRPS, expectedPerformances);;

@@ -16,6 +16,10 @@ public class Request {
         public List<PlayerGameScore> getRawPlayerGameScores() {
             return rawPlayerGameScores;
         }
+
+        public void setRawPlayerGameScores(List<PlayerGameScore> rawPlayerGameScores) {
+            this.rawPlayerGameScores = rawPlayerGameScores;
+        }
     }
 
     @Getter

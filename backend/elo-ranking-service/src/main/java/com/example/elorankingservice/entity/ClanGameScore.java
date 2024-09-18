@@ -25,6 +25,10 @@ public class ClanGameScore extends GameScore {
     @Column(name = "score", nullable = false)
     private int score;
 
+    @Column(name = "tournament_id", nullable = false)
+    private Long tournamentId;
+
+
     // Many ClanGameScores are associated with one ClanTournamentEloRank
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clan_elo_rank_id", referencedColumnName = "id", nullable = false) // Correct the reference to the correct foreign key column
@@ -32,12 +36,12 @@ public class ClanGameScore extends GameScore {
 
     // No-Arg Constructor (required by JPA)
     public ClanGameScore() {
-        super(null);
+        super(null, null);
     }
 
     // Constructor
-    public ClanGameScore(Long gameId, Long clanId, int result, List<PlayerGameScore> playerScores) {
-        super(gameId);
+    public ClanGameScore(Long gameId,Long tournamentId,  Long clanId, int result, List<PlayerGameScore> playerScores) {
+        super(gameId, tournamentId);
         this.clanId = clanId;
         this.result = result;
         this.playerScores = playerScores;

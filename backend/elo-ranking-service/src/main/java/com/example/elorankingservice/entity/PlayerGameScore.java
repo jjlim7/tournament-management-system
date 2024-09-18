@@ -1,5 +1,6 @@
 package com.example.elorankingservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.time.Duration;
@@ -11,6 +12,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PlayerGameScore extends GameScore {
 
 
@@ -96,12 +98,13 @@ public class PlayerGameScore extends GameScore {
 
 
     public PlayerGameScore() {
-        super(null);
+        super(null, null);
     }
     // Constructor (if needed)
     public PlayerGameScore(
             Long playerId,
             Long gameId,
+            Long tournamentId,
             int kills,
             int deaths,
             float placement,
@@ -118,7 +121,7 @@ public class PlayerGameScore extends GameScore {
             int assists,
             int longestKillStreak
     ) {
-        super(gameId);
+        super(gameId, tournamentId);
         this.playerId = playerId;
         this.kills = kills;
         this.deaths = deaths;
@@ -137,8 +140,11 @@ public class PlayerGameScore extends GameScore {
         this.longestKillStreak = longestKillStreak;
     }
 
-    // Derived or computed methods
     public double getKillDeathRatio() {
+        // prevent division by zero error
+        if (deaths == 0) {
+            deaths = 1;
+        }
         return (double) kills / (double) deaths;
     }
 

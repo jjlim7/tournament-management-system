@@ -22,8 +22,8 @@ public class GameScoreService {
     }
 
 
-    public ClanGameScore storeClanGameScore(Long gameId, Long clanId, List<PlayerGameScore> playersGameScore, boolean isWinner)  {
-        ClanGameScore clanGameScore = new ClanGameScore(gameId, clanId, 0, playersGameScore);
+    public ClanGameScore storeClanGameScore(Long tournamentId, Long gameId, Long clanId, List<PlayerGameScore> playersGameScore, boolean isWinner)  {
+        ClanGameScore clanGameScore = new ClanGameScore(tournamentId, gameId, clanId, 0, playersGameScore);
         if (isWinner) {
             clanGameScore.setResult(1);
         }

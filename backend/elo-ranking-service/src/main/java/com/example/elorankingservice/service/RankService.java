@@ -65,7 +65,7 @@ public class RankService {
     public RankThreshold retrieveRankThresholdByRating(double rating) throws Exception {
         List<RankThreshold> rankThresholds = retrieveRankThresholds();
         for (RankThreshold rankThreshold : rankThresholds) {
-            if (rankThreshold.getMinRating() >= rating && rankThreshold.getMaxRating() <= rating) {
+            if (rankThreshold.getMinRating() <= rating && rankThreshold.getMaxRating() >= rating) {
                 return rankThreshold;
             }
         }
