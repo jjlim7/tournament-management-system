@@ -6,4 +6,6 @@ import java.util.Optional;
 
 
 public interface ClanEloRankRepository extends BaseEloRankRepository<ClanEloRank>{
+    // Read
+    Optional<ClanEloRank> findByClanIdAndTournamentId(Long clanId, Long tournamentId);
 }

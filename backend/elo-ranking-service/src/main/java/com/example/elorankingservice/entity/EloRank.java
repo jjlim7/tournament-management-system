@@ -25,8 +25,7 @@ public abstract class EloRank {
     @Column(name="uncertainty", nullable = false)
     private double uncertainty;
 
-    // Many EloRanks can be associated with one Tournament
-    @Column(name = "tournament_id", nullable = false)
+    @Column(name="tournament_id", nullable = false)
     private Long tournamentId;
 
     // No-arg constructor required by JPA

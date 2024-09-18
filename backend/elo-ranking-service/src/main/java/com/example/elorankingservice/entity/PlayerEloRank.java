@@ -1,9 +1,9 @@
 package com.example.elorankingservice.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.List;
 
 @Entity
 @Getter
@@ -12,6 +12,10 @@ public class PlayerEloRank extends EloRank {
 
     @Column(name = "player_id", nullable = false)
     private Long playerId;
+
+    // One PlayerEloRank can have many PlayerGameScores
+    @OneToMany(mappedBy = "playerEloRank", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PlayerGameScore> playerGameScores;
 
     public PlayerEloRank() {}
 

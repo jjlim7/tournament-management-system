@@ -1,10 +1,13 @@
 package com.example.elorankingservice.service;
 
+import com.example.elorankingservice.dto.Request;
 import com.example.elorankingservice.entity.*;
 import com.example.elorankingservice.repository.ClanEloRankRepository;
 import com.example.elorankingservice.repository.PlayerEloRankRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -63,12 +66,12 @@ public class EloRankingService {
 
     // Retrieve the Clan Elo Rank for a specific clan in a particular tournament
     public Optional<ClanEloRank> retrieveClanEloRank(Long clanId, Long tournamentId) {
-        return clanEloRankRepository.findEloRankByIdAndTournamentId(clanId, tournamentId);
+        return clanEloRankRepository.findByClanIdAndTournamentId(clanId, tournamentId);
     }
 
     // Retrieve the Player Elo Rank for a specific player in a particular tournament
     public Optional<PlayerEloRank> retrievePlayerEloRank(Long playerId, Long tournamentId) {
-        return playerEloRankRepository.findEloRankByIdAndTournamentId(playerId, tournamentId);
+        return playerEloRankRepository.findByPlayerIdAndTournamentId(playerId, tournamentId);
     }
 
     // Retrieve all Clan Elo Ranks for a given tournament
@@ -118,7 +121,8 @@ public class EloRankingService {
     }
 
     // Update Player Elo rankings
-    public void updatePlayerEloRanking(Map<Long, List<Double>> finalPlayerEloRating) throws Exception {
+    public List<PlayerEloRank> updatePlayerEloRanking(Map<Long, List<Double>> finalPlayerEloRating) throws Exception {
+        List<PlayerEloRank> finalPlayerEloRanks = new ArrayList<PlayerEloRank>();
         for (Map.Entry<Long, List<Double>> entry : finalPlayerEloRating.entrySet()) {
             long playerId = entry.getKey();
             List<Double> newEloRank = entry.getValue();
@@ -136,29 +140,26 @@ public class EloRankingService {
             playerEloRank.setRankThreshold(newRankThreshold);
 
             playerEloRankRepository.save(playerEloRank);
+            finalPlayerEloRanks.add(playerEloRank);
         }
+        return finalPlayerEloRanks;
     }
 
-    // Update Clan Elo rankings
-    public void updateClanEloRanking(Map<Long, List<Double>> finalClanEloRating) throws Exception {
-        for (Map.Entry<Long, List<Double>> entry : finalClanEloRating.entrySet()) {
-            long clanId = entry.getKey();
-            List<Double> newEloRank = entry.getValue();
-            ClanEloRank clanEloRank = clanEloRankRepository.findById(clanId)
-                    .orElseThrow(() -> new IllegalArgumentException("Clan not found with ID: " + clanId));
-
-            // get new mse and uncertainty and rank threshold based on new mse
-            double newMeanSkillEstimate = newEloRank.get(0);
-            double newUncertainty = newEloRank.get(1);
-            RankThreshold newRankThreshold = rankService.retrieveRankThresholdByRating(newMeanSkillEstimate);
-
-            clanEloRank.setMeanSkillEstimate(newMeanSkillEstimate);
-            clanEloRank.setUncertainty(newUncertainty);
-            clanEloRank.setRankThreshold(newRankThreshold);
-
-            clanEloRankRepository.save(clanEloRank);
+    public List<PlayerEloRank> processUpdateBattleRoyaleResults(List<PlayerGameScore> battleRoyaleResults) throws Exception {
+        List<PlayerEloRank> playersEloRank = new ArrayList<PlayerEloRank>();
+        for (PlayerGameScore playerGameScore : battleRoyaleResults) {
+            Long playerId = playerGameScore.getPlayerId();
+            Long tournamentId = playerGameScore.getTournamentId();
+            Optional<PlayerEloRank> playerEloRank = retrievePlayerEloRank(playerId, tournamentId);
+            if (playerEloRank.isEmpty()) {
+                throw new Exception("Elo rank not found");
+            }
+            playersEloRank.add(playerEloRank.get());
         }
+        Map<Long, List<Double>> finalResult = computeResultantPlayerEloRating(playersEloRank, battleRoyaleResults);
+        return updatePlayerEloRanking(finalResult);
     }
+
 
     // Compute resultant player Elo ratings
     public Map<Long, List<Double>> computeResultantPlayerEloRating(List<PlayerEloRank> playersEloRank, List<PlayerGameScore> playerGameScoreList) {
@@ -178,7 +179,7 @@ public class EloRankingService {
         List<Double> expectedPerformances = calculateExpectedPerformances(playersEloRank);
 
         // Step 4: Update ratings based on Performance-Based Outcome (PBO)
-        updateRatingsBasedOnPBO(playersEloRank, playerGameScoreList, finalPlayerEloRating, rpsList, avgRPS, stdRPS, expectedPerformances);
+        updateRatingsBasedOnPBO(playersEloRank, playerGameScoreList, finalPlayerEloRating, rpsList, avgRPS, stdRPS, expectedPerformances);;
 
         return finalPlayerEloRating;
     }
@@ -270,6 +271,73 @@ public class EloRankingService {
         }
 
         return dynamicCap;
+    }
+
+    public List<ClanEloRank> processUpdateClanWarResults(
+            Map<Long, List<PlayerGameScore>> winnerClanPlayerResult,
+            Map<Long, List<PlayerGameScore>> loserClanPlayerResult
+    ) throws Exception {
+        Long winnerClanId = winnerClanPlayerResult.keySet().iterator().next();
+        Long loserClanId = loserClanPlayerResult.keySet().iterator().next();
+
+        Optional<ClanEloRank> winnerClanEloRank = clanEloRankRepository.findById(winnerClanId);
+        Optional<ClanEloRank> loserClanEloRank = clanEloRankRepository.findById(loserClanId);
+        if (winnerClanEloRank.isEmpty() || loserClanEloRank.isEmpty()) {
+            throw new Exception("Elo rank not found");
+        }
+
+        List<PlayerGameScore> winnerClanPlayerGameScores = winnerClanPlayerResult.get(winnerClanId);
+        List<PlayerGameScore> loserClanPlayerGameScore = loserClanPlayerResult.get(loserClanId);
+
+        List<PlayerEloRank> winnerPlayerEloRanks = new ArrayList<>();
+        List<PlayerEloRank> loserPlayerEloRanks = new ArrayList<>();
+
+        for (PlayerGameScore playerGameScore: winnerClanPlayerGameScores) {
+            Long playerId = playerGameScore.getPlayerId();
+            Long tournamentId = playerGameScore.getTournamentId();
+            Optional<PlayerEloRank> playerEloRank = retrievePlayerEloRank(playerId, tournamentId);
+            if (playerEloRank.isEmpty()) {
+                throw new Exception("Elo rank not found");
+            }
+            winnerPlayerEloRanks.add(playerEloRank.get());
+        }
+        for (PlayerGameScore playerGameScore: loserClanPlayerGameScore) {
+            Long playerId = playerGameScore.getPlayerId();
+            Long tournamentId = playerGameScore.getTournamentId();
+            Optional<PlayerEloRank> playerEloRank = retrievePlayerEloRank(playerId, tournamentId);
+            if (playerEloRank.isEmpty()) {
+                throw new Exception("Elo rank not found");
+            }
+            loserPlayerEloRanks.add(playerEloRank.get());
+        }
+
+        Map<Long, List<Double>> finalResult = computeResultantClanEloRating(winnerClanEloRank.get(), loserClanEloRank.get(), winnerClanPlayerGameScores, loserClanPlayerGameScore, winnerPlayerEloRanks, loserPlayerEloRanks);
+        return updateClanEloRanking(finalResult);
+    }
+
+    // Update Clan Elo rankings
+    public List<ClanEloRank> updateClanEloRanking(Map<Long, List<Double>> finalClanEloRating) throws Exception {
+        List<ClanEloRank> finalClanEloRanks = new ArrayList<>();
+        for (Map.Entry<Long, List<Double>> entry : finalClanEloRating.entrySet()) {
+            long clanId = entry.getKey();
+            List<Double> newEloRank = entry.getValue();
+            ClanEloRank clanEloRank = clanEloRankRepository.findById(clanId)
+                    .orElseThrow(() -> new IllegalArgumentException("Clan not found with ID: " + clanId));
+
+            // get new mse and uncertainty and rank threshold based on new mse
+            double newMeanSkillEstimate = newEloRank.get(0);
+            double newUncertainty = newEloRank.get(1);
+            RankThreshold newRankThreshold = rankService.retrieveRankThresholdByRating(newMeanSkillEstimate);
+
+            clanEloRank.setMeanSkillEstimate(newMeanSkillEstimate);
+            clanEloRank.setUncertainty(newUncertainty);
+            clanEloRank.setRankThreshold(newRankThreshold);
+
+            clanEloRankRepository.save(clanEloRank);
+
+            finalClanEloRanks.add(clanEloRank);
+        }
+        return finalClanEloRanks;
     }
 
     // Clan Elo computation with uncertainty

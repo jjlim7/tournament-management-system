@@ -16,5 +16,4 @@ public interface BaseEloRankRepository<T extends EloRank> extends JpaRepository<
     // Read
     List<T> findEloRanksByTournamentId(Long tournamentId);
     List<T> findByMeanSkillEstimateBetweenAndTournamentId(double minRating, double maxRating, Long tournamentId);
-    Optional<T> findEloRankByIdAndTournamentId(Long id, Long tournamentId);
 }

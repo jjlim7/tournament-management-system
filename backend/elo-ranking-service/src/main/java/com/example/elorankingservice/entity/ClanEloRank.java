@@ -16,7 +16,7 @@ public class ClanEloRank extends EloRank {
     private Long clanId;
 
     // One Tournament Score can have many Clan Game Scores
-    @OneToMany(mappedBy = "clanTournamentEloRank", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "clanEloRank", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ClanGameScore> clanGameScores;
 
     public ClanEloRank() {}
