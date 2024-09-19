@@ -15,7 +15,6 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlayerGameScore extends GameScore {
 
-
     public enum GameMode {
         BATTLE_ROYALE,
         CLAN_WAR,

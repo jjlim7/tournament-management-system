@@ -57,6 +57,18 @@ public class GameScoreController {
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
+    // retrieve player game scores by tournament
+    @GetMapping("/player/{playerId}/tournament/{tournamentId}")
+    public ResponseEntity<PlayerGameScore> getPlayerGameScore(@PathVariable Long playerId, @PathVariable Long tournamentId) {
+        List<PlayerGameScore> playerGameScores = gameScoreService.retrievePlayerGameScoresForTournament(tournamentId, playerId);
+        return new ResponseEntity<>(playerGameScores.get(0), HttpStatus.OK);
+    }
 
-
+    // retrieve clan game scores by tournament
+    @GetMapping("/clan/{clanId}/tournament/{tournamentId}")
+    public ResponseEntity<ClanGameScore> getClanGameScore(@PathVariable Long clanId, @PathVariable Long tournamentId) {
+        List<ClanGameScore> clanGameScore = gameScoreService.retrieveClanGameScoresForTournament(tournamentId, clanId);
+        return new ResponseEntity<>(clanGameScore.get(0), HttpStatus.OK);
+    }
 }
+
