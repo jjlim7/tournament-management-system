@@ -16,7 +16,7 @@
     "@fortawesome/vue-fontawesome": "^3.0.3",
     "aos": "^3.0.0-beta.6",
     "axios": "^1.5.1",
-    "bootstrap": "^5.3.2",
+    "bootstrap": "^5.3.3",
     "pinia": "^2.1.7",
     "sweetalert": "^2.1.2",
     "tournamentsystemfrontend": "file:",
@@ -27,6 +27,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.5",
     "@vitejs/plugin-vue-jsx": "^4.0.0",
+    "sass": "1.32.13",
     "vite": "^5.3.1"
   }
 }

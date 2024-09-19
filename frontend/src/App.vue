@@ -1,7 +1,16 @@
-<script setup>
+<script>
 import { RouterView } from 'vue-router'
 import Navbar from './components/Navbar/Navbar.vue';
 import NavbarLandingPage from './components/Navbar/NavbarLandingPage.vue'
+
+export default{
+  name:"App",
+  components:{RouterView,Navbar,NavbarLandingPage},
+  methods:{
+    
+  }
+}
+
 </script>
 
 <template>
@@ -14,8 +23,6 @@ import NavbarLandingPage from './components/Navbar/NavbarLandingPage.vue'
 
 
 
-<style scoped>
-.maxWidth{
-  max-width: 1280px;
-}
+<style>
+
 </style>
