@@ -1,6 +1,7 @@
 <template>
   <div>
-    <h1>This is an AuthView page</h1>
+    <!-- <div><img src="https://mustsharenews.com/wp-content/uploads/2024/08/Black-Myth-Wukong.jpg" alt=""></div> -->
+    <div></div>
   </div>
 </template>
 
