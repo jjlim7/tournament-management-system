@@ -11,28 +11,14 @@ public class Request {
     @Getter
     public static class CreateBattleRoyalePlayerGameScore {
         List<PlayerGameScore> rawPlayerGameScores;
-
-        // Getter for rawPlayerGameScores
-        public List<PlayerGameScore> getRawPlayerGameScores() {
-            return rawPlayerGameScores;
-        }
-
-        public void setRawPlayerGameScores(List<PlayerGameScore> rawPlayerGameScores) {
-            this.rawPlayerGameScores = rawPlayerGameScores;
-        }
     }
 
     @Getter
     public static class CreateClanWarGameScore {
         Map<Long, List<PlayerGameScore>> winnerRawPlayerGameScores;
         Map<Long, List<PlayerGameScore>> loserRawPlayerGameScores;
-
-        public Map<Long, List<PlayerGameScore>> getWinnerRawPlayerGameScores() {
-            return winnerRawPlayerGameScores;
-        }
-        public Map<Long, List<PlayerGameScore>> getLoserRawPlayerGameScores() {
-            return loserRawPlayerGameScores;
-        }
+        Long tournamentId;
+        Long gameId;
     }
 
     @Getter

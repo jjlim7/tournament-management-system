@@ -4,9 +4,11 @@ import com.example.elorankingservice.entity.ClanGameScore;
 import com.example.elorankingservice.entity.PlayerGameScore;
 import com.example.elorankingservice.repository.ClanGameScoreRepository;
 import com.example.elorankingservice.repository.PlayerGameScoreRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class GameScoreService {
     // for player and clan game score
     private final ClanGameScoreRepository clanGameScoreRepository;
