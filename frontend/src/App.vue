@@ -19,11 +19,14 @@ export default{
         '/leaderboard':'https://i0.wp.com/theguidehall.com/wp-content/uploads/2024/08/Black-Myth_-Wukong_20240823164851.jpg',
         '/profile':'https://images5.alphacoders.com/112/1129255.jpg',
       },
-      isLogin: false
+      isLogin: true
     }
   },
   computed:{
-    
+    currentRoute() {
+      const route = useRoute();
+      return route.path; // Returns the current route path
+    },
   },
   methods:{
     defineBackgroundImage(){
@@ -39,11 +42,11 @@ export default{
   <div :style="{ 'background-image': 'url(' + defineBackgroundImage() + ')'}"  class="appBackground" >
     <div class="mx-auto text-white m-0 p-0 " style="max-width: 1280px;">
 
-      <Navbar v-if="isLogin"/>
-      <NavbarLandingPage v-else/>
+      <Navbar v-if="isLogin && currentRoute!='/'"/>
+      <NavbarLandingPage v-else-if="!isLogin && currentRoute!='/'"/>
       
       <RouterView />
-      
+
     </div>
   </div>
 </template>
