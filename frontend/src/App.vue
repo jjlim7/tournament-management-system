@@ -18,7 +18,8 @@ export default{
         '/Clan':'',
         '/leaderboard':'https://i0.wp.com/theguidehall.com/wp-content/uploads/2024/08/Black-Myth_-Wukong_20240823164851.jpg',
         '/profile':'https://images5.alphacoders.com/112/1129255.jpg',
-      }
+      },
+      isLogin: false
     }
   },
   computed:{
@@ -35,17 +36,14 @@ export default{
 </script>
 
 <template>
-  <div class="mx-auto text-white m-0 p-0" style="max-width: 1280px;">
-    <div :style="{ 'background-image': 'url(' + defineBackgroundImage() + ')'}" class="appBackground">
+  <div :style="{ 'background-image': 'url(' + defineBackgroundImage() + ')'}"  class="appBackground" >
+    <div class="mx-auto text-white m-0 p-0 " style="max-width: 1280px;">
 
-      <!-- <NavbarLandingPage/> -->
-      <Navbar/>
-      <div class="contentContainer">
-        <RouterView />
-        <div class="m-5 p-5 ">hello world</div>
-       
-      </div>
-
+      <Navbar v-if="isLogin"/>
+      <NavbarLandingPage v-else/>
+      
+      <RouterView />
+      
     </div>
   </div>
 </template>
@@ -55,13 +53,9 @@ export default{
 <style>
 .appBackground {
   height: 100vh;
-  background-position:center;
+  background-position: top;
   background-repeat: no-repeat;
-  max-height: 720px;
+  background-size: cover;
 }
-.contentContainer {
-  max-height: 650px; /* Limit the content container to 825px */
-  overflow-y: auto;  /* Enable vertical scrolling when content exceeds 825px */
-  padding: 10px;
-}
+
 </style>
