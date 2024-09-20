@@ -47,7 +47,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .hoverBtn:hover {
   background-color: #FA9021 !important;
   opacity: 100 !important;

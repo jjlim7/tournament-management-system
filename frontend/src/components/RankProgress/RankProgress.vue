@@ -32,7 +32,7 @@ export default {
                 Iron: "https://static.wikia.nocookie.net/leagueoflegends/images/f/f8/Season_2023_-_Iron.png",
                 Bronze:"https://static.wikia.nocookie.net/leagueoflegends/images/c/cb/Season_2023_-_Bronze.png",
                 Silver:"https://static.wikia.nocookie.net/leagueoflegends/images/c/c4/Season_2023_-_Silver.png",
-                Gold:"https://static.wikia.nocookie.net/leagueoflegends/images/7/78/Season_2023_-_Gold.png/revision",
+                Gold:"https://static.wikia.nocookie.net/leagueoflegends/images/7/78/Season_2023_-_Gold.png",
                 Platinum:"https://static.wikia.nocookie.net/leagueoflegends/images/b/bd/Season_2023_-_Platinum.png",
                 Emerald:"https://static.wikia.nocookie.net/leagueoflegends/images/4/4b/Season_2023_-_Emerald.png",
                 Diamond:"https://static.wikia.nocookie.net/leagueoflegends/images/3/37/Season_2023_-_Diamond.png",
@@ -47,7 +47,7 @@ export default {
             return this.ALLRANKS[this.rank] || this.ALLRANKS.Unranked;
         },
         progressPercent(){
-            console.log(this.currentElo/this.upperLimit);
+            // console.log(this.currentElo/this.upperLimit);
             const percentage = (this.currentElo / this.upperLimit) * 100;
             return `${percentage}%`;
         }

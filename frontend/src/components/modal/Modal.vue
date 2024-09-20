@@ -35,7 +35,7 @@ below is an eg of how to use the modal
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header py-3 px-4 border-0">
-                    <span class="modal-title fs-5 fw-semibold text-black">{{header}}</span>
+                    <span v-if="header!=''" class="modal-title fs-5 fw-semibold text-black">{{header}}</span>
                     <button 
                         type="button" 
                         class="btn-close bg-secondary rounded-5" 

@@ -55,7 +55,7 @@ export default{
 
 <style>
 .appBackground {
-  height: 100vh;
+  min-height: 100vh;
   background-position: top;
   background-repeat: no-repeat;
   background-size: cover;
