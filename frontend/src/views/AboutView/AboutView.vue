@@ -1,31 +1,37 @@
 <template>
   <div class="top">
-    <div class="line">
+    <div class="row align-items-start">
       <div class="text0">
         <h1 style="text-decoration: underline;">Header div</h1>
         <p>{{ displayText0 }}</p>
       </div>
-      <img :src="'https://dl.nowpng.com/2024/07/black-myth-wukong-game.png'" class="wukongbody">
+    </div>
+    <div class="row align-items-start">
+      <div class="col text-end"> <!-- Aligns the image to the right -->
+        <img :src="'https://dl.nowpng.com/2024/07/black-myth-wukong-game.png'" class="wukongbody img-fluid" alt="Wukong Image">
+      </div>
     </div>
   </div>
 
-  <div class="mid" >
+  <div class="mid d-flex justify-content-around">
     <img :src="'https://promotions.lenovo.com/uploads/assets/f848702b3458c766a8af753da6d227d6.png'" class="wukongtitle">
-    <div class="line">
+    <div class="row align-items-start">
       <div class="text">
         <h1 style="text-decoration: underline;">Diverse Levels</h1>
         <p>{{ displayText1 }}</p>      
       </div>
       <img :src="'https://149367133.v2.pressablecdn.com/wp-content/uploads/2024/08/Black-Myth-Wukong.jpg'" class="wukongimg1">
     </div>
-    <div class="line">
-      <img :src="'https://cdn.mos.cms.futurecdn.net/sgFRba5wiRrXrWh2bVkF5a.jpg'" class="wukongimg1">
+    
+    <div class="row d-flex flex-column-reverse flex-md-row align-items-start">
+      <img :src="'https://cdn.mos.cms.futurecdn.net/sgFRba5wiRrXrWh2bVkF5a.jpg'" class="wukongimg2">
       <div class="text">
         <h1 style="text-decoration: underline;">Tough YaoGuai</h1>
         <p>{{ displayText2 }}</p>      
       </div>
     </div>
-    <div class="line">
+
+    <div class="row align-items-start">
       <div class="text">
         <h1 style="text-decoration: underline;">VAST VARIATIONS</h1>
         <p>{{ displayText3 }}</p>      
@@ -34,7 +40,7 @@
     </div>
   </div>
 
-  <div class="footer">
+  <div class="footer row align-items-start">
     <div class="footer-column">
       <h3>About the Team</h3>
       <p>We are a team committed to providing high-quality tournaments and matchmaking. Our team is dedicated to meeting your needs with professionalism and efficiency.</p>
@@ -50,7 +56,7 @@
       <h3>Contact Us</h3>
       <p>Email: <a href="fakeemail@fakemail.com">fakeemail@fakemail.com</a></p>
       <p>Phone: +65 9112 6229</p>
-      <div class="line">
+      <div class="row align-items-start">
 
       </div>
     </div>
@@ -64,16 +70,16 @@
   background-position: center;
   height: 700px;
   overflow: hidden; 
+  background-attachment: fixed; /* Keep the background fixed */
 }
 .mid{
   display: flex;
   flex-direction: column;
   gap: 50px; 
-  height: 1500px;
   background: linear-gradient(to bottom,#000000,#424242 );
+  overflow-x: hidden;
 }
 .footer {
-  height: 300px;
   background-color: black;
   display: flex;
   justify-content: space-between;
@@ -85,11 +91,11 @@
   min-width: 200px;
 }
 
-.line{
+/* .line{
   display: flex;
   align-items: flex-start; 
   gap: 20px; 
-}
+} */
 .text{
   font-size: 30px;
   line-height: 1.5; 
@@ -113,19 +119,28 @@
   width: 1200px; 
   position: relative; 
   top: 20px; 
-  left: 320px; 
+  right: 0;
 }
 .wukongtitle {
-  left: 300px;
   position: relative; 
-  width: 600px;
+  width: 500px; 
+  margin: 0 auto;
 }
 .wukongimg1{
   position: relative; 
-  margin: 20px;
   /* top: 320px;
   left: 100px; */
   width: 520px;
+  margin-left: auto;
+  padding-right: 40px;
+}
+.wukongimg2{
+  position: relative; 
+  /* top: 320px;
+  left: 100px; */
+  width: 520px;
+  margin-right: auto;
+  padding-left: 40px;
 }
 
 </style>
