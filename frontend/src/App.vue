@@ -1,13 +1,15 @@
 
 <template>
   <div :style="{ 'background-image': 'url(' + defineBackgroundImage() + ')'}"  class="appBackground" >
-    <div class="mx-auto text-white m-0 p-0" style="max-width: 1280px;">
+    <div class="tintedBG">
+      <div class="mx-auto text-white m-0 p-0" style="max-width: 1280px;">
 
-      <Navbar v-if="isLogin && currentRoute!='/'"/>
-      <NavbarLandingPage v-else-if="!isLogin && currentRoute!='/'"/>
-      
-      <RouterView />
-
+        <Navbar v-if="isLogin && currentRoute!='/'"/>
+        <NavbarLandingPage v-else-if="!isLogin && currentRoute!='/'"/>
+        
+        <RouterView />
+  
+      </div>
     </div>
   </div>
 </template>
@@ -60,5 +62,9 @@ export default{
   background-repeat: no-repeat;
   background-size: cover;
 }
-
+.tintedBG{
+  background-color: rgba(0, 0, 0, 0.4);
+  background-size: cover;
+  min-height: 100vh;
+}
 </style>

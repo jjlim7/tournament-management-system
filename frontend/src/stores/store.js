@@ -20,7 +20,7 @@ export const useUserStore = defineStore('user', {
     currentElo: "75",
     eloUpperlimit: "100",
     clan: "shawny shawny's clan",
-    clanRole: "admin"
+    clanRole: "member"
   }),
   actions: {
     setUser(userData) {

@@ -12,7 +12,7 @@
 
         <!-- current tournament -->
         <div>
-          <span class="fw-semibold px-2 py-1 rounded-4" style="background-color: rgba(0, 0, 0, 0.4);">Current Tournament</span>
+          <span class="fw-semibold py-1">Current Tournament</span>
           <BlurredBGCard :style="{ 
             'background-image': 'url(' + currentTournament.image + ')'}"
             class="imageProperties text-center mb-2 mt-1">
@@ -25,7 +25,7 @@
   
         <!-- rank progress tournament -->
          <div>
-            <span class="fw-semibold px-2 py-1 rounded-4" style="background-color: rgba(0, 0, 0, 0.4);">Rank Progress</span>
+            <span class="fw-semibold py-1">Rank Progress</span>
             <BlurredBGCard class="mb-2 mt-1">
               <RankProgress 
                 :rank="clanStore.rank" 
@@ -38,16 +38,16 @@
   
         <!-- other tournament carousel -->
         <div>
-          <span class="fw-semibold px-2 py-1 rounded-4" style="background-color: rgba(0, 0, 0, 0.4);">Upcoming Clan War Tournament</span>
+          <span class="fw-semibold py-1">Upcoming Clan War Tournament</span>
           <BlurredBGCard class="mt-1">
-            <div id="battleRoyalupcomingTournament" class="carousel slide" data-bs-ride="carousel"
+            <div id="clanwarupcomingTournament" class="carousel slide" data-bs-ride="carousel"
             data-bs-pause="hover">
               <!-- indicator for each slide -->
               <div class="carousel-indicators">
                 <button 
                   v-for="(tournament,index) in upcomingTournaments" 
                   :key="index" type="button" 
-                  data-bs-target="#battleRoyalupcomingTournament" 
+                  data-bs-target="#clanwarupcomingTournament" 
                   :data-bs-slide-to="index" 
                   :class="{active: index==0 }"></button>
               </div>
@@ -68,10 +68,10 @@
                 </div>
               </div>
 
-              <button class="carousel-control-prev" type="button" data-bs-target="#battleRoyalupcomingTournament" data-bs-slide="prev">
+              <button class="carousel-control-prev" type="button" data-bs-target="#clanwarupcomingTournament" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" ></span>
               </button>
-              <button class="carousel-control-next" type="button" data-bs-target="#battleRoyalupcomingTournament" data-bs-slide="next">
+              <button class="carousel-control-next" type="button" data-bs-target="#clanwarupcomingTournament" data-bs-slide="next">
                 <span class="carousel-control-next-icon" ></span>
               </button>
             </div>
@@ -90,15 +90,15 @@
           <div class="mb-3 d-flex justify-content-between">
             <div class="fw-semibold fs-5"> {{ selectedUpcomingTournament.name }}</div>
             <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{selectedUpcomingTournament.gameMode}}</div>
+          </div>
+          <p class="overflow-y-scroll m-0 shadow-sm" style="max-height: 180px;">{{ selectedUpcomingTournament.description }}</p>
+          <div class="text-black fw-semibold">
+            <div class="fw-semibold">Start Date: {{ selectedUpcomingTournament.startDate }}</div>
+            <div class="fw-semibold">End Date: {{ selectedUpcomingTournament.endDate }}</div>
+          </div>
         </div>
-          <p class="overflow-y-scroll m-0" style="max-height: 150px;">{{ selectedUpcomingTournament.description }}</p>
-        </div>
-        <div class="rounded-bottom-4 bg-light p-2 d-flex mt-auto" @click="checkClanRole" >
-          <button 
-            class="fw-semibold mx-auto text-white btn btn-primary w-50" 
-            :disabled="userStore.clanRole=='member'" 
-            data-bs-toggle="modal" 
-            data-bs-target="#booking">Book</button>
+        <div class="rounded-bottom-4 bg-light p-2 d-flex mt-auto">
+          <button class="fw-semibold mx-auto text-white btn btn-primary w-50"  data-bs-toggle="modal" data-bs-target="#booking">Book</button>
         </div>
       </div>
     </div>
@@ -128,6 +128,7 @@
     <BookingModal 
       :prevModalID="!isLargeScreen ? 'upcoming' : ''" 
       modalID="booking" 
+      :isEditing="false"
       :tournament="selectedUpcomingTournament"/>
    
 
@@ -165,6 +166,8 @@ export default {
           name: "Tournament #345",
           description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
           image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
+          startDate: "start date",
+          endDate: "end date",
           gameMode:"Clan War"
       },
       upcomingTournaments:[
@@ -173,6 +176,8 @@ export default {
           name: "Tournament #1",
           description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
           image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
+          startDate: "start date",
+          endDate: "end date",
           gameMode:"Clan War"
         },
         {
@@ -180,6 +185,8 @@ export default {
           name: "Tournament #2",
           description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
           image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
+          startDate: "start date",
+          endDate: "end date",
           gameMode:"Clan War"
         },
         {
@@ -187,6 +194,8 @@ export default {
           name: "Tournament #3",
           description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
           image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
+          startDate: "start date",
+          endDate: "end date",
           gameMode:"Clan War"
         },
         {
@@ -194,6 +203,8 @@ export default {
           name: "Tournament #4",
           description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
           image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
+          startDate: "start date",
+          endDate: "end date",
           gameMode:"Clan War"
         },
         {
@@ -201,6 +212,8 @@ export default {
           name: "Tournament #5",
           description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
           image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
+          startDate: "start date",
+          endDate: "end date",
           gameMode:"Clan War"
         }
       ],

@@ -1,3 +1,5 @@
+<!-- for this modal, i probably need to do a deep watch to watch the tournament info passed so i can change the start time and end time dynamically according to the tournament period -->
+
 <!-- 
 to use the booking modal, we need to pass in tournament which includes tournament id, name, description, image and gameMode
 
@@ -26,7 +28,7 @@ this is what is needed to pass in for booking modal component
       :modalID="modalID" 
       :showFooter="true" 
       :action="confirmBooking" 
-      actionName="Book"
+      :actionName="isEditing ? 'Update' : 'Book'"
       :prevModalID="prevModalID"
     >
         <div class="mb-3 d-flex justify-content-between">
@@ -57,20 +59,22 @@ this is what is needed to pass in for booking modal component
                 <button class="btn btn-danger p-2 mb-1" @click="deleteBooking(index)"> cancel</button>
             </div>
         </div>
-        <button class="btn btn-secondary" @click="addMoreBooking">add booking</button>
+        <button class="btn btn-secondary" v-if="!isEditing" @click="addMoreBooking">add booking</button>
 
     </Modal>
   </template>
   
 <script>
+import { useUserStore } from '@/stores/store';
 import Modal from './Modal.vue';
 import DatePicker from 'primevue/datepicker';
 import Swal from 'sweetalert2'
+import { Modal as bsModal } from 'bootstrap';
 
   
 export default {
 name: "BookingModal",
-props: ['modalID', 'tournament','prevModalID'],
+props: ['modalID', 'tournament','prevModalID','isEditing'],
 components: { Modal, DatePicker },
 data() {
     return {
@@ -81,8 +85,6 @@ data() {
             endTime: null,
         }
     ],
-    isValidInput: false,
-
     minDate: new Date(),
     maxDate: new Date(),
     hours: [
@@ -90,21 +92,54 @@ data() {
         "7 AM", "8 AM", "9 AM", "10 AM", "11 AM",
         "12 PM", "1 PM", "2 PM", "3 PM", "4 PM", "5 PM", "6 PM", 
         "7 PM", "8 PM", "9 PM", "10 PM", "11 PM", "12 AM next day"
-    ],
+        ],
     };
 },
+setup() {
+    const userStore = useUserStore();
+    return {userStore}
+  },
 mounted() {
-    this.setDateRange();
+    //this will retrieve the tournament period and set the min and max
+    const myModalEl = document.getElementById(this.modalID)
+    myModalEl.addEventListener('show.bs.modal', event => {
+        this.setDateRange();
+        if(this.isEditing){
+            //setting the date, start time and end time to existing booking
+            this.bookings[0].date = new Date();
+            this.bookings[0].startTime = this.getCurrentHourLabel(new Date());
+    
+            const endTime = new Date();
+            endTime.setHours(endTime.getHours() + 1); // Add 1 hour to the current time
+            this.bookings[0].endTime = this.getCurrentHourLabel(endTime);
+        }
+    })
+    //make sure that when it is hidden, clear all value
+    myModalEl.addEventListener('hidden.bs.modal', event => {
+        this.resetBookingData()
+    })
 },
 methods: {
     confirmBooking() {
         // console.log(this.bookings);
-        if (this.validateBookings()) {
-            this.bookSuccess('You have succesfully made the bookings');
-        }else{
-            this.showErrorAlert("Make sure your timing is valid does not overlap");
+        //if user is making an edit
+        if(this.isEditing){
+            console.log("update successfully")
+        }
+        else{ // if user is making a new booking
+            if(this.tournament.gameMode === 'Clan War' && this.userStore.clanRole==='member'){
+                this.showErrorAlert("Only the Clan Admin can book Clan War");
+                return;
+            }
+            else if (this.validateBookings()) {
+                this.bookSuccess('You have succesfully made the bookings');
+            }else{
+                this.showErrorAlert("Make sure your timing is valid does not overlap");
+            }
         }
     },
+    //in the future: pass in start date and end date retrieved from backend
+    // this function is used for both editing and making new booking
     setDateRange() {
         let today = new Date();
         
@@ -139,8 +174,33 @@ methods: {
         })
     },
     deleteBooking(index){
-        this.bookings.splice(index,1)
+        if(this.isEditing){
+            Swal.fire({
+                title: "Confirm Delete?",
+                icon: "warning",
+                showCancelButton: true,
+                cancelButtonColor: "#DDDDDD",
+                confirmButtonColor: "#FA9021",
+                confirmButtonText: "Yes, delete it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                            Swal.fire({
+                                title: "Deleted!",
+                                text: "Your booking has been deleted.",
+                                icon: "success",
+                                timer: 1500
+                            });
+                            // console.log(document.getElementById(this.modalID))
+                            const existingModal = bsModal.getInstance(document.getElementById(this.modalID));
+                            existingModal.hide();
+                            
+                    }
+            });
+        }else{
+            this.bookings.splice(index,1)
+        }
     },
+    //this will check if end time is before start time
     validateTime(index) {
         if( this.bookings[index].startTime==null || this.bookings[index].endTime==null){
             return false;
@@ -160,6 +220,7 @@ methods: {
         // check for overlaps with other bookings
         return this.checkOverlaps(index);
     },
+    //check for overlaps in timing on the day day (client side validation)
     checkOverlaps(currentIndex) {
         const currentBooking = this.bookings[currentIndex];
         const currentStartTime = this.hours.indexOf(currentBooking.startTime);
@@ -187,6 +248,7 @@ methods: {
         }
         return true;
     },
+    //check input validitiy before making HTTP call
     validateBookings() {
         for (let index=0 ; index < this.bookings.length; index++) {
             let booking = this.bookings[index];
@@ -199,6 +261,26 @@ methods: {
             }
         }
         return true;
+    },
+    getCurrentHourLabel(date) {
+        let hour = date.getHours();
+        const isAM = hour < 12 || hour === 24; // Check if it is AM
+        let label = "";
+
+        // Adjust hour for 12-hour format
+        if (hour === 0) {
+            label = "12 AM";
+        } else if (hour < 12) {
+            label = hour + " AM";
+        } else if (hour === 12) {
+            label = "12 PM";
+        } else if (hour < 24) {
+            label = (hour - 12) + " PM";
+        } else {
+            label = "12 AM next day";
+        }
+
+        return label;
     },
     showErrorAlert(errorMessage){
         Swal.fire({
@@ -219,7 +301,18 @@ methods: {
             showConfirmButton: false,
             timer: 1500
         });
-    }
+    },
+    resetBookingData() {
+        this.bookings = [
+            {
+                date: null,
+                startTime: null,
+                endTime: null,
+            }
+        ];
+        this.minDate = new Date();
+        this.maxDate = new Date();
+    },
 }
 };
   </script>

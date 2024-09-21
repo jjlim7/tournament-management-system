@@ -12,7 +12,7 @@
 
         <!-- current tournament -->
          <div>
-          <span class="fw-semibold px-2 py-1 rounded-4" style="background-color: rgba(0, 0, 0, 0.4);">Current Tournament</span>
+          <span class="fw-semibold py-1">Current Tournament</span>
           <BlurredBGCard :style="{ 
             'background-image': 'url(' + currentTournament.image + ')'}"
             class="imageProperties text-center mb-2 mt-1">
@@ -25,7 +25,7 @@
   
         <!-- rank progress tournament -->
          <div>
-          <span class="fw-semibold px-2 py-1 rounded-4" style="background-color: rgba(0, 0, 0, 0.4);">Rank Progress</span>
+          <span class="fw-semibold py-1">Rank Progress</span>
           <BlurredBGCard class="mb-2 mt-1">
             <RankProgress 
               :rank="userStore.rank" 
@@ -38,7 +38,7 @@
   
         <!-- other tournament carousel -->
          <div>
-          <span class="fw-semibold px-2 py-1 rounded-4" style="background-color: rgba(0, 0, 0, 0.4);">Upcoming Battle Royale Tournament</span>
+          <span class="fw-semibold py-1">Upcoming Battle Royale Tournament</span>
           <BlurredBGCard class="mt-1">
             <div id="battleRoyalupcomingTournament" class="carousel slide" data-bs-ride="carousel"
             data-bs-pause="hover">
@@ -90,8 +90,12 @@
           <div class="mb-3 d-flex justify-content-between">
             <div class="fw-semibold fs-5"> {{ selectedUpcomingTournament.name }}</div>
             <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{selectedUpcomingTournament.gameMode}}</div>
-        </div>
-          <p class="overflow-y-scroll m-0" style="max-height: 150px;">{{ selectedUpcomingTournament.description }}</p>
+          </div>
+          <p class="overflow-y-scroll m-0 shadow-sm" style="max-height: 180px;">{{ selectedUpcomingTournament.description }}</p>
+          <div class="text-black fw-semibold">
+            <div class="fw-semibold">Start Date: {{ selectedUpcomingTournament.startDate }}</div>
+            <div class="fw-semibold">End Date: {{ selectedUpcomingTournament.endDate }}</div>
+          </div>
         </div>
         <div class="rounded-bottom-4 bg-light p-2 d-flex mt-auto">
           <button class="fw-semibold mx-auto text-white btn btn-primary w-50"  data-bs-toggle="modal" data-bs-target="#booking">Book</button>
@@ -114,6 +118,10 @@
             <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{selectedUpcomingTournament.gameMode}}</div>
         </div>
         <p class="overflow-y-scroll m-0" style="max-height: 180px;">{{ selectedUpcomingTournament.description }}</p>
+        <div class="text-black">
+          <p>Start Date: {{ selectedUpcomingTournament.startDate }}</p>
+          <p>End Date: {{ selectedUpcomingTournament.endDate }}</p>
+        </div>
         </div>
         <div class="rounded-bottom-4 bg-light p-2 d-flex mt-auto">
           <button class="fw-semibold mx-auto text-white btn btn-primary w-50" data-bs-target="#booking" data-bs-toggle="modal" >Book</button>
@@ -124,6 +132,7 @@
     <BookingModal 
       :prevModalID="!isLargeScreen ? 'upcoming' : ''" 
       modalID="booking" 
+      :isEditing="false"
       :tournament="selectedUpcomingTournament"/>
    
 
@@ -160,6 +169,8 @@ export default {
           name: "Tournament #345",
           description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
           image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
+          startDate: "start date",
+          endDate: "end date",
           gameMode:"Battle Royale"
       },
       upcomingTournaments:[
@@ -168,6 +179,8 @@ export default {
           name: "Tournament #1",
           description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
           image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
+          startDate: "start date",
+          endDate: "end date",
           gameMode:"Battle Royale"
         },
         {
@@ -175,6 +188,8 @@ export default {
           name: "Tournament #2",
           description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
           image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
+          startDate: "start date",
+          endDate: "end date",
           gameMode:"Battle Royale"
         },
         {
@@ -182,6 +197,8 @@ export default {
           name: "Tournament #3",
           description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
           image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
+          startDate: "start date",
+          endDate: "end date",
           gameMode:"Battle Royale"
         },
         {
@@ -189,6 +206,8 @@ export default {
           name: "Tournament #4",
           description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
           image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
+          startDate: "start date",
+          endDate: "end date",
           gameMode:"Battle Royale"
         },
         {
@@ -196,6 +215,8 @@ export default {
           name: "Tournament #5",
           description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
           image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
+          startDate: "start date",
+          endDate: "end date",
           gameMode:"Battle Royale"
         }
       ],
