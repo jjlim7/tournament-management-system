@@ -1,6 +1,6 @@
 <template>
   <nav
-    class="navbar-expand-lg px-4 py-2 backgoundColour"
+    class="navbar-expand-lg px-4 py-2 backgoundColour rounded-bottom-4"
   >
     <div class="d-flex justify-content-between"  >
       <div class="d-flex align-items-center" >
@@ -69,7 +69,7 @@ export default {
 
 <style scoped>
 .backgoundColour{
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.3);
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); 
 }
 

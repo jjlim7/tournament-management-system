@@ -1,3 +1,18 @@
+
+<template>
+  <div :style="{ 'background-image': 'url(' + defineBackgroundImage() + ')'}"  class="appBackground" >
+    <div class="mx-auto text-white m-0 p-0 " style="max-width: 1280px;">
+
+      <Navbar v-if="isLogin && currentRoute!='/'"/>
+      <NavbarLandingPage v-else-if="!isLogin && currentRoute!='/'"/>
+      
+      <RouterView />
+
+    </div>
+  </div>
+</template>
+
+
 <script>
 import { RouterView, useRoute  } from 'vue-router'
 import Navbar from './components/Navbar/Navbar.vue';
@@ -19,13 +34,13 @@ export default{
         '/leaderboard':'https://i0.wp.com/theguidehall.com/wp-content/uploads/2024/08/Black-Myth_-Wukong_20240823164851.jpg',
         '/profile':'https://images5.alphacoders.com/112/1129255.jpg',
       },
-      isLogin: true
+      isLogin: true,
     }
   },
   computed:{
     currentRoute() {
       const route = useRoute();
-      return route.path; // Returns the current route path
+      return route.path; // returns the current route path
     },
   },
   methods:{
@@ -38,22 +53,7 @@ export default{
 
 </script>
 
-<template>
-  <div :style="{ 'background-image': 'url(' + defineBackgroundImage() + ')'}"  class="appBackground" >
-    <div class="mx-auto text-white m-0 p-0 " style="max-width: 1280px;">
-
-      <Navbar v-if="isLogin && currentRoute!='/'"/>
-      <NavbarLandingPage v-else-if="!isLogin && currentRoute!='/'"/>
-      
-      <RouterView />
-
-    </div>
-  </div>
-</template>
-
-
-
-<style>
+<style scoped>
 .appBackground {
   min-height: 100vh;
   background-position: top;

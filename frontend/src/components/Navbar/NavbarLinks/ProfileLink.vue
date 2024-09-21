@@ -1,7 +1,7 @@
 <template>
     <ul class="navbar-nav mb-lg-0 text-center">
       <!-- <NavbarSearch /> -->
-      <RouterLink class="nav-link active py-0 d-flex mx-auto " aria-current="page" to="/profile">
+      <RouterLink class="nav-link active py-0 d-flex mx-auto " to="/profile">
         <li class="nav-item" >
           <font-awesome-icon :icon="['fas', 'user']" :class="highlighLink"/>
         </li>
@@ -29,7 +29,7 @@
   };
   </script>
   
-  <style>
+  <style scoped>
   .activeIcon {
     color: #FA9021;
   }
