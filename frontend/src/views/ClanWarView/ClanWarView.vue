@@ -11,63 +11,72 @@
       <div class="d-flex flex-column justify-content-around ml-5 col-md-12 col-lg-6">
 
         <!-- current tournament -->
-        <BlurredBGCard :style="{ 
-          'background-image': 'url(' + currentTournament.image + ')'}"
-          class="imageProperties text-center mb-3">
-          <div class=" rounded-4 p-2" style="background-color: rgba(0, 0, 0, 0.4);">
-            <h5 class="fw-semibold"> {{ currentTournament.name }} </h5>
-            <div style="max-height: 70px;" class="overflow-y-hidden text-wrap">{{ currentTournament.description }}</div>
-          </div>
-        </BlurredBGCard>
+        <div>
+          <span class="fw-semibold px-2 py-1 rounded-4" style="background-color: rgba(0, 0, 0, 0.4);">Current Tournament</span>
+          <BlurredBGCard :style="{ 
+            'background-image': 'url(' + currentTournament.image + ')'}"
+            class="imageProperties text-center mb-2 mt-1">
+            <div class=" rounded-4 p-2" style="background-color: rgba(0, 0, 0, 0.4);">
+              <h5 class="fw-semibold"> {{ currentTournament.name }} </h5>
+              <div style="max-height: 70px;" class="overflow-y-hidden text-wrap">{{ currentTournament.description }}</div>
+            </div>
+          </BlurredBGCard>
+        </div>
   
         <!-- rank progress tournament -->
-        <BlurredBGCard class="mb-3">
-          <RankProgress 
-            :rank="userStore.rank" 
-            :currentElo="userStore.currentElo" 
-            :upperLimit="userStore.eloUpperlimit" 
-            gameMode="Clan War"
-            class="p-2" />
-        </BlurredBGCard>
+         <div>
+            <span class="fw-semibold px-2 py-1 rounded-4" style="background-color: rgba(0, 0, 0, 0.4);">Rank Progress</span>
+            <BlurredBGCard class="mb-2 mt-1">
+              <RankProgress 
+                :rank="clanStore.rank" 
+                :currentElo="clanStore.currentElo" 
+                :upperLimit="clanStore.eloUpperlimit" 
+                gameMode="Clan War"
+                class="p-2" />
+            </BlurredBGCard>
+         </div>
   
         <!-- other tournament carousel -->
-        <BlurredBGCard>
-          <div id="battleRoyalupcomingTournament" class="carousel slide" data-bs-ride="carousel"
-          data-bs-pause="hover">
-            <!-- indicator for each slide -->
-            <div class="carousel-indicators">
-              <button 
-                v-for="(tournament,index) in upcomingTournaments" 
-                :key="index" type="button" 
-                data-bs-target="#battleRoyalupcomingTournament" 
-                :data-bs-slide-to="index" 
-                :class="{active: index==0 }"></button>
-            </div>
-            <div class="carousel-inner rounded-4">
-              <!-- list of carousel items -->
-              <div 
-                v-for="(tournament,index) in upcomingTournaments" 
-                :key="index"
-                :class="{'carousel-item': true, 'active': index===0}"
-                style="position: relative; cursor: pointer;"
-                @click="selectUpcomingTournament(tournament)"
-                data-bs-interval="3000">
-                <img :src="tournament.image" class="img-fluid" alt="...">
-                <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 text-center rounded d-flex flex-column justify-content-center">
-                  <h5 class="fw-semibold">{{tournament.name}}</h5>
-                  <p style="max-height: 70px;" class="overflow-y-hidden text-wrap px-5"> {{ tournament.description }} </p>
+        <div>
+          <span class="fw-semibold px-2 py-1 rounded-4" style="background-color: rgba(0, 0, 0, 0.4);">Upcoming Clan War Tournament</span>
+          <BlurredBGCard class="mt-1">
+            <div id="battleRoyalupcomingTournament" class="carousel slide" data-bs-ride="carousel"
+            data-bs-pause="hover">
+              <!-- indicator for each slide -->
+              <div class="carousel-indicators">
+                <button 
+                  v-for="(tournament,index) in upcomingTournaments" 
+                  :key="index" type="button" 
+                  data-bs-target="#battleRoyalupcomingTournament" 
+                  :data-bs-slide-to="index" 
+                  :class="{active: index==0 }"></button>
+              </div>
+              <div class="carousel-inner rounded-4">
+                <!-- list of carousel items -->
+                <div 
+                  v-for="(tournament,index) in upcomingTournaments" 
+                  :key="index"
+                  :class="{'carousel-item': true, 'active': index===0}"
+                  style="position: relative; cursor: pointer;"
+                  @click="selectUpcomingTournament(tournament)"
+                  data-bs-interval="3000">
+                  <img :src="tournament.image" class="img-fluid" alt="...">
+                  <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 text-center rounded d-flex flex-column justify-content-center">
+                    <h5 class="fw-semibold">{{tournament.name}}</h5>
+                    <p style="max-height: 70px;" class="overflow-y-hidden text-wrap px-5"> {{ tournament.description }} </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <button class="carousel-control-prev" type="button" data-bs-target="#battleRoyalupcomingTournament" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" ></span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#battleRoyalupcomingTournament" data-bs-slide="next">
-              <span class="carousel-control-next-icon" ></span>
-            </button>
-          </div>
-        </BlurredBGCard>
+              <button class="carousel-control-prev" type="button" data-bs-target="#battleRoyalupcomingTournament" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" ></span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#battleRoyalupcomingTournament" data-bs-slide="next">
+                <span class="carousel-control-next-icon" ></span>
+              </button>
+            </div>
+          </BlurredBGCard>
+        </div>
       </div>
 
       <!-- right side -->
@@ -128,7 +137,7 @@
 <script>
 import BlurredBGCard from '@/components/Cards/BlurredBGCard.vue';
 import RankProgress from '@/components/RankProgress/RankProgress.vue';
-import { useUserStore } from '@/stores/store';
+import { useClanStore, useUserStore } from '@/stores/store';
 import Modal from '@/components/modal/Modal.vue';
 import { Modal as bsModal } from 'bootstrap';
 import BookingModal from '@/components/modal/BookingModal.vue';
@@ -260,7 +269,8 @@ export default {
   },
   setup() {
     const userStore = useUserStore();
-    return {userStore}
+    const clanStore = useClanStore();
+    return {userStore, clanStore}
   },
   async created() {
       window.addEventListener("resize", this.checkScreenSize);

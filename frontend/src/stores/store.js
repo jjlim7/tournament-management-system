@@ -39,8 +39,8 @@ export const useUserStore = defineStore('user', {
 export const useClanStore = defineStore('clan', {
   state: () => ({
     name: "shawnty shawnty club",
-    rank: "Challenger",
-    currentElo: "75",
+    rank: "Diamond",
+    currentElo: "23",
     eloUpperlimit: "100",
   }),
   actions: {
