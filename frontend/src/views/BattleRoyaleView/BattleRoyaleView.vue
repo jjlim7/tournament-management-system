@@ -1,5 +1,5 @@
 <template>
-  <div class="battleroyalePage">
+  <div>
     <!-- countdown  at header-->
     <div class="mx-auto p-4 text-center backgroundColour rounded-bottom-5 align-content-center" style="max-width: 700px; max-height: 80px;">
       <div class="fw-semibold" >Next Match: {{ nextMatch.date }}</div>
@@ -49,7 +49,7 @@
                 v-for="(tournament,index) in upcomingTournaments" 
                 :key="index"
                 :class="{'carousel-item': true, 'active': index===0}"
-                style="position: relative;"
+                style="position: relative; cursor: pointer;"
                 @click="selectUpcomingTournament(tournament)"
                 data-bs-interval="3000">
                 <img :src="tournament.image" class="img-fluid" alt="...">
@@ -214,13 +214,6 @@ export default {
     },
     checkScreenSize() {
         this.isLargeScreen = window.innerWidth >= 992;
-        console.log(this.isLargeScreen)
-        if(this.isLargeScreen){
-          const modalID = 'upcoming';
-          const tournamentModal = new bsModal(document.getElementById(modalID));
-          tournamentModal.hide();
-          console.log("yoyoyoyo")
-        }
     },
     selectUpcomingTournament(tournament){
       this.selectedUpcomingTournament=tournament;
