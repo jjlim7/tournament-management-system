@@ -57,7 +57,6 @@
       <p>Email: <a href="fakeemail@fakemail.com">fakeemail@fakemail.com</a></p>
       <p>Phone: +65 9112 6229</p>
       <div class="row align-items-start">
-
       </div>
     </div>
   </div>
