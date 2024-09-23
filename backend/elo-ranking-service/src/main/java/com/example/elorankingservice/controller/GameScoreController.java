@@ -24,16 +24,33 @@ public class GameScoreController {
         this.gameScoreService = gameScoreService;
     }
 
-    // storing of player game score for battle royale
     @PostMapping("/battle-royale")
-    public ResponseEntity<List<PlayerGameScore>> saveBattleRoyaleResult(@RequestBody Request.CreateBattleRoyalePlayerGameScore newGameScoresRequest) {
-        List<PlayerGameScore> playerGameScores = gameScoreService.storeAllPlayerGameScore(newGameScoresRequest.getRawPlayerGameScores());
+    public ResponseEntity<List<PlayerGameScore>> saveBattleRoyaleResult(
+            @RequestBody Request.CreateBattleRoyalePlayerGameScore newGameScoresRequest) {
+
+        // Check if the request is null or doesn't contain player game scores
+        if (newGameScoresRequest == null || newGameScoresRequest.getRawPlayerGameScores() == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        // Store all player game scores
+        List<PlayerGameScore> playerGameScores = gameScoreService
+                .storeAllPlayerGameScore(newGameScoresRequest.getRawPlayerGameScores());
+
+        // Return the list of stored player game scores with a created status
         return new ResponseEntity<>(playerGameScores, HttpStatus.CREATED);
     }
 
-    // storing of player + clan game score for battle royale
     @PostMapping("/clan-war")
     public ResponseEntity<List<ClanGameScore>> saveClanWarResult(@RequestBody Request.CreateClanWarGameScore newClanWarRequest) {
+
+        // Check if the incoming request is not null and has necessary data
+        if (newClanWarRequest == null ||
+                newClanWarRequest.getWinnerRawPlayerGameScores() == null ||
+                newClanWarRequest.getLoserRawPlayerGameScores() == null) {
+
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
         Long tournamentId = newClanWarRequest.getTournamentId();
         Long gameId = newClanWarRequest.getGameId();
@@ -41,34 +58,65 @@ public class GameScoreController {
         Map<Long, List<PlayerGameScore>> winnerRawPlayerGameScores = newClanWarRequest.getWinnerRawPlayerGameScores();
         Map<Long, List<PlayerGameScore>> loserRawPlayerGameScores = newClanWarRequest.getLoserRawPlayerGameScores();
 
-        Long wClanId = winnerRawPlayerGameScores.keySet().stream().findFirst().get();
-        Long lClanId = loserRawPlayerGameScores.keySet().stream().findFirst().get();
+        // Ensure there is at least one winner and one loser clan ID
+        Long winnerClanId = winnerRawPlayerGameScores.keySet()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No winner clan ID provided"));
+
+        Long loserClanId = loserRawPlayerGameScores.keySet()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No loser clan ID provided"));
 
         List<ClanGameScore> result = new ArrayList<>();
 
-        // store winner of clan war
-        ClanGameScore wClanGameScore = gameScoreService.storeClanGameScore(tournamentId, gameId, wClanId, winnerRawPlayerGameScores.get(0), true);
+        // Store the game scores for both winner and loser clans
+        ClanGameScore winnerClanGameScore = gameScoreService.storeClanGameScore(
+                tournamentId,
+                gameId,
+                winnerClanId,
+                winnerRawPlayerGameScores.get(winnerClanId),
+                true
+        );
 
-        ClanGameScore lClanGameScore = gameScoreService.storeClanGameScore(tournamentId, gameId, lClanId, loserRawPlayerGameScores.get(0), false);
+        ClanGameScore loserClanGameScore = gameScoreService.storeClanGameScore(
+                tournamentId,
+                gameId,
+                loserClanId,
+                loserRawPlayerGameScores.get(loserClanId),
+                false
+        );
 
-        result.add(wClanGameScore);
-        result.add(lClanGameScore);
+        result.add(winnerClanGameScore);
+        result.add(loserClanGameScore);
 
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
-    // retrieve player game scores by tournament
+
+    // Retrieve player game scores by tournament
     @GetMapping("/player/{playerId}/tournament/{tournamentId}")
-    public ResponseEntity<PlayerGameScore> getPlayerGameScore(@PathVariable Long playerId, @PathVariable Long tournamentId) {
+    public ResponseEntity<List<PlayerGameScore>> getPlayerGameScores(
+            @PathVariable Long playerId, @PathVariable Long tournamentId) {
+
+        // Retrieve the list of player game scores
         List<PlayerGameScore> playerGameScores = gameScoreService.retrievePlayerGameScoresForTournament(tournamentId, playerId);
-        return new ResponseEntity<>(playerGameScores.get(0), HttpStatus.OK);
+
+        // Return the list of player game scores with an OK status
+        return ResponseEntity.ok(playerGameScores);
     }
 
-    // retrieve clan game scores by tournament
+    // Retrieve clan game scores by tournament
     @GetMapping("/clan/{clanId}/tournament/{tournamentId}")
-    public ResponseEntity<ClanGameScore> getClanGameScore(@PathVariable Long clanId, @PathVariable Long tournamentId) {
-        List<ClanGameScore> clanGameScore = gameScoreService.retrieveClanGameScoresForTournament(tournamentId, clanId);
-        return new ResponseEntity<>(clanGameScore.get(0), HttpStatus.OK);
+    public ResponseEntity<List<ClanGameScore>> getClanGameScores(
+            @PathVariable Long clanId, @PathVariable Long tournamentId) {
+
+        // Retrieve the list of clan game scores
+        List<ClanGameScore> clanGameScores = gameScoreService.retrieveClanGameScoresForTournament(tournamentId, clanId);
+
+        // Return the list of clan game scores with an OK status
+        return ResponseEntity.ok(clanGameScores);
     }
 }
 
