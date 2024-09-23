@@ -143,7 +143,7 @@
 import BlurredBGCard from '@/components/Cards/BlurredBGCard.vue';
 import RankProgress from '@/components/RankProgress/RankProgress.vue';
 import { useUserStore } from '@/stores/store';
-import Modal from '@/components/modal/Modal.vue';
+import Modal from '@/components/modal/Modal.vue'; 
 import { Modal as bsModal } from 'bootstrap';
 import BookingModal from '@/components/modal/BookingModal.vue';
 

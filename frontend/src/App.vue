@@ -35,6 +35,8 @@ export default{
         '/Clan':'',
         '/leaderboard':'https://i0.wp.com/theguidehall.com/wp-content/uploads/2024/08/Black-Myth_-Wukong_20240823164851.jpg',
         '/profile':'https://images5.alphacoders.com/112/1129255.jpg',
+        '/admin':'https://gamingbolt.com/wp-content/uploads/2024/08/Black-Myth-Wukong-Featured-Image.jpg',
+        
       },
       isLogin: true,
     }
