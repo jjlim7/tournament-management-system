@@ -7,7 +7,7 @@ import com.example.elorankingservice.entity.PlayerGameScore;
 import com.example.elorankingservice.entity.RankThreshold;
 import com.example.elorankingservice.service.EloRankingService;
 import com.example.elorankingservice.service.RankService;
-import com.example.elorankingservice.resources.BattleRoyaleResultGenerator;
+import com.example.elorankingservice.resources.ResultGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
@@ -52,7 +52,6 @@ public class EloRankingControllerUnitTests {
 
     @MockBean
     private EloRankingService eloRankingService;
-
     @MockBean
     private RankService rankService;
 
@@ -137,8 +136,8 @@ public class EloRankingControllerUnitTests {
     @Order(3)
     public void processBattleRoyaleResults() throws Exception {
         // generate random battle royale results
-        BattleRoyaleResultGenerator generator = new BattleRoyaleResultGenerator();
-        generator.generatePlayerGameScores(50, "src/test/java/com/example/elorankingservice/resources/battle_royale_results_test.json");
+        ResultGenerator generator = new ResultGenerator();
+        generator.generateBattleRoyalePlayerGameScores(50, "src/test/java/com/example/elorankingservice/resources/battle_royale_results_test.json");
 
         // load battle royale result from json
         Resource resource = resourceLoader.getResource("file:src/test/java/com/example/elorankingservice/resources/battle_royale_results_test.json");
@@ -153,7 +152,6 @@ public class EloRankingControllerUnitTests {
             eloRankingService.createNewPlayerEloRanking(playerId, tournamentId);
         }
 
-//        given(eloRankingService.processUpdateBattleRoyaleResults(playerGameScores)).willReturn(PlayerEloRank);
         Request.CreateBattleRoyalePlayerGameScore req = new Request.CreateBattleRoyalePlayerGameScore();
         req.setRawPlayerGameScores(playerGameScores);
 

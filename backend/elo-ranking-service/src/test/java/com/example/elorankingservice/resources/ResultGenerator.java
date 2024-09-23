@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class BattleRoyaleResultGenerator {
+public class ResultGenerator {
 
     private static final Random random = new Random();
 
-    public void generatePlayerGameScores(int numberOfPlayers, String fileName) throws IOException {
+    public void generateBattleRoyalePlayerGameScores(int numberOfPlayers, String fileName) throws IOException {
         List<PlayerGameScore> gameScores = new ArrayList<>();
 
         for (int i = 1; i <= numberOfPlayers; i++) {

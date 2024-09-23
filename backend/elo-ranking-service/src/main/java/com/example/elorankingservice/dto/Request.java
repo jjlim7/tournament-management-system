@@ -3,12 +3,15 @@ package com.example.elorankingservice.dto;
 
 import com.example.elorankingservice.entity.PlayerGameScore;
 import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 import java.util.Map;
 
 public class Request {
 
     @Getter
+    @Setter
     public static class CreateBattleRoyalePlayerGameScore {
         List<PlayerGameScore> rawPlayerGameScores;
     }
