@@ -155,7 +155,7 @@ public class EloRankingControllerUnitTests {
         Request.CreateBattleRoyalePlayerGameScore req = new Request.CreateBattleRoyalePlayerGameScore();
         req.setRawPlayerGameScores(playerGameScores);
 
-        // Capture the result of the mockMvc.perform
+        // capture the result of the mockMvc.perform
         MvcResult mvcResult = mockMvc.perform(post("/api/elo-ranking/battle-royale")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req))) // Send the player game scores as JSON
