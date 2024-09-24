@@ -98,7 +98,7 @@
           </div>
         </div>
         <div class="rounded-bottom-4 bg-light p-2 d-flex mt-auto">
-          <button class="fw-semibold mx-auto text-white btn btn-primary w-50"  data-bs-toggle="modal" data-bs-target="#booking">Book</button>
+          <button class="fw-semibold mx-auto text-white btn btn-primary w-50"  @click="showModal">Book</button>
         </div>
       </div>
     </div>
@@ -257,6 +257,11 @@ export default {
       if(this.userStore.clanRole=='member'){
         this.showErrorAlert("Only clan admin can book Clan War")
       }
+    },
+    showModal(){
+      const modalID = 'booking';
+      const tournamentModal = new bsModal(document.getElementById(modalID));
+      tournamentModal.show();
     },
     showErrorAlert(errorMessage){
         Swal.fire({

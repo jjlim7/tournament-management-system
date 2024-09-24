@@ -36,7 +36,7 @@ this is what is needed to pass in for booking modal component
             <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{tournament.gameMode}}</div>
         </div>
         <div v-for="(booking,index) in bookings" :key="index" class="mb-3 w-100 h-100 row container d-flex align-items-end">
-            <div class="col-5 ">
+            <div class="col-12 col-sm-5">
                 Date:
                 <DatePicker v-model="booking.date" fluid :minDate="minDate" :maxDate="maxDate" dateFormat="dd/mm/yy" showIcon/>
             </div>
@@ -122,19 +122,19 @@ mounted() {
 methods: {
     confirmBooking() {
         // console.log(this.bookings);
-        //if user is making an edit
-        if(this.isEditing){
-            console.log("update successfully")
-        }
-        else{ // if user is making a new booking
-            if(this.tournament.gameMode === 'Clan War' && this.userStore.clanRole==='member'){
-                this.showErrorAlert("Only the Clan Admin can book Clan War");
-                return;
+        if(this.validateBookings()){
+            //if user is making an edit
+            if(this.isEditing){
+                console.log("update successfully")
             }
-            else if (this.validateBookings()) {
+            else{ // if user is making a new booking
+                if(this.tournament.gameMode === 'Clan War' && this.userStore.clanRole==='member'){
+                    this.showErrorAlert("Only the Clan Admin can book Clan War");
+                    return;
+                }
                 this.bookSuccess('You have succesfully made the bookings');
-            }else{
-                this.showErrorAlert("Make sure your timing is valid does not overlap");
+                const existingModal = bsModal.getInstance(document.getElementById(this.modalID));
+                existingModal.hide();
             }
         }
     },

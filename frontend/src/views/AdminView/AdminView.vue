@@ -7,7 +7,7 @@
 <template>
   <div class="w-75 m-5 mx-auto min-vh-75">
     <div class="d-flex justify-content-end">
-        <button class="btn btn-primary fw-semibold text-white" data-bs-toggle="modal" data-bs-target="#adminModal">Create Tournament</button>
+        <button class="btn btn-primary fw-semibold text-white" @click="showAdminModal">Create Tournament</button>
     </div>
 
     <TournamentTable 
@@ -28,25 +28,30 @@
         :showFooter="true"
         :action="selectedTournament.id ? updateTournament : createTournament"
         :actionName="selectedTournament.id ? 'Update' : 'Create'">
-        
-        <!-- Game mode -->
-        <div class="dropdown mb-3">
-          <button
-            class="btn btn-secondary dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            {{ selectedTournament.gameMode || "Select Game Mode" }}
-          </button>
-          <ul class="dropdown-menu">
-            <li>
-              <a class="dropdown-item" href="#" @click="selectedTournament.gameMode = 'Battle Royale'">Battle Royale</a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="#" @click="selectedTournament.gameMode = 'Clan War'">Clan War</a>
-            </li>
-          </ul>
+        <div class="d-flex justify-content-between">
+            <!-- Game mode -->
+            <div class="dropdown mb-3">
+              <button
+                class="btn btn-secondary dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                {{ selectedTournament.gameMode || "Select Game Mode" }}
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#" @click="selectedTournament.gameMode = 'Battle Royale'">Battle Royale</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#" @click="selectedTournament.gameMode = 'Clan War'">Clan War</a>
+                </li>
+              </ul>
+            </div>
+            <!-- delete button for existing tournament -->
+             <div>
+                <button class="btn btn-secondary" @click="deleteTournament" v-if="selectedTournament.id != null">Delete</button>
+             </div>
         </div>
     
         <div class="row">
@@ -161,7 +166,7 @@ export default {
             this.showErrorAlert('Please verfiy your date.');
             return;
         }
-      this.hideAdminMOdal()
+      this.hideAdminModal()
       this.bookSuccess("Tournament Created Successfully")
     },
     updateTournament() {
@@ -173,11 +178,31 @@ export default {
             this.showErrorAlert('Please verfiy your date.');
             return;
         }
-      this.hideAdminMOdal()
+      this.hideAdminModal()
       this.bookSuccess("Tournament Updated Successfully")
     },
+    deleteTournament(){
+        Swal.fire({
+                title: "Confirm Delete?",
+                icon: "warning",
+                showCancelButton: true,
+                cancelButtonColor: "#DDDDDD",
+                confirmButtonColor: "#FA9021",
+                confirmButtonText: "Delete"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                            Swal.fire({
+                                title: "Deleted!",
+                                text: "Your booking has been deleted.",
+                                icon: "success",
+                                timer: 1500
+                            });
+                            this.hideAdminModal()
+                    }
+            });
+    },
     resetAdminModal() {
-      console.log('clear')
+    //   console.log('clear')
       this.selectedTournament={
             id:null,
             gameMode: "",
@@ -219,14 +244,17 @@ export default {
     },
     editTournament(data){
         this.selectedTournament = Object.assign({}, data);
-        const modalID = 'adminModal';
-        const tournamentModal = new bsModal(document.getElementById(modalID));
-        tournamentModal.show();
+        this.showAdminModal();
     },
     checkScreenSize() {
         this.isLargeScreen = window.innerWidth >= 992;
     },
-    hideAdminMOdal(){
+    showAdminModal(){
+        const modalID = 'adminModal';
+        const tournamentModal = new bsModal(document.getElementById(modalID));
+        tournamentModal.show();
+    },
+    hideAdminModal(){
         const existingModal = bsModal.getInstance(document.getElementById('adminModal'));
         existingModal.hide();
     },
@@ -253,7 +281,7 @@ export default {
   },
   mounted() {
     const myModalEl = document.getElementById("adminModal");
-    myModalEl.addEventListener("show.bs.modal", (event) => {});
+    // myModalEl.addEventListener("show.bs.modal", (event) => {});
     //make sure that when it is hidden, clear all value
     myModalEl.addEventListener("hidden.bs.modal", (event) => {
       this.resetAdminModal();
@@ -270,5 +298,5 @@ export default {
 </script>
 
 <style>
-/* Add any custom styles here if necessary */
+
 </style>
