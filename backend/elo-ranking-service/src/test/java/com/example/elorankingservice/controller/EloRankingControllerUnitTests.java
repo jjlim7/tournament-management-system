@@ -123,23 +123,36 @@ public class EloRankingControllerUnitTests {
 
         // Generate random clan war results
         ResultGenerator generator = new ResultGenerator();
-        generator.generateClanWarGameScores(TEST_GAME_ID, TEST_CW_TOURNAMENT_ID, wClanId, lClanId, fileName);
+        ResultGenerator.CreateClanWarGameScore result = generator.generateClanWarGameScores(TEST_GAME_ID, TEST_CW_TOURNAMENT_ID, wClanId, lClanId, fileName);
 
-        // Load clan war result from json
-        Resource resource = resourceLoader.getResource("file:" + fileName);
-        List<PlayerGameScore> playerGameScores = objectMapper.readValue(resource.getInputStream(),
-                objectMapper.getTypeFactory().constructCollectionType(List.class, PlayerGameScore.class));
 
-        // Create elo rank for clans and players
-        eloRankingService.createNewClanEloRanking(wClanId, TEST_CW_TOURNAMENT_ID);
-        eloRankingService.createNewClanEloRanking(lClanId, TEST_CW_TOURNAMENT_ID);
-        for (PlayerGameScore playerGameScore : playerGameScores) {
-            Long playerId = playerGameScore.getPlayerId();
-            eloRankingService.createNewPlayerEloRanking(playerId, TEST_CW_TOURNAMENT_ID);
+        for (Long clanId: result.getLoserRawPlayerGameScores().keySet()) {
+            eloRankingService.createNewClanEloRanking(clanId, TEST_CW_TOURNAMENT_ID);
+            for (PlayerGameScore playerGameScore : result.getLoserRawPlayerGameScores().get(clanId)) {
+                Long playerId = playerGameScore.getPlayerId();
+                eloRankingService.createNewPlayerEloRanking(playerId, TEST_CW_TOURNAMENT_ID);
+            }
         }
+
+        for (Long clanId: result.getWinnerRawPlayerGameScores().keySet()) {
+            eloRankingService.createNewClanEloRanking(clanId, TEST_CW_TOURNAMENT_ID);
+            eloRankingService.createNewClanEloRanking(clanId, TEST_CW_TOURNAMENT_ID);
+            for (PlayerGameScore playerGameScore : result.getWinnerRawPlayerGameScores().get(clanId)) {
+                Long playerId = playerGameScore.getPlayerId();
+                eloRankingService.createNewPlayerEloRanking(playerId, TEST_CW_TOURNAMENT_ID);
+            }
+        }
+
 
         // need to pass in variables
         Request.CreateClanWarGameScore req = new Request.CreateClanWarGameScore();
+        req.setGameId(TEST_GAME_ID);
+        req.setLoserClanId(lClanId);
+        req.setWinnerClanId(wClanId);
+        req.setTournamentId(TEST_CW_TOURNAMENT_ID);
+        req.setLoserRawPlayerGameScores(result.getLoserRawPlayerGameScores().get(lClanId));
+        req.setWinnerRawPlayerGameScores(result.getWinnerRawPlayerGameScores().get(wClanId));
+
 
         // Perform the test
         MvcResult mvcResult = mockMvc.perform(post("/api/elo-ranking/clan-war")

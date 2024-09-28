@@ -17,6 +17,7 @@ public class Request {
     }
 
     @Getter
+    @Setter
     public static class CreateClanWarGameScore {
         Long winnerClanId;
         Long loserClanId;
@@ -27,12 +28,14 @@ public class Request {
     }
 
     @Getter
+    @Setter
     public static class CreateNewClanEloRank {
         Long clanId;
         Long tournamentId;
     }
 
     @Getter
+    @Setter
     public static class CreateNewPlayerEloRank {
         Long playerId;
         Long tournamentId;
