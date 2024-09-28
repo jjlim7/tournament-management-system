@@ -18,7 +18,11 @@ public abstract class GameScore {
     private Long gameId;
     private Long tournamentId;
 
-    // Constructor
+    // No-arg constructor
+    public GameScore() {
+    }
+
+    // Constructor with parameters
     public GameScore(Long gameId, Long tournamentId) {
         this.gameId = gameId;
         this.tournamentId = tournamentId;

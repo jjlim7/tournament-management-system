@@ -18,8 +18,10 @@ public class Request {
 
     @Getter
     public static class CreateClanWarGameScore {
-        Map<Long, List<PlayerGameScore>> winnerRawPlayerGameScores;
-        Map<Long, List<PlayerGameScore>> loserRawPlayerGameScores;
+        Long winnerClanId;
+        Long loserClanId;
+        List<PlayerGameScore> winnerRawPlayerGameScores;
+        List<PlayerGameScore> loserRawPlayerGameScores;
         Long tournamentId;
         Long gameId;
     }

@@ -55,19 +55,10 @@ public class GameScoreController {
         Long tournamentId = newClanWarRequest.getTournamentId();
         Long gameId = newClanWarRequest.getGameId();
 
-        Map<Long, List<PlayerGameScore>> winnerRawPlayerGameScores = newClanWarRequest.getWinnerRawPlayerGameScores();
-        Map<Long, List<PlayerGameScore>> loserRawPlayerGameScores = newClanWarRequest.getLoserRawPlayerGameScores();
 
         // Ensure there is at least one winner and one loser clan ID
-        Long winnerClanId = winnerRawPlayerGameScores.keySet()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No winner clan ID provided"));
-
-        Long loserClanId = loserRawPlayerGameScores.keySet()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No loser clan ID provided"));
+        Long winnerClanId = newClanWarRequest.getWinnerClanId();
+        Long loserClanId = newClanWarRequest.getLoserClanId();
 
         List<ClanGameScore> result = new ArrayList<>();
 
@@ -76,7 +67,7 @@ public class GameScoreController {
                 tournamentId,
                 gameId,
                 winnerClanId,
-                winnerRawPlayerGameScores.get(winnerClanId),
+                newClanWarRequest.getWinnerRawPlayerGameScores(),
                 true
         );
 
@@ -84,7 +75,7 @@ public class GameScoreController {
                 tournamentId,
                 gameId,
                 loserClanId,
-                loserRawPlayerGameScores.get(loserClanId),
+                newClanWarRequest.getLoserRawPlayerGameScores(),
                 false
         );
 

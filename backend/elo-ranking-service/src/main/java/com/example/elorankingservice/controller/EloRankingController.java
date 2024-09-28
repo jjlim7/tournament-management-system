@@ -3,13 +3,16 @@ package com.example.elorankingservice.controller;
 import com.example.elorankingservice.dto.Request;
 import com.example.elorankingservice.entity.ClanEloRank;
 import com.example.elorankingservice.entity.PlayerEloRank;
+import com.example.elorankingservice.entity.PlayerGameScore;
 import com.example.elorankingservice.service.EloRankingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/elo-ranking")
@@ -88,9 +91,14 @@ public class EloRankingController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        List<ClanEloRank> finalResult = eloRankingService.processUpdateClanWarResults(
-                processResultRequest.getWinnerRawPlayerGameScores(),
-                processResultRequest.getLoserRawPlayerGameScores());
+        // create the map
+        Map<Long, List<PlayerGameScore>> winner = new HashMap<>();
+        Map<Long, List<PlayerGameScore>> loser = new HashMap<>();
+
+        winner.put(processResultRequest.getWinnerClanId(), processResultRequest.getWinnerRawPlayerGameScores());
+        loser.put(processResultRequest.getLoserClanId(), processResultRequest.getLoserRawPlayerGameScores());
+
+        List<ClanEloRank> finalResult = eloRankingService.processUpdateClanWarResults(winner, loser);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(finalResult);
     }

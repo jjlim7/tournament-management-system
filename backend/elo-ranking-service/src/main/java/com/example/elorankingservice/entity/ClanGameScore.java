@@ -25,10 +25,6 @@ public class ClanGameScore extends GameScore {
     @Column(name = "score", nullable = false)
     private int score;
 
-    @Column(name = "tournament_id", nullable = false)
-    private Long tournamentId;
-
-
     // Many ClanGameScores are associated with one ClanTournamentEloRank
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clan_elo_rank_id", referencedColumnName = "id", nullable = false) // Correct the reference to the correct foreign key column

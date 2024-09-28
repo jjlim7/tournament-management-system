@@ -1,6 +1,8 @@
 package com.example.elorankingservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.time.Duration;
@@ -29,10 +31,6 @@ public class PlayerGameScore extends GameScore {
 
     @Column(name = "player_id", nullable = false)
     private Long playerId;
-
-
-    @Column(name = "tournament_id", nullable = false)
-    private Long tournamentId;
 
     @Column(name = "game_mode", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -100,10 +98,12 @@ public class PlayerGameScore extends GameScore {
         super(null, null);
     }
     // Constructor (if needed)
-    public PlayerGameScore(
+    public  PlayerGameScore(
             Long playerId,
             Long gameId,
             Long tournamentId,
+            Role role,
+            GameMode gameMode,
             int kills,
             int deaths,
             float placement,
@@ -124,6 +124,8 @@ public class PlayerGameScore extends GameScore {
         this.playerId = playerId;
         this.kills = kills;
         this.deaths = deaths;
+        this.role = role;
+        this.gameMode = gameMode;
         this.placement = placement;
         this.survivalTime = survivalTime;
         this.distanceTraveled = distanceTraveled;
@@ -139,6 +141,8 @@ public class PlayerGameScore extends GameScore {
         this.longestKillStreak = longestKillStreak;
     }
 
+
+    @JsonIgnore
     public double getKillDeathRatio() {
         // prevent division by zero error
         if (deaths == 0) {
@@ -147,30 +151,33 @@ public class PlayerGameScore extends GameScore {
         return (double) kills / (double) deaths;
     }
 
+    @JsonIgnore
     public double getAccuracy() {
         return (double) shotsHit / (double) shotsFired;
     }
 
+    @JsonIgnore
     public double getEffectiveDamage() {
         return (double) damageDone / (double) shotsFired;
     }
 
+    @JsonIgnore
     public double getHealingDonePerSecond() {
         return (double) healingDone / (double) survivalTime.toSeconds();
     }
-
+    @JsonIgnore
     public double getHeadshotAccuracy() {
         return (double) headshots / (double) shotsFired;
     }
-
+    @JsonIgnore
     public double getDamageDonePerSecond() {
         return (double) damageDone / (double) survivalTime.toSeconds();
     }
-
+    @JsonIgnore
     public double getDamageTanked() {
         return (double) damageTaken / (double) survivalTime.toSeconds();
     }
-
+    @JsonIgnore
     public double getRolePerformanceScore(Map<String, Double> roleWeightageConfig) {
         double rps = 0.0;
 
