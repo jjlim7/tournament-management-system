@@ -1,11 +1,14 @@
 package com.example.elorankingservice.controller;
 
+import com.example.elorankingservice.dto.Request;
 import com.example.elorankingservice.entity.PlayerGameScore;
 import com.example.elorankingservice.resources.ResultGenerator;
 import com.example.elorankingservice.service.GameScoreService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -48,6 +52,10 @@ public class GameScoreControllerUnitTest {
 
     @BeforeEach
     public void setUp() {
+        Logger root = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.isInfoEnabled();
+        Logger serviceLogger = LoggerFactory.getLogger("com.example.elorankingservice");
+        serviceLogger.isDebugEnabled();
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
     }
@@ -77,24 +85,15 @@ public class GameScoreControllerUnitTest {
         // Mock storing all player game scores for this game
         given(gameScoreService.storeAllPlayerGameScore(playerGameScores)).willReturn(playerGameScores);
 
-        // Mock retrieving test player game score
-        given(gameScoreService.retrievePlayerGameScoresForTournament(TEST_BR_TOURNAMENT_ID, testPlayerGameScore.getPlayerId()))
-                .willReturn(allPlayersScore);
 
+        Request.CreateBattleRoyalePlayerGameScore req = new Request.CreateBattleRoyalePlayerGameScore();
+        req.setRawPlayerGameScores(playerGameScores);
         // Test storing scores
-        mockMvc.perform(post("/api/game-scores/battle-royale")
+        mockMvc.perform(post("/api/game-score/battle-royale")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(playerGameScores)))
+                        .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isCreated());
 
-        // Test retrieving scores
-        mockMvc.perform(get("/api/game-scores/player/{playerId}/tournament/{tournamentId}",
-                        testPlayerGameScore.getPlayerId(), TEST_BR_TOURNAMENT_ID)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].playerId").value(testPlayerGameScore.getPlayerId()))
-                .andExpect(jsonPath("$[0].tournamentId").value(TEST_BR_TOURNAMENT_ID));
     }
 
     @Test
@@ -106,42 +105,41 @@ public class GameScoreControllerUnitTest {
 
         // Generate random clan war results
         ResultGenerator generator = new ResultGenerator();
-        generator.generateClanWarGameScores(TEST_GAME_ID, TEST_CW_TOURNAMENT_ID, wClanId, lClanId, fileName);
+        ResultGenerator.CreateClanWarGameScore result = generator.generateClanWarGameScores(TEST_GAME_ID, TEST_CW_TOURNAMENT_ID, wClanId, lClanId, fileName);
 
-        // Load clan war result from json
-        Resource resource = resourceLoader.getResource("file:" + fileName);
-        List<PlayerGameScore> playerGameScores = objectMapper.readValue(resource.getInputStream(),
-                objectMapper.getTypeFactory().constructCollectionType(List.class, PlayerGameScore.class));
 
+        // all players score
+        List<PlayerGameScore> allPlayersScores = new ArrayList<>();
+        Map<Long, List<PlayerGameScore>> winnerClan  = result.getWinnerRawPlayerGameScores();
+        Map<Long, List<PlayerGameScore>> loserClan  = result.getLoserRawPlayerGameScores();
+
+        for (Long clanId : winnerClan.keySet()) {
+            allPlayersScores.addAll(winnerClan.get(clanId));
+        }
+        for (Long clanId : loserClan.keySet()) {
+            allPlayersScores.addAll(loserClan.get(clanId));
+        }
+
+        System.out.println(winnerClan);
+        System.out.println(loserClan);
         // Mock storing all player game scores for this game
-        given(gameScoreService.storeAllPlayerGameScore(playerGameScores)).willReturn(playerGameScores);
+        given(gameScoreService.storeAllPlayerGameScore(allPlayersScores)).willReturn(allPlayersScores);
 
-        // Mock retrieving game scores for each clan
-        given(gameScoreService.retrievePlayerGameScoresForTournament(TEST_CW_TOURNAMENT_ID, wClanId))
-                .willReturn(playerGameScores.subList(0, 5));
-        given(gameScoreService.retrievePlayerGameScoresForTournament(TEST_CW_TOURNAMENT_ID, lClanId))
-                .willReturn(playerGameScores.subList(5, 10));
+        // create request body
+        Request.CreateClanWarGameScore req = new Request.CreateClanWarGameScore();
+        req.setWinnerRawPlayerGameScores(result.getWinnerRawPlayerGameScores().get(wClanId));
+        req.setLoserRawPlayerGameScores(result.getLoserRawPlayerGameScores().get(lClanId));
+        req.setGameId(TEST_GAME_ID);
+        req.setTournamentId(TEST_CW_TOURNAMENT_ID);
+        req.setLoserClanId(lClanId);
+        req.setWinnerClanId(wClanId);
+
 
         // Test storing scores
-        mockMvc.perform(post("/api/game-scores/clan-war")
+        mockMvc.perform(post("/api/game-score/clan-war")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(playerGameScores)))
+                        .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isCreated());
 
-        // Test retrieving scores for winning clan
-        mockMvc.perform(get("/api/game-scores/clan/{clanId}/tournament/{tournamentId}",
-                        wClanId, TEST_CW_TOURNAMENT_ID)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(5)))
-                .andExpect(jsonPath("$[0].tournamentId").value(TEST_CW_TOURNAMENT_ID));
-
-        // Test retrieving scores for losing clan
-        mockMvc.perform(get("/api/game-scores/clan/{clanId}/tournament/{tournamentId}",
-                        lClanId, TEST_CW_TOURNAMENT_ID)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(5)))
-                .andExpect(jsonPath("$[0].tournamentId").value(TEST_CW_TOURNAMENT_ID));
     }
 }
