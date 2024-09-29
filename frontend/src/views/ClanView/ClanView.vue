@@ -398,7 +398,7 @@
     color: white;
   }
   button:hover {
-    background-color: #007bff; 
+    background-color: #e09f13; 
     color: white;
   }
   .close-modal-btn {
@@ -422,8 +422,7 @@
     background: none;
   }
   .clan-link:hover {
-    color: #007bff;              /* Optional: Change color on hover for better UX */
+    color: #e09f13;              /* Optional: Change color on hover for better UX */
     text-decoration: underline;
 }
 </style>
-  
