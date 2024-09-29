@@ -1,19 +1,19 @@
 <template>
   <nav
-    class="navbar-expand-lg mx-4 py-2"
+    class="navbar-expand-lg px-4 py-2 backgoundColour rounded-bottom-4"
   >
     <div class="d-flex justify-content-between"  >
       <div class="d-flex align-items-center" >
         <!-- eatwise logo and dropdown button -->
-        <NavbarHamburger />
+        <NavbarHamburger/>
         <NavbarLogo /> 
       </div>
 
       <div
         class="collapse navbar-collapse justify-content-center"
         id="navbarSupportedContent"
+        v-if="isLargeScreen"
         >
-        <!-- show main pages -->
         <NavbarLinkSection />
       </div>
 
@@ -22,6 +22,14 @@
         <ProfileLink />
       </div>
       
+    </div>
+    <div
+        class="collapse navbar-collapse justify-content-center"
+        id="navbarSupportedContent"
+        name="SmallScreenNavBar"
+        v-if="!isLargeScreen"
+        >
+        <NavbarLinkSection />
     </div>
   </nav>
 </template>
@@ -40,15 +48,30 @@ export default {
   },
   data(){
     return{
-      islogin: false
+      islogin: false,
+      isLargeScreen: window.innerWidth >= 992,
     }
+  },
+  methods:{
+    checkScreenSize() {
+        this.isLargeScreen = window.innerWidth >= 992;
+      },
+  },
+  async created() {
+      window.addEventListener("resize", this.checkScreenSize);
+    },
+  destroyed() {
+    window.removeEventListener("resize", this.checkScreenSize);
   },
 
 };
 </script>
 
 <style scoped>
-
+.backgoundColour{
+  background-color: rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); 
+}
 
 
 </style>
