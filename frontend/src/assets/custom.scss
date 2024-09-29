@@ -1,0 +1,14 @@
+// custom.scss
+
+
+// Override Bootstrap variables here
+$primary: #FA9021; // Custom primary color
+$secondary: #DDDDDD; // Custom secondary color
+
+$theme-colors: (
+  "primary": #FA9021,
+  "secondary": #DDDDDD
+);
+
+@import "../node_modules/bootstrap/scss/bootstrap";
+

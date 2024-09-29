@@ -1,8 +1,8 @@
 <template>
     <RouterLink 
         class="nav-link py-0 px-2 d-flex mx-auto " 
-        aria-current="page" 
         :to="eachLink.routeTo"
+        @click="collapseNavbar"
     >
         <li class="nav-item mx-3" >
             <div :class="checkCurrentPage(eachLink.routeTo)" >{{eachLink.linkName}}</div> 
@@ -11,6 +11,7 @@
 </template>
 <script>
 import { RouterLink } from 'vue-router';
+import { Collapse } from 'bootstrap';
 
 export default {
     name: "NavbarLink",
@@ -21,6 +22,18 @@ export default {
     methods:{
         checkCurrentPage(link){
             return this.$route.path.startsWith(link) ? "active-link" : "inactive-link"
+        },
+        collapseNavbar(){
+            const collapseElement = document.getElementsByName('SmallScreenNavBar')[0];
+            
+            if (collapseElement) {
+                // Initialize Bootstrap collapse functionality
+                const bsCollapse = new Collapse(collapseElement, {
+                    toggle: false // Prevent automatic toggling
+                });
+                // Manually toggle the collapse
+                bsCollapse.toggle();
+            }
         }
     }
 }
