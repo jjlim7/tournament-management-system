@@ -1,5 +1,5 @@
 <template>
-<div v-if="!gotClan">
+<div v-if="gotClan">
   <div class="clanpage">
     <div class="texttitle">
       <h1>Clan Wars Tournaments</h1>
@@ -43,7 +43,9 @@
           </button>
         </div>
         <!-- Close button inside the modal -->
-        <button @click="showModal = false" class="close-modal-btn">Close</button>
+        <button @click="showModal = false" class="close-modal-btn">
+          <img src="https://static.vecteezy.com/system/resources/thumbnails/011/458/959/small_2x/letter-x-alphabet-in-brush-style-png.png">
+        </button>
       </div>
     </div>
 
@@ -102,7 +104,11 @@
           <td>
             <img :src="clan.clanicon" class="profile-image" style="height: 100px;"/>
           </td>
-          <td>{{ clan.clanname }}</td>
+          <td>
+            <span class="clan-link" @click="showModal = true">
+              {{ clan.clanname }}
+            </span>
+          </td>
           <td>{{ clan.members }}</td>
           <td>{{ clan.rank }}</td>
           <td>{{ clan.elo }}</td>
@@ -123,10 +129,11 @@
     <!-- Modal structure -->
     <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
       <div class="modal-content">
+        <h1>Clan Info</h1>
         <div class="modal-body">
-          <h1>Clan Info</h1>
+          
           <div class="clanmemebrs translucent-box">
-            <table class="data-table">
+            <table class="data-table responsive-table">
             <thead>
               <tr>
                 <th>Position</th>
@@ -153,7 +160,9 @@
           </div>
         </div>
         <!-- Close button inside the modal -->
-        <button @click="showModal = false" class="close-modal-btn">Close</button>
+        <button @click="showModal = false" class="close-modal-btn">
+          <img src="https://static.vecteezy.com/system/resources/thumbnails/011/458/959/small_2x/letter-x-alphabet-in-brush-style-png.png">
+        </button>
       </div>
     </div>
 
@@ -248,6 +257,7 @@
     width: 90%;
     align-items: center; /* Vertically center items */
     border: none;
+    overflow-x: auto;
   }
   .translucent-box-bottomhalf{
     position: absolute;
@@ -270,6 +280,7 @@
     overflow-x: auto; /* Enable horizontal scrolling */
     white-space: nowrap; /* Prevent images from wrapping to the next line */
   }
+
   .data-table {
     width: 100%;
     border-collapse: collapse; /* Collapse borders */
@@ -288,6 +299,7 @@
     overflow-x: auto; /* Enable horizontal scrolling */
     white-space: nowrap; /* Prevent images from wrapping to the next line */
   }
+
   .clantourn {
     width: 500px; /* Set desired width */
     height: 299px; /* Set desired height */
@@ -381,15 +393,37 @@
     border: none;
     cursor: pointer;
   }
-
   button.clicked {
     background-color: #28a745; 
     color: white;
   }
-
   button:hover {
     background-color: #007bff; 
     color: white;
   }
+  .close-modal-btn {
+    position: absolute;
+    top: 10px; /* Adjust as needed */
+    right: 10px; /* Adjust as needed */
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .close-modal-btn img {
+    width: 24px; /* Adjust the size of the 'X' icon */
+    height: 24px;
+  }
+
+  .clan-link {
+    text-decoration: underline;  /* Adds underline to the text */
+    cursor: pointer;             /* Changes cursor to pointer */
+    color: inherit;              /* Keeps text color the same as surrounding text */
+    border: none;
+    background: none;
+  }
+  .clan-link:hover {
+    color: #007bff;              /* Optional: Change color on hover for better UX */
+    text-decoration: underline;
+}
 </style>
   
