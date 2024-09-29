@@ -8,6 +8,7 @@ import ClanWarView from '@/views/ClanWarView/ClanWarView.vue'
 import BookingView from '@/views/BookingView/BookingView.vue'
 import ClanView from '@/views/ClanView/ClanView.vue'
 import AuthView from '@/views/AuthView/AuthView.vue'
+// import AdminView from '@/views/AdminView/AdminView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -57,6 +58,11 @@ const router = createRouter({
       name: 'profile',
       component: ProfileView
     },
+    // {
+    //   path: '/admin',
+    //   name: 'admin',
+    //   component: AdminView
+    // },
   ]
 })
 
