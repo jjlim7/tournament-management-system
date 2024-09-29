@@ -39,6 +39,19 @@ public class Request {
     public static class CreateNewPlayerEloRank {
         Long playerId;
         Long tournamentId;
+    }
 
+    @Getter
+    @Setter
+    public static class BulkCreateClanEloRank {
+        List<Long> clanIds;
+        Long tournamentId;
+    }
+
+    @Getter
+    @Setter
+    public static class BulkCreatePlayerEloRank {
+        List<Long> playerIds;
+        Long tournamentId;
     }
 }

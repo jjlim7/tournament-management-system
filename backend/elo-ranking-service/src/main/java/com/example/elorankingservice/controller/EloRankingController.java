@@ -4,12 +4,14 @@ import com.example.elorankingservice.dto.Request;
 import com.example.elorankingservice.entity.ClanEloRank;
 import com.example.elorankingservice.entity.PlayerEloRank;
 import com.example.elorankingservice.entity.PlayerGameScore;
+import com.example.elorankingservice.repository.PlayerEloRankRepository;
 import com.example.elorankingservice.service.EloRankingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,10 +21,12 @@ import java.util.Map;
 public class EloRankingController {
 
     private final EloRankingService eloRankingService;
+    private final PlayerEloRankRepository playerEloRankRepository;
 
     @Autowired
-    public EloRankingController(EloRankingService eloRankingService) {
+    public EloRankingController(EloRankingService eloRankingService, PlayerEloRankRepository playerEloRankRepository) {
         this.eloRankingService = eloRankingService;
+        this.playerEloRankRepository = playerEloRankRepository;
     }
 
     @GetMapping("/player/{playerId}/tournament/{tournamentId}")
@@ -67,6 +71,34 @@ public class EloRankingController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(newEloRank);
     }
+
+    @PostMapping("/player/bulk")
+    public ResponseEntity<List<PlayerEloRank>> bulkCreatePlayerEloRank(
+            @RequestBody Request.BulkCreatePlayerEloRank bulkPlayersEloRankRequest) {
+        List<PlayerEloRank> result = new ArrayList<>();
+        Long tournamentId = bulkPlayersEloRankRequest.getTournamentId();
+        for (Long id : bulkPlayersEloRankRequest.getPlayerIds()) {
+            PlayerEloRank eloRank = eloRankingService.createNewPlayerEloRanking(id, tournamentId);
+            result.add(eloRank);
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
+
+
+    @PostMapping("/clan/bulk")
+    public ResponseEntity<List<ClanEloRank>> bulkCreateClanEloRank(
+            @RequestBody Request.BulkCreateClanEloRank bulkClanEloRankRequest) {
+        List<ClanEloRank> result = new ArrayList<>();
+        Long tournamentId = bulkClanEloRankRequest.getTournamentId();
+        for (Long id : bulkClanEloRankRequest.getClanIds()) {
+            ClanEloRank eloRank = eloRankingService.createNewClanEloRanking(id, tournamentId);
+            result.add(eloRank);
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
+
 
     @PostMapping("/battle-royale")
     public ResponseEntity<List<PlayerEloRank>> processBattleRoyaleResults(

@@ -64,7 +64,6 @@ public class EloRankingService {
             )
     );
 
-
     @Autowired
     public EloRankingService(
             ClanEloRankRepository clanEloRankRepository,
@@ -75,8 +74,6 @@ public class EloRankingService {
         this.playerEloRankRepository = playerEloRankRepository;
         this.rankService = rankService;
     }
-
-
 
     // Retrieve the Clan Elo Rank for a specific clan in a particular tournament
     public Optional<ClanEloRank> retrieveClanEloRank(Long clanId, Long tournamentId) {
@@ -176,7 +173,6 @@ public class EloRankingService {
         logger.error("Final result: {}", finalResult);
         return updatePlayerEloRanking(finalResult);
     }
-
 
     // Compute resultant player Elo ratings
     public Map<Long, List<Double>> computeResultantPlayerEloRating(List<PlayerEloRank> playersEloRank, List<PlayerGameScore> playerGameScoreList) {
@@ -373,17 +369,23 @@ public class EloRankingService {
 
         Map<Long, List<Double>> finalClanEloRating = new HashMap<>();
 
-        // Calculate the average RPS for each clan
+        // Constants
+        double MIN_MEAN_SKILL_ESTIMATE = 0.0; // Minimum allowed rating
+
+        // Calculate the average RPS for the winner (used for adjustment)
         double avgRPSWinner = calculateAverageRPS(winnerPlayerGameScore);
-        double avgRPSLoser = calculateAverageRPS(loserPlayerGameScore);
 
         // Get the expected performance for each clan
-        double expectedPerformanceWinner = calculateExpectedPerformance(winnerPlayerEloRank);
-        double expectedPerformanceLoser = calculateExpectedPerformance(loserPlayerEloRank);
+        double expectedPerformanceWinner = calculateExpectedPerformance(winnerEloRank, loserEloRank);
+        double expectedPerformanceLoser = 1 - expectedPerformanceWinner; // Since it's a two-clan match
 
-        // Calculate the winner's and loser's performance outcomes
+        // Set the performance outcomes
         double winnerPerformanceOutcome = 1 + MAX_ALPHA * avgRPSWinner;
-        double loserPerformanceOutcome = 0 + MAX_ALPHA * avgRPSLoser;
+        // Cap the winner's performance outcome to prevent excessive rating increases
+        winnerPerformanceOutcome = Math.min(winnerPerformanceOutcome, 2.0);
+
+        // Set the loser's performance outcome to 0 to deduct points on loss
+        double loserPerformanceOutcome = 0;
 
         // Update winner's Elo rating and uncertainty
         double winnerNewMeanSkillEstimate = winnerEloRank.getMeanSkillEstimate() +
@@ -397,13 +399,15 @@ public class EloRankingService {
         double loserNewUncertainty = calculateNewUncertainty(
                 loserEloRank.getUncertainty(), expectedPerformanceLoser, loserPerformanceOutcome, loserEloRank.getMeanSkillEstimate());
 
+        // Ensure that the loser's mean skill estimate does not go below zero
+        loserNewMeanSkillEstimate = Math.max(MIN_MEAN_SKILL_ESTIMATE, loserNewMeanSkillEstimate);
+
         // Store the new Elo and uncertainty for both clans in the map
         finalClanEloRating.put(winnerEloRank.getClanId(), Arrays.asList(winnerNewMeanSkillEstimate, winnerNewUncertainty));
         finalClanEloRating.put(loserEloRank.getClanId(), Arrays.asList(loserNewMeanSkillEstimate, loserNewUncertainty));
 
         return finalClanEloRating;
     }
-
 
     private double calculateNewUncertainty(double uncertainty, double expectedPerformance, double performanceOutcome, double meanSkillEstimate) {
         double v_i = 1 / (expectedPerformance * (1 - expectedPerformance));
@@ -425,10 +429,10 @@ public class EloRankingService {
                 .orElse(0);
     }
 
-    // Calculate the expected performance for a clan
-    private double calculateExpectedPerformance(List<PlayerEloRank> playerEloRankList) {
-        double totalRatings = playerEloRankList.stream().mapToDouble(PlayerEloRank::getMeanSkillEstimate).sum();
-        double averageRating = totalRatings / playerEloRankList.size();
-        return 1 / (1 + Math.pow(10, (averageRating - totalRatings / playerEloRankList.size()) / 400));
+    // Calculate the expected performance between two clans
+    private double calculateExpectedPerformance(ClanEloRank clanRank, ClanEloRank opponentClanRank) {
+        double R_i = clanRank.getMeanSkillEstimate();
+        double R_opponent = opponentClanRank.getMeanSkillEstimate();
+        return 1 / (1 + Math.pow(10, (R_opponent - R_i) / 400));
     }
 }
