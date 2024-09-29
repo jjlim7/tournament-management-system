@@ -1,12 +1,11 @@
 package com.example.tournamentservice.entity;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
-
+import java.util.Date;
 import java.util.List;
+import javax.validation.constraints.PositiveOrZero;
 
 
 @Entity
@@ -20,6 +19,15 @@ public class Tournament {
 		ClanWar,
 	}
 
+	public enum status {
+		Rescheduled,
+		Cancelled,
+		Active,
+		Ended,
+	}
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "tournament_id", nullable = false)
 	private Long tournament_id;
 
@@ -32,17 +40,19 @@ public class Tournament {
 	@Column(name = "end_date", nullable = false)
 	private Date endDate;
 
+	@PositiveOrZero(message = "Player count cannot be less than 0")
 	@Column(name = "player_capacity", nullable = false)
 	private int playerCapacity;
 
 	@Column(name = "status", nullable = false)
-	private boolean status;
+	@Enumerated(EnumType.STRING)
+	private Status status;
 
-	@Column(name = "game_mode", nullable = false, unique = True)
+	@Column(name = "game_mode", nullable = false, unique = true)
 	@Enumerated(EnumType.STRING)
 	private GameMode gameMode;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@OneToMany(fetch = FetchType.LAZY)
 	@JoinColumn(name = "admin_id", nullable = false)
 	private User admin_id;
 	
