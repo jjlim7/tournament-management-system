@@ -1,31 +1,36 @@
 package com.example.userservice.entity;
 
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
 public class Clan {
-    private String clanId;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long clanId;
     private String clanName;
-
-    public Clan() {
     
-    }
-    
-    public Clan(String clanId, String clanName) {
-        this.clanId = clanId;
-        this.clanName = clanName;
-    }
+    // public Clan(Long clanId, String clanName) {
+    //     this.clanId = clanId;
+    //     this.clanName = clanName;
+    // }
 
-    public String getClanId() {
-        return clanId;
-    }
-    public void setClanId(String clanId) {
-        this.clanId = clanId;
-    }
-    public String getClanName() {
-        return clanName;
-    }
-    public void setClanName(String clanName) {
-        this.clanName = clanName;
-    }
+    // public Long getClanId() {
+    //     return clanId;
+    // }
 
-    
+    // public void setClanId(Long clanId) {
+    //     this.clanId = clanId;
+    // }
 
+    // public String getClanName() {
+    //     return clanName;
+    // }
+
+    // public void setClanName(String clanName) {
+    //     this.clanName = clanName;
+    // }
+ 
 }
