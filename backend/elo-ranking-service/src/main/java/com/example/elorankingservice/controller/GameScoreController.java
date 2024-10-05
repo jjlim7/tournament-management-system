@@ -24,6 +24,7 @@ public class GameScoreController {
         this.gameScoreService = gameScoreService;
     }
 
+    // NOT USED
     @PostMapping("/battle-royale")
     public ResponseEntity<List<PlayerGameScore>> saveBattleRoyaleResult(
             @RequestBody Request.CreateBattleRoyalePlayerGameScore newGameScoresRequest) {
@@ -41,6 +42,7 @@ public class GameScoreController {
         return new ResponseEntity<>(playerGameScores, HttpStatus.CREATED);
     }
 
+    // NOT USED
     @PostMapping("/clan-war")
     public ResponseEntity<List<ClanGameScore>> saveClanWarResult(@RequestBody Request.CreateClanWarGameScore newClanWarRequest) {
 

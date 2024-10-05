@@ -29,6 +29,22 @@ public class Request {
 
     @Getter
     @Setter
+    public static class SimulateBattleRoyale {
+        List<Long> playerIds;
+        Long tournamentId;
+        Long gameId;
+    }
+
+    @Getter
+    @Setter
+    public static class SimulateClanWar {
+        Long tournamentId;
+        Long gameId;
+        Map<Long, List<Long>> clanPlayerIds;
+    }
+
+    @Getter
+    @Setter
     public static class CreateNewClanEloRank {
         Long clanId;
         Long tournamentId;

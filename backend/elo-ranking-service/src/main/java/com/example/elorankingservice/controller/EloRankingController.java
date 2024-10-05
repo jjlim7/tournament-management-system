@@ -99,7 +99,7 @@ public class EloRankingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
-
+    // NOT USED
     @PostMapping("/battle-royale")
     public ResponseEntity<List<PlayerEloRank>> processBattleRoyaleResults(
             @RequestBody Request.CreateBattleRoyalePlayerGameScore processResultRequest) throws Exception {
@@ -115,6 +115,7 @@ public class EloRankingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(finalResult);
     }
 
+    // NOT USED
     @PostMapping("/clan-war")
     public ResponseEntity<List<ClanEloRank>> processClanWarResults(
             @RequestBody Request.CreateClanWarGameScore processResultRequest) throws Exception {
