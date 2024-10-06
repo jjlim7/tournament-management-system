@@ -28,9 +28,9 @@
           <span class="fw-semibold py-1">Rank Progress</span>
           <BlurredBGCard class="mb-2 mt-1">
             <RankProgress 
-              :rank="userStore.rank" 
-              :currentElo="userStore.currentElo" 
-              :upperLimit="userStore.eloUpperlimit" 
+              :rank="userStore.user.rank" 
+              :currentElo="userStore.user.currentElo" 
+              :upperLimit="userStore.user.eloUpperlimit" 
               gameMode="Battle Royale"
               class="p-2" />
           </BlurredBGCard>

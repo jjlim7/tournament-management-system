@@ -4,8 +4,8 @@
     <div class="tintedBG">
       <div class="mx-auto text-white m-0 p-0" style="max-width: 1280px;">
 
-        <Navbar v-if="isLogin && currentRoute!='/'"/>
-        <NavbarLandingPage v-else-if="!isLogin && currentRoute!='/'"/>
+        <Navbar v-if="userStore.isAuthenticated"/>
+        <NavbarLandingPage v-else-if="!userStore.isAuthenticated"/>
         
         <RouterView />
   
@@ -19,6 +19,7 @@
 import { RouterView, useRoute  } from 'vue-router'
 import Navbar from './components/Navbar/Navbar.vue';
 import NavbarLandingPage from './components/Navbar/NavbarLandingPage.vue'
+import { useUserStore } from '@/stores/store';
 
 export default{
   name:"App",
@@ -53,6 +54,10 @@ export default{
       return this.BACKGOUNDIMAGE[route.path] || '';
     }
   },
+  setup(){
+    const userStore = useUserStore();
+    return {userStore}
+  }
 }
 
 </script>

@@ -254,7 +254,7 @@ export default {
       });
     },
     checkClanRole(){
-      if(this.userStore.clanRole=='member'){
+      if(this.userStore.user.clanRole=='member'){
         this.showErrorAlert("Only clan admin can book Clan War")
       }
     },
