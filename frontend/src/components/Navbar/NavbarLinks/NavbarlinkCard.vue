@@ -1,7 +1,6 @@
 <template>
     <RouterLink 
         class="nav-link py-0 px-2 d-flex mx-auto " 
-        aria-current="page" 
         :to="eachLink.routeTo"
         @click="collapseNavbar"
     >

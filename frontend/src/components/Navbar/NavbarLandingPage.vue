@@ -1,5 +1,5 @@
 <template>
-  <nav class="mx-4 py-2">
+  <nav class="mx-4 py-2 rounded-bottom-4">
     <div class="d-flex justify-content-between align-items-center"  >
       <NavbarLogo /> 
       <button class="btn btn-primary fw-bold text-white" @click="navigateToAuth">Login / Register</button>
