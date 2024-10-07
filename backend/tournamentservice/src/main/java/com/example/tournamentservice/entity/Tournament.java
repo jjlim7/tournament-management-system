@@ -7,13 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 
 @Entity
 @Table(name = "tournaments")
-@Data //Generate getter, setter, toString, etc
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 
@@ -45,12 +45,12 @@ public class Tournament {
 
 	@NotNull(message = "Start date is required")
 	@Column(name = "start_date", nullable = false)
-	private Date startDate;
+	private OffsetDateTime startDate;
 
 	@NotNull(message = "End date is required")
 	@Future(message = "End date must be a future date")
 	@Column(name = "end_date", nullable = false)
-	private Date endDate;
+	private OffsetDateTime endDate;
 
 	@Column(name = "player_capacity", nullable = false)
 	private int playerCapacity;
@@ -63,14 +63,12 @@ public class Tournament {
 	@Enumerated(EnumType.STRING)
 	private GameMode gameMode;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@Column(name = "Game", nullable = false)
-	private List<Game> gameList;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "tournament_id")
+    private List<Game> gameList;
 
-	@Transient
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "admin_id", nullable = false)
-	private String admin_id;
+	@Column(name = "admin_id", nullable = false)
+    private Long adminId;
 
 }
 

@@ -1,30 +1,43 @@
 package com.example.tournamentservice.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.example.tournamentservice.entity.Game;
 import com.example.tournamentservice.repository.GameRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
 public class GameService {
-    
+
     @Autowired
     private GameRepository gameRepository;
 
-    public List<Game> findAll(){
-        return gameRepository.findAll();
-    }
-
-    public Game findById(Long id) {
-        return gameRepository.findById(id).orElseThrow();
-    }
-
-    public Game save(Game game) {
+    public Game createGame(Game game) {
         return gameRepository.save(game);
     }
 
-    public void deleteById(Long id) {
+    public List<Game> getAllGames() {
+        return gameRepository.findAll();
+    }
+
+    public Game getGameById(Long id) {
+        return gameRepository.findById(id).orElse(null);
+    }
+
+    public Game updateGame(Long id, Game gameDetails) {
+        Game game = gameRepository.findById(id).orElse(null);
+        if (game != null) {
+            game.setName(gameDetails.getName());
+            game.setPlayerCapacity(gameDetails.getPlayerCapacity());
+            game.setPlayerIds(gameDetails.getPlayerIds());
+            game.setStatus(gameDetails.getStatus());
+            return gameRepository.save(game);
+        }
+        return null;
+    }
+
+    public void deleteGame(Long id) {
         gameRepository.deleteById(id);
     }
 }

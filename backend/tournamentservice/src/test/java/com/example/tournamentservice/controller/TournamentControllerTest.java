@@ -1,4 +1,4 @@
-package com.example.tournamentservice;
+package com.example.tournamentservice.controller;
 
 import java.util.Arrays;
 import java.util.List;
