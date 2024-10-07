@@ -1,6 +1,7 @@
 package com.example.tournamentservice.service;
 
 import com.example.tournamentservice.*;
+import com.example.tournamentservice.entity.Tournament;
 import com.example.tournamentservice.repository.TournamentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,19 +15,36 @@ public class TournamentService {
     @Autowired
     private TournamentRepository tournamentRepository;
 
-    public List<Tournament> getTournaments(String status, String name){
-        //Filter tournament by status and name
-        if (status != null) {
-            if(name != null){
-                return tournamentRepository.findByStatusAndName(status, name);
-            }
-            return tournamentRepository.findByStatus(status);
-        }
-        if (name != null){
-            return tournamentRepository.findByStatusAndName(status, name);
-        }
+    //Default creation of tournament
+    public Tournament createTournament(Tournament tournament) {
+        return tournamentRepository.save(tournament);
+    }
+
+
+
+    //Default retrieval of tournament
+    public List<Tournament> getAllTournaments(){
         return tournamentRepository.findAll();
     }
+
+    //Retrieval of tournament by ID
+    public Optional<Tournament> getTournamentById(Long id){
+        return tournamentRepository.findById(id);
+    }
+
+    //public List<Tournament> getTournaments(String status, String name){
+        //Filter tournament by status and name
+       // if (status != null) {
+        //    if(name != null){
+        //        return tournamentRepository.findByStatusAndName(status, name);
+        //    }
+       //     return tournamentRepository.findByStatus(status);
+      //  }
+       // if (name != null){
+       //     return tournamentRepository.findByStatusAndName(status, name);
+       // }
+     //   return tournamentRepository.findAll();
+   // }
 
     // More things to consider?
 
@@ -36,21 +54,6 @@ public class TournamentService {
     //Shouldnt be able to edit game mode also.
     //Check that it is the admin that is in charge of the tournamnet before giving permission to edit
 
-    public Optional<Tournament> getTournamentById(long id) {
-        return tournamentRepository.findById(id).orElse(null);
-    }
-
-    public Tournament createTournament(Tournament tournament) {
-        return tournamentRepository.save(tournament);
-    }
-
-    public void deleteTournament(Long id) {
-        Tournament tournament = tournamentRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Tournament cannot be found"));
-
-        tournamentRepository.delete(tournament);
-    }
-
     public Tournament updateTournament(Long id, Tournament tournamentDetails) {
         Tournament tournament = tournamentRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Tournament cannot be found"));
@@ -59,10 +62,17 @@ public class TournamentService {
         tournament.setStartDate(tournamentDetails.getStartDate());
         tournament.setEndDate(tournamentDetails.getEndDate()); 
         tournament.setPlayerCapacity(tournamentDetails.getPlayerCapacity()); //need to check current player count before user can update
-        tournament.setStatus(tournamentDetails.getStatus()); //might not need 
-        tournament.setGameMode(tournamentDetails.getGameMode()); //dont make sense to update 
+        //tournament.setStatus(tournamentDetails.getStatus()); //might not need 
+        //tournament.setGameMode(tournamentDetails.getGameMode()); //dont make sense to update 
         //This might need to change
         return tournamentRepository.save(tournament);
+    }
+
+    public void deleteTournament(Long id) {
+        Tournament tournament = tournamentRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Tournament cannot be found"));
+
+        tournamentRepository.delete(tournament);
     }
 }
 

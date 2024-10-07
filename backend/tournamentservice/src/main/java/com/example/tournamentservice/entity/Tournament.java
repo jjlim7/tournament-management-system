@@ -1,16 +1,21 @@
 package com.example.tournamentservice.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.Date;
 import java.util.List;
-import javax.validation.constraints.PositiveOrZero;
 
 
 @Entity
-@Getter
-@Setter
+@Table(name = "tournaments")
+@Data //Generate getter, setter, toString, etc
+@NoArgsConstructor
+@AllArgsConstructor
 
 public class Tournament {
 
@@ -19,7 +24,7 @@ public class Tournament {
 		ClanWar,
 	}
 
-	public enum status {
+	public enum Status {
 		Rescheduled,
 		Cancelled,
 		Active,
@@ -31,16 +36,22 @@ public class Tournament {
 	@Column(name = "tournament_id", nullable = false)
 	private Long tournament_id;
 
+	@NotNull(message = "Tournament name is needed")
 	@Column(name = "name", nullable = false)
 	private String name;
 
+	@Column(name = "description", length = 1000)
+	private String description;
+
+	@NotNull(message = "Start date is required")
 	@Column(name = "start_date", nullable = false)
 	private Date startDate;
 
+	@NotNull(message = "End date is required")
+	@Future(message = "End date must be a future date")
 	@Column(name = "end_date", nullable = false)
 	private Date endDate;
 
-	@PositiveOrZero(message = "Player count cannot be less than 0")
 	@Column(name = "player_capacity", nullable = false)
 	private int playerCapacity;
 
@@ -52,23 +63,14 @@ public class Tournament {
 	@Enumerated(EnumType.STRING)
 	private GameMode gameMode;
 
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@Column(name = "Game", nullable = false)
+	private List<Game> gameList;
+
+	@Transient
 	@OneToMany(fetch = FetchType.LAZY)
 	@JoinColumn(name = "admin_id", nullable = false)
-	private User admin_id;
-	
-	public Tournament(){}
-
-	public Tournament(Long tournament_id, String name, Date startDate, Date endDate, int playerCapacity, boolean status,
-			GameMode gameMode, User admin_id) {
-		this.tournament_id = tournament_id;
-		this.name = name;
-		this.startDate = startDate;
-		this.endDate = endDate;
-		this.playerCapacity = playerCapacity;
-		this.status = status;
-		this.gameMode = gameMode;
-		this.admin_id = admin_id;
-	}
+	private String admin_id;
 
 }
 
