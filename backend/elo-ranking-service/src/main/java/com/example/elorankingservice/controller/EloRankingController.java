@@ -21,12 +21,10 @@ import java.util.Map;
 public class EloRankingController {
 
     private final EloRankingService eloRankingService;
-    private final PlayerEloRankRepository playerEloRankRepository;
 
     @Autowired
     public EloRankingController(EloRankingService eloRankingService, PlayerEloRankRepository playerEloRankRepository) {
         this.eloRankingService = eloRankingService;
-        this.playerEloRankRepository = playerEloRankRepository;
     }
 
     @GetMapping("/player/{playerId}/tournament/{tournamentId}")
