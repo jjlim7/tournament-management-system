@@ -5,8 +5,6 @@ import com.example.tournamentservice.entity.Tournament;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-
 import java.util.List;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,18 +12,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("/api")
-
+@RequestMapping("/api/tournaments")
 public class TournamentController{
 
     @Autowired
     private TournamentService tournamentService;
 
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Tournament> createTournament(@RequestBody Tournament tournament){
-        Tournament createdTournament = tournamentService.createTournament(tournament);
-        return new ResponseEntity<>(createdTournament, HttpStatus.CREATED);
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    //@PreAuthorize("hasRole('USER')")
+    public String createTournament(@RequestBody Tournament tournament){
+        tournamentService.createTournament(tournament);
+        return "Tournament created successfully!";
     }
 
     
