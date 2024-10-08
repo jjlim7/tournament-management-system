@@ -97,32 +97,32 @@ public class TournamentService {
         }
     }
 
+    //Need to do test case for this and controller layer for joinTournament
+    public String joinTournament(Long tournamentId, Long playerId) {
+        // Retrieve the tournament by ID
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new IllegalArgumentException("Tournament not found"));
 
-        // public void joinTournament(Long id, Long userId) {
-    //     // Add logic to add a user to the tournament
-    //     Tournament tournament = tournamentRepository.findById(id)
-    //             .orElseThrow(() -> new RuntimeException("Tournament not found"));
-        
-    //     // Check if the user is already a participant
-    //     if (!tournament.getPlayerIds().contains(userId)) {
-    //         tournament.getPlayerIds().add(userId);
-    //         tournamentRepository.save(tournament);
-    //     } else {
-    //         throw new IllegalArgumentException("User already joined the tournament");
-    //     }
-    // }
+        // Check if the player is already in the tournament
+        if (tournament.getPlayerIds().contains(playerId)) {
+            throw new IllegalArgumentException("Player is already registered in this tournament.");
+        }
 
-    // public void leaveTournament(Long id, Long userId) {
-    //     // Add logic to remove a user from the tournament
-    //     Tournament tournament = tournamentRepository.findById(id)
-    //             .orElseThrow(() -> new RuntimeException("Tournament not found"));
-        
-    //     if (tournament.getPlayerIds().contains(userId)) {
-    //         tournament.getPlayerIds().remove(userId);
-    //         tournamentRepository.save(tournament);
-    //     } else {
-    //         throw new IllegalArgumentException("User is not a participant in the tournament");
-    //     }
-    // }
+        // Check if the tournament has reached its player capacity
+        if (tournament.getPlayerIds().size() >= tournament.getPlayerCapacity()) {
+            throw new IllegalArgumentException("Tournament has reached its player capacity.");
+        }
+
+        // Add player to the tournament
+        tournament.getPlayerIds().add(playerId);
+        tournamentRepository.save(tournament);
+
+        return "Player joined the tournament successfully.";
+
+    }
+
+    //Need to do a logic for leavingTournament
+    //Need to do test case for this too
+    //Need to do controller layer for leaveTournament too
 }
 

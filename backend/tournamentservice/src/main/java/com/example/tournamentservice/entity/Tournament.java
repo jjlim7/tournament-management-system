@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -69,6 +70,11 @@ public class Tournament {
 
 	@Column(name = "admin_id", nullable = false)
     private Long adminId;
+
+	@ElementCollection
+    @CollectionTable(name = "tournament_players", joinColumns = @JoinColumn(name = "tournament_id"))
+    @Column(name = "player_id")
+    private List<Long> playerIds;
 
 }
 

@@ -1,11 +1,8 @@
 package com.example.tournamentservice.entity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-
 import java.util.List;
 
 @Data

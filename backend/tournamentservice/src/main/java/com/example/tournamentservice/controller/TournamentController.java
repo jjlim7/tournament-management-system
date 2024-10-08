@@ -27,7 +27,7 @@ public class TournamentController{
     }
 
     
-    @GetMapping("/tournaments")
+    @GetMapping
     public ResponseEntity<List<Tournament>> getAllTournament(){
         List<Tournament> tournaments = tournamentService.getAllTournaments();
         return ResponseEntity.ok(tournaments);
