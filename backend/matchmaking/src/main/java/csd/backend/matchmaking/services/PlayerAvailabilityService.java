@@ -29,4 +29,8 @@ public class PlayerAvailabilityService {
         System.out.println("getPlayerAvailabilitiesByTournamentId");
         return repository.getPlayerAvailabilitiesByTournamentId(tournamentId);
     }
+
+    public List<PlayerAvailability> bulkCreateAvailabilities(List<PlayerAvailability> playerAvailabilities) {
+        return repository.saveAll(playerAvailabilities);
+    }
 }

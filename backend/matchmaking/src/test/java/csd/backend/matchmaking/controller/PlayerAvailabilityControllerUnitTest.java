@@ -76,7 +76,7 @@ class PlayerAvailabilityControllerUnitTest {
         given(playerAvailabilityService.createAvailability(any(PlayerAvailability.class)))
                 .willReturn(mockAvailability);
 
-        mockMvc.perform(post("/api/players/availability")
+        mockMvc.perform(post("/api/playersAvailability")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(mockAvailability)))
                 .andExpect(status().isCreated())
@@ -98,7 +98,7 @@ class PlayerAvailabilityControllerUnitTest {
         given(playerAvailabilityService.getPlayerAvailabilitiesByPlayerId(playerId))
                 .willReturn(playerAvailabilityList);
 
-        mockMvc.perform(get("/api/players/availability?playerId={playerId}", playerId)
+        mockMvc.perform(get("/api/playersAvailability?playerId={playerId}", playerId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].playerId").value(playerId));
@@ -115,7 +115,7 @@ class PlayerAvailabilityControllerUnitTest {
         given(playerAvailabilityService.getPlayerAvailabilitiesByTournamentId(tournamentId))
                 .willReturn(playerAvailabilityList);
 
-        mockMvc.perform(get("/api/players/availability?tournamentId={tournamentId}", tournamentId)
+        mockMvc.perform(get("/api/playersAvailability?tournamentId={tournamentId}", tournamentId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].tournamentId").value(tournamentId));

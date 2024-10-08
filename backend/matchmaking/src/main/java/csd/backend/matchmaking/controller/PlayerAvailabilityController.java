@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/players/availability")
+@RequestMapping("/api/playersAvailability")
 public class PlayerAvailabilityController {
 
     @Autowired
@@ -21,6 +21,12 @@ public class PlayerAvailabilityController {
     public ResponseEntity<PlayerAvailability> createAvailability(@RequestBody PlayerAvailability playerAvailability) {
         PlayerAvailability availability = playerAvailabilityService.createAvailability(playerAvailability);
         return new ResponseEntity<>(availability, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<List<PlayerAvailability>> bulkCreateAvailabilities(@RequestBody List<PlayerAvailability> playerAvailabilities) {
+        List<PlayerAvailability> availabilities = playerAvailabilityService.bulkCreateAvailabilities(playerAvailabilities);
+        return new ResponseEntity<>(availabilities, HttpStatus.CREATED);
     }
 
     @GetMapping(params = "playerId")
