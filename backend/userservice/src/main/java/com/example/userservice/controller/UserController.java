@@ -5,6 +5,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.userservice.entity.*;
 import com.example.userservice.service.*;
 
+import jakarta.transaction.Transactional;
+
+import java.util.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 public class UserController {
+    @Autowired
     private UserService userService;
 
     public UserController(UserService userService) {
@@ -45,6 +51,7 @@ public class UserController {
     // Create
     @ResponseStatus(HttpStatus.CREATED) // Returns 201 - success
     @PostMapping("/users") // post mapping to add the new user to the entire list of users
+    @Transactional
     public User addUser(@RequestBody User user) {
         return userService.addUser(user);
     }
