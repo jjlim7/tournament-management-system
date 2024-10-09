@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@primevue/themes": "^4.0.7",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.0.7",
+    "vue-sweetalert2": "^5.0.11"
+  }
+}

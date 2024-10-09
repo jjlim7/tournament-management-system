@@ -1,58 +1,138 @@
 <template>
-<div v-if="gotClan">
-  <div class="clanpage">
-    <div class="texttitle">
-      <h1>Clan Wars Tournaments</h1>
-    </div>
-    <div class="translucent-box clantournaments">
-      <button
-      v-for="(button, index) in buttons"
-      :key="index"
-      class="image-button clantourn"
-      :style="{
-        backgroundImage: `url(${button.image})`,
-      }"
-      @click="handleClick"
-      > 
-        <div class="translucent-box-bottomhalf">
-          <p>{{ button.text }}</p>
+<div v-if="!userStore.hasClan">
+  <div
+    class="d-flex flex-column justify-content-center align-items-center min-vh-100 w-100"
+    :style="{
+      margin: 0,
+      padding: 0
+    }"
+  >
+
+  <div class="container-fluid">
+    <div class="d-flex align-items-start ms-3 mt-3" style="flex: 1;">
+      <div class="d-flex align-items-center" style="flex: 1;">
+        <img 
+          :src="clanStore.image" 
+          alt="Clan Image" 
+          class="img-fluid border border-primary border-2 rounded-5 " 
+          style="width: 10vw; height: 10vw;"
+        />
+        <div class="ms-3" style="flex: 1;"> <!-- Ensuring it takes available space -->
+          <h1 class="display-4" :style="{ fontSize: '3vw' }">{{ clanStore.name }}</h1> 
+          <div class="d-flex flex-column ms-3"> 
+            <p :style="{ fontSize: '1vw' }">Rank: {{ clanStore.rank }}</p>
+            <p :style="{ fontSize: '1vw' }">Current Elo: {{ clanStore.currentElo }}</p>
+            <p :style="{ fontSize: '1vw' }">Elo Upper Limit: {{ clanStore.eloUpperlimit }}</p>
+          </div>
         </div>
-      </button>
-      <button class="image-button addbutton" @click="showModal = true">
-        <img src="https://cdn-icons-png.flaticon.com/512/16994/16994904.png" style="height: 100px;">
-      </button>
+      </div>
+    </div>
+  </div>
+
+  <br>
+  
+    <div class="fs-4 text-white ms-4 fs-4 text-white ms-4 fw-semibold py-1 d-flex align-items-center justify-content-between" :style="{ alignSelf: 'flex-start' }">
+      <h1>Clan Wars Tournaments Signed Up</h1>
     </div>
 
-        <!-- Modal structure -->
-    <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
-      <div class="modal-content">
-        <h1>Available Clan Tournaments</h1>
-        <div class="modal-body">
-          <button
-          v-for="(button, index) in buttons"
-          :key="index"
-          class="image-button clantourn"
-          :style="{
-            backgroundImage: `url(${button.image})`,
-          }"
-          @click="handleClick"
-          > 
-            <div class="translucent-box">
-              <p>{{ button.text }}</p>
+    <div>
+      <BlurredBGCard class="mt-1">
+        <div id="clanWarsSignedUp" class="carousel slide border border-primary border-2 rounded-5" data-bs-ride="carousel"
+        data-bs-pause="hover">
+          <!-- indicator for each slide -->
+          <div class="carousel-indicators">
+            <button 
+              v-for="(tournamentname,index) in upcomingTournaments" 
+              :key="index" type="button" 
+              data-bs-target="#clanWarsSignedUp" 
+              :data-bs-slide-to="index" 
+              :class="{active: index==0 }"></button>
+          </div>
+          <div class="carousel-inner rounded-4">
+            <!-- list of carousel items -->
+            <div 
+              v-for="(tournament,index) in upcomingTournaments" 
+              :key="index"
+              :class="{'carousel-item': true, 'active': index===0}"
+              style="position: relative; cursor: pointer;"
+              @click="showModal = true"
+              data-bs-interval="3000">
+              <img :src="tournament.image" class="img-fluid" alt="...">
+              <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 text-center rounded d-flex flex-column justify-content-center">
+                <h2 class="fw-semibold">{{tournament.name}}</h2>
+                <p style="max-height: 70px;" class="overflow-y-hidden text-wrap px-5"> {{ tournament.description }} </p>
+              </div>
             </div>
+          </div>
+
+          <button class="carousel-control-prev" type="button" data-bs-target="#clanWarsSignedUp" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" ></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#clanWarsSignedUp" data-bs-slide="next">
+            <span class="carousel-control-next-icon" ></span>
           </button>
         </div>
-        <!-- Close button inside the modal -->
+      </BlurredBGCard>
+    </div>
+    
+    <!-- Modal structure -->
+    <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
+      <div class="modal-content p-3">
         <button @click="showModal = false" class="close-modal-btn">
-          <img src="https://static.vecteezy.com/system/resources/thumbnails/011/458/959/small_2x/letter-x-alphabet-in-brush-style-png.png">
+          <img src="https://static.vecteezy.com/system/resources/thumbnails/011/458/959/small_2x/letter-x-alphabet-in-brush-style-png.png" alt="Close">
         </button>
+        <br>
+        <h1 class="text-center">List Of Members Signed Up</h1>
+        <div
+          class="p-4 rounded shadow-sm my-3 w-100 d-flex justify-content-center overflow-auto"
+          :style="{
+            backgroundColor: 'rgba(255, 255, 255, 0.5)', 
+            border: 'none' 
+          }"
+        >
+          <table class="table table-bordered table-striped table-responsive">
+          <thead class="table-dark text-center">
+            <tr>
+              <th>Number</th>
+              <th>Username</th>
+              <th>Position</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(person, index) in memberssignedup" :key="index">
+              <td>{{ person.number }}</td>
+              <td>{{ person.username }}</td>
+              <td>{{ person.position }}</td>
+            </tr>
+          </tbody>
+          </table>
+        </div>
+
+        <div class="mb-3"> <!-- Added margin-bottom for spacing -->
+          <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 1.5rem; padding: 2.75rem 3.25rem;">
+            {{ selectedPosition || 'Position' }} <!-- Show selected position or default text -->
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#" @click="selectPosition('Healer')">Healer</a></li>
+            <li><a class="dropdown-item" href="#" @click="selectPosition('Roamer')">Roamer</a></li>
+            <li><a class="dropdown-item" href="#" @click="selectPosition('Marksman')">Marksman</a></li>
+            <li><a class="dropdown-item" href="#" @click="selectPosition('Mage')">Mage</a></li>
+            <li><a class="dropdown-item" href="#" @click="selectPosition('Tank')">Tank</a></li>
+          </ul>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button class="btn btn-primary btn-lg w-100" @click="bookTournament()">BOOK</button> 
+        </div>    
       </div>
     </div>
 
-    <div class="texttitle">
-      <h1>Clan Members</h1>
+    <div class="fs-4 text-white ms-4" :style="{ alignSelf: 'flex-start' }">
+      <br>
+      <h1>{{ clanStore.name }} Members</h1>
     </div>
-    <div class="clanmemebrs translucent-box">
+
+    <div class="clanmembers p-4 rounded shadow-sm my-3 d-flex justify-content-center overflow-auto w-100 border border-primary border-2 rounded-5 " :style="{backgroundColor: 'rgba(255, 255, 255, 0.5)',}">
       <table class="data-table">
       <thead>
         <tr>
@@ -83,11 +163,23 @@
 
 <!-- !!!!!!!!!!!!!!!IF THIS GUY GOT NO CLAN!!!!!!!!!!!!!!!! -->
 <div v-else>
-  <div class="clanpage">
-    <div class="texttitle">
+  <div
+    class="d-flex flex-column justify-content-center align-items-center min-vh-100 w-100"
+    :style="{
+      margin: 0,
+      padding: 0
+    }"
+  >
+    <div class="fs-4 text-white ms-4" :style="{ alignSelf: 'flex-start' }">
       <h1>List of available public clans to join</h1>
     </div>
-    <div class="translucent-box">
+    <div
+      class="p-4 shadow-sm my-3 w-100 d-flex justify-content-center overflow-auto border border-primary border-2 rounded-5 "
+      :style="{
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+        border: 'none' 
+      }"
+    >
       <table class="data-table">
       <thead>
         <tr>
@@ -105,7 +197,17 @@
             <img :src="clan.clanicon" class="profile-image" style="height: 100px;"/>
           </td>
           <td>
-            <span class="clan-link" @click="showModal = true">
+            <span
+              class="text-decoration-underline text-body"
+              @click="showModal = true"
+              @mouseover="hover = true"
+              @mouseleave="hover = false"
+              :style="{
+                cursor: 'pointer',
+                border: 'none',
+                color: 'white',
+              }"
+            >
               {{ clan.clanname }}
             </span>
           </td>
@@ -128,11 +230,20 @@
 
     <!-- Modal structure -->
     <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
-      <div class="modal-content">
+      <div class="modal-content border border-primary border-2 rounded-5 ">
         <h1>Clan Info</h1>
+        <!-- Close button inside the modal -->
+        <button @click="showModal = false" class="close-modal-btn">
+          <img src="https://static.vecteezy.com/system/resources/thumbnails/011/458/959/small_2x/letter-x-alphabet-in-brush-style-png.png">
+        </button>
         <div class="modal-body">
-          
-          <div class="clanmemebrs translucent-box">
+          <div
+            class="p-4 rounded shadow-sm my-3 w-100 d-flex justify-content-center overflow-auto"
+            :style="{
+              backgroundColor: 'rgba(255, 255, 255, 0.5)', 
+              border: 'none' 
+            }"
+          >
             <table class="data-table responsive-table">
             <thead>
               <tr>
@@ -159,10 +270,6 @@
             </table>
           </div>
         </div>
-        <!-- Close button inside the modal -->
-        <button @click="showModal = false" class="close-modal-btn">
-          <img src="https://static.vecteezy.com/system/resources/thumbnails/011/458/959/small_2x/letter-x-alphabet-in-brush-style-png.png">
-        </button>
       </div>
     </div>
 
@@ -171,6 +278,11 @@
 </template>
 
 <script>
+  import { useUserStore } from '@/stores/store';
+  import { useClanStore } from '@/stores/store';
+  import { Modal as bsModal } from 'bootstrap';
+  import Swal from 'sweetalert2'
+
   export default {
     name: 'TranslucentBox',
     methods: {
@@ -180,9 +292,62 @@
       handleClick() {
         alert('Image button clicked!'); 
       },
+      selectUpcomingTournament(tournament) {
+        alert('Image button clicked!'); 
+        console.log(tournament);
+      },
+      selectPosition(position) {
+        this.selectedPosition = position;
+      },
+      updatePlayerInfo(newName, newPosition) {
+        this.playername = newName;
+        this.positionrole = newPosition;
+        
+        this.memberssignedup[2].username = this.playername;  
+        this.memberssignedup[2].position = this.positionrole;
+      },
+      bookTournament() {
+        console.log(`Booked tournament for position: ${this.selectedPosition}`);
+        Swal.fire({
+            title: "Confirm Booking?",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonColor: "#DDDDDD",
+            confirmButtonColor: "#FA9021",
+            confirmButtonText: "Yes, BOOK it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: "Booked!",
+                    text: "Your booking has been made",
+                    icon: "success",
+                    timer: 1500
+                });
+                
+                const existingModal = bsModal.getInstance(document.getElementById(this.modalID));
+                existingModal.hide();
+                
+                this.updatePlayerInfo('NewPlayerName', 'Support');
+            }
+        });
+      },
     },
+
+  setup() {
+    const clanStore = useClanStore();
+    const userStore = useUserStore();
+    return {
+      userStore,
+      clanStore,
+    };
+  },
+
   data() {
     return {
+      playername: '',  
+      positionrole: '',
+      memberssignedup: [],
+
       availableclans: [
         { clanicon: 'https://cdn-icons-png.flaticon.com/512/11619/11619566.png', clanname: 'rtyhuJK', members: '3/5', rank: 'Diamond', elo: 889, request: false },
         { clanicon: 'https://cdn-icons-png.flaticon.com/512/6695/6695008.png', clanname: 'SDfgHjK', members: '4/5', rank: 'Diamond', elo: 889, request: false },
@@ -192,148 +357,62 @@
       ],
       members: [
         { position: 1, profile: 'https://seeklogo.com/images/O/one-piece-kozuki-clan-logo-98DE5338D7-seeklogo.com.png', username: 'Shawn The Sheep', rank: 'Diamond', elo: 889, progress: 'example' },
-        { position: 1, profile: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTp98gwVWdaVG-Tn8J_o0sVzn3Hi8kSyS8NXA&s', username: 'Shawn The Sheep', rank: 'Diamond', elo: 889, progress: 'example' },
-        { position: 1, profile: 'https://64.media.tumblr.com/9a5d075a3533bbb19637ebc05ee572fd/1b94cfa3123e528b-4d/s250x400/8149f85f9fc507222cbed4ee82f5b1e74465ddcf.png', username: 'Shawn The Sheep', rank: 'Diamond', elo: 889, progress: 'example' },
-        { position: 1, profile: 'https://forum.truckersmp.com/uploads/monthly_2019_06/imported-photo-186659.thumb.jpeg.7ca80c40fa6e972e04cc2f14f5114d80.jpeg', username: 'Shawn The Sheep', rank: 'Diamond', elo: 889, progress: 'example' },
-        { position: 1, profile: 'https://steamavatar.io/img/14773519040Sv21.jpg', username: 'Shawn The Sheep', rank: 'Diamond', elo: 889, progress: 'example' },
+        { position: 2, profile: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTp98gwVWdaVG-Tn8J_o0sVzn3Hi8kSyS8NXA&s', username: 'Sean Kingston', rank: 'Diamond', elo: 889, progress: 'example' },
+        { position: 3, profile: 'https://64.media.tumblr.com/9a5d075a3533bbb19637ebc05ee572fd/1b94cfa3123e528b-4d/s250x400/8149f85f9fc507222cbed4ee82f5b1e74465ddcf.png', username: 'Diddy Kong', rank: 'Diamond', elo: 889, progress: 'example' },
+        { position: 4, profile: 'https://forum.truckersmp.com/uploads/monthly_2019_06/imported-photo-186659.thumb.jpeg.7ca80c40fa6e972e04cc2f14f5114d80.jpeg', username: 'H3FF', rank: 'Diamond', elo: 889, progress: 'example' },
+        { position: 5, profile: 'https://steamavatar.io/img/14773519040Sv21.jpg', username: 'Sam Teh', rank: 'Diamond', elo: 889, progress: 'example' },
       ],
-      buttons: [
-        { image: 'https://assetsio.gnwcdn.com/blackmythwukong1.jpg?width=1200&height=1200&fit=bounds&quality=70&format=jpg&auto=webp',
-          text: 'Button 1 reaufvjekrvnjsie uishgui sohguieos hgur hgusio efhueiofho' 
+      upcomingTournaments: [
+        {
+          name: 'Tournament 1',
+          image: 'https://assetsio.gnwcdn.com/blackmythwukong1.jpg?width=1200&height=1200&fit=bounds&quality=70&format=jpg&auto=webp',
+          description: 'Five Nights at Freddys (FNAF) is a survival horror video game series created by Scott Cawthon, where players take on the role of nighttime security personnel at a haunted family-friendly pizzeria filled with animatronic characters. The game is known for its tense atmosphere and jump scares, requiring players to monitor security cameras and manage resources to survive against the animatronics that come to life at night.',
         },
-        { image: 'https://c4.wallpaperflare.com/wallpaper/34/309/213/black-myth-wukong-game-science-hd-wallpaper-preview.jpg',
-          text: 'Button 2 aedji afopwfejvbh jvbhkfhawuiof a lfbdjk haf j afhkvbhrk' 
+        {
+          name: 'Tournament 2',
+          image: 'https://c4.wallpaperflare.com/wallpaper/34/309/213/black-myth-wukong-game-science-hd-wallpaper-preview.jpg',
+          description: 'The Legend of Zelda: Breath of the Wild is an open-world action-adventure game developed by Nintendo, where players control Link, who awakens from a long slumber to defeat Calamity Ganon and save the kingdom of Hyrule. The game features a vast, immersive world filled with exploration, puzzles, and combat, allowing players to approach challenges in a variety of creative ways.',
         },
-        { image: 'https://c4.wallpaperflare.com/wallpaper/508/158/505/black-myth-wukong-%E6%8F%92%E7%94%BB%E5%B8%88%E5%B1%85%E5%A3%AB-hd-wallpaper-preview.jpg',
-          text: 'Button 3 faenfih4 3yt 7b8wyt78 9hf78 hf8 f87 ' 
+        {
+          name: 'Tournament 3',
+          image: 'https://c4.wallpaperflare.com/wallpaper/508/158/505/black-myth-wukong-%E6%8F%92%E7%94%BB%E5%B8%88%E5%B1%85%E5%A3%AB-hd-wallpaper-preview.jpg',
+          description: 'Wukong is an action-adventure game inspired by the classic Chinese tale "Journey to the West," where players control a character based on the legendary Monkey King, Sun Wukong. The game features fast-paced combat, a vibrant open world, and abilities that allow players to harness Wukongs magical powers, such as transforming and using a staff, as they embark on a quest to defeat demons and uncover the secrets of their past.',
         },
       ],
-      gotClan: true,
-      showModal: false, // Controls visibility of the modal
+      memberssignedup: [
+          { number: 1, username: 'Seaking', position: 'Healer' },
+          { number: 2, username: 'Uvuvuvuvue oyenteveveve uvuvuvuvue ossas', position: 'Marksman' },
+          { number: 3, username: this.playername , position: this.positionrole},
+          { number: 4 },
+          { number: 5 },
+      ],
+      showModal: false,
     };
   }
   };
 </script>
 
 <style scoped>
-  .clanpage {
-    display: flex; /* Keep the display flex for layout */
-    justify-content: center; /* Center child elements */
-    align-items: center; /* Optional: center vertically if needed */
-    flex-direction: column; /* Optional: keep column direction if necessary */
-    margin: 0;
-    padding: 0;
-    min-height: 100vh; /* Ensure it fills at least the viewport height */
-    width: 100%; /* Let it expand with the content */
-    background-image: url('https://xgamer-1300342626.cos.ap-singapore.myqcloud.com/media/65bb44b4d7efe5b0be89096108623a54.jpg');
-    background-position: center; /* Center the background image */
-    background-repeat: no-repeat; /* Prevent repeating */
-    background-attachment: fixed;
-  }
-
-  .clantournaments {
-    height: 40vh; /* 20% of the viewport height */
-    align-items: center; /* Vertically center the content */
-    overflow-x: auto; /* Enable horizontal scrolling */
-    overflow-y: hidden;
-    display: flex;
-  }
-  .clanmembers{
-    height: 60%; 
-  }
-
-  .texttitle {
-    align-self: flex-start; /* Align the title to the left */
-    margin-left: 20px; /* Add some margin to the left */
-    font-size: 24px; /* Adjust font size as needed */
-    color: white; /* Set the text color */
-  }
-  .translucent-box {
-    background-color: rgba(255, 255, 255, 0.5); /* White background with 50% opacity */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow */
-    margin: 10px 0; /* Add spacing between boxes */
-    width: 90%;
-    align-items: center; /* Vertically center items */
-    border: none;
-    overflow-x: auto;
-  }
-  .translucent-box-bottomhalf{
-    position: absolute;
-    bottom: 0; /* Stick to the bottom */
-    left: 0;
-    height: 45%; /* Take up 40% of the height */
-    width: 100%; /* Full width */
-    color: white;
-    background-color: rgba(29, 29, 29, 0.9); 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow */
-    font-size: 30px;
-    border: none;
-  }
-  .translucent-bar {
-    background-color: rgba(171, 170, 170, 0.5); /* White background with 50% opacity */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow */
-    margin: 10px 0; /* Add spacing between boxes */
-    overflow-x: auto; /* Enable horizontal scrolling */
-    white-space: nowrap; /* Prevent images from wrapping to the next line */
-  }
-
   .data-table {
     width: 100%;
-    border-collapse: collapse; /* Collapse borders */
+    border-collapse: collapse;
   }
   .data-table th,
   .data-table td {
     padding: 8px;
     text-align: left;
-    border: none; /* Remove borders */
+    border: none;
   }
   .data-table th {
-    background-color: rgba(171, 170, 170, 0.5); /* White background with 50% opacity */
+    background-color: rgba(171, 170, 170, 0.5);
     padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow */
-    margin: 10px 0; /* Add spacing between boxes */
-    overflow-x: auto; /* Enable horizontal scrolling */
-    white-space: nowrap; /* Prevent images from wrapping to the next line */
-  }
-
-  .clantourn {
-    width: 500px; /* Set desired width */
-    height: 299px; /* Set desired height */
-    padding: 20px; /* Adjust padding */
-    flex-shrink: 0; /* Prevent shrinking */
-    background-size: cover; /* Ensure the image covers the button */
-    background-position: center; /* Center the image */
-    background-repeat: no-repeat; /* Prevent the image from repeating */
-  }
-  .clantournimage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .addbutton{
-    border: none; /* Remove default button border */
-    padding: 0; /* Remove default padding */
-    cursor: pointer; /* Show pointer cursor */
-    background: transparent; /* Remove default button background */
-    padding: 20px;
-    flex-shrink: 0;
-  }
-  .image-button {
-    position: relative; /* Relative positioning to allow the inner box to be positioned absolutely */
-    border: none; /* Remove border */
-    cursor: pointer; /* Show pointer cursor */
-    margin: 5px;
+    margin: 10px 0; 
+    overflow-x: auto; 
+    white-space: nowrap;
   }
   .plusboximg {
     height: 150px;
   }
-
-
-
 
   /* Modal overlay style */
   .modal-overlay {
@@ -342,37 +421,31 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    background-color: rgba(0, 0, 0, 0.5); 
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Ensure it appears above other elements */
+    z-index: 1000;
     color: black;
   }
-
-  /* Modal content box */
   .modal-content {
     background-color: white;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    width: 80%; /* Set fixed width */
-    height: 80%; /* Set fixed height */
+    width: 80%;
+    height: 80%; 
     text-align: center;
-    overflow: hidden; /* Hide overflow in the content area */
+    overflow: hidden; 
     display: flex;
     flex-direction: column;
     justify-content: space-between;
   }
-
-  /* Scrollable content inside modal */
   .modal-body {
-    overflow-y: auto; /* Enable vertical scrolling */
-    height: 200px; /* Set the scrollable area height */
-    margin-bottom: 10px; /* Space between text and close button */
+    overflow-y: auto; 
+    height: 200px; 
+    margin-bottom: 10px; 
   }
-
-  /* Button styles */
   .open-modal-btn,
   .close-modal-btn {
     padding: 10px 20px;
@@ -382,16 +455,9 @@
     border-radius: 5px;
     cursor: pointer;
   }
-
   .open-modal-btn:hover,
   .close-modal-btn:hover {
     background-color: darkgray;
-  }
-
-  button {
-    padding: 5px 10px;
-    border: none;
-    cursor: pointer;
   }
   button.clicked {
     background-color: #28a745; 
@@ -401,28 +467,46 @@
     background-color: #e09f13; 
     color: white;
   }
+
   .close-modal-btn {
     position: absolute;
-    top: 10px; /* Adjust as needed */
-    right: 10px; /* Adjust as needed */
+    top: 10px; 
+    right: 10px;
     background: none;
     border: none;
     cursor: pointer;
   }
   .close-modal-btn img {
-    width: 24px; /* Adjust the size of the 'X' icon */
+    width: 24px;
     height: 24px;
   }
 
-  .clan-link {
-    text-decoration: underline;  /* Adds underline to the text */
-    cursor: pointer;             /* Changes cursor to pointer */
-    color: inherit;              /* Keeps text color the same as surrounding text */
-    border: none;
-    background: none;
+  /* carousel stying */
+  #clanWarsSignedUp {
+    width: 80vw; 
+    height: 50vh; 
+    max-width: 100%; 
+    max-height: 100%; 
+    overflow: hidden; 
   }
-  .clan-link:hover {
-    color: #e09f13;              /* Optional: Change color on hover for better UX */
-    text-decoration: underline;
-}
+  #clanWarsSignedUp .carousel-inner {
+    width: 100%;
+    height: 100%;
+  }
+  #clanWarsSignedUp .carousel-item {
+    width: 100%;
+    height: 100%;
+  }
+  #clanWarsSignedUp .carousel-item img {
+    width: 100%;  
+    height: 100%; 
+    object-fit: cover;  
+  }
+  .carousel-control-prev {
+    left: -5%;
+  }
+  .carousel-control-next {
+    right: -5%;
+  }
+
 </style>
