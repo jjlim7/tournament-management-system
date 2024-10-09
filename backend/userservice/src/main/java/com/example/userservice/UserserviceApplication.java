@@ -11,11 +11,11 @@ import com.example.userservice.service.*;
 import jakarta.transaction.Transactional;
 
 @SpringBootApplication
-public class UserServiceApplication {
-// something
+public class UserserviceApplication {
+// class name is UserserviceApplication - the second s is not capital be careful!
 	public static void main(String[] args) {
 		// ApplicationContext ctx = SpringApplication.run(UserServiceApplication.class, args);
-		SpringApplication.run(UserServiceApplication.class, args);
+		SpringApplication.run(UserserviceApplication.class, args);
 
 		// // Initializing UserRepository
         // UserRepository userDB = ctx.getBean(UserRepository.class);
