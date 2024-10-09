@@ -2,6 +2,9 @@ package com.example.userservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Getter
@@ -11,26 +14,11 @@ public class Clan {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long clanId;
     private String clanName;
+
+    @OneToMany(mappedBy = "clan", cascade =  CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ClanUser> clanUsers;
+
     
-    // public Clan(Long clanId, String clanName) {
-    //     this.clanId = clanId;
-    //     this.clanName = clanName;
-    // }
-
-    // public Long getClanId() {
-    //     return clanId;
-    // }
-
-    // public void setClanId(Long clanId) {
-    //     this.clanId = clanId;
-    // }
-
-    // public String getClanName() {
-    //     return clanName;
-    // }
-
-    // public void setClanName(String clanName) {
-    //     this.clanName = clanName;
-    // }
  
 }
