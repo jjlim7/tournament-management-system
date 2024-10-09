@@ -12,7 +12,7 @@ import jakarta.transaction.Transactional;
 
 @SpringBootApplication
 public class UserServiceApplication {
-
+// something
 	public static void main(String[] args) {
 		// ApplicationContext ctx = SpringApplication.run(UserServiceApplication.class, args);
 		SpringApplication.run(UserServiceApplication.class, args);
