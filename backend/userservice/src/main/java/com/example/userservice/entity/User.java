@@ -20,7 +20,7 @@ public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long userId;
+    private Long userId; // UNIQUE
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -28,7 +28,7 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     @Email
     @NotNull
-    private String email;
+    private String email; // UNIQUE
 
     @Column(name = "password", nullable = false)
     @NotNull

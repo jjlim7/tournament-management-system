@@ -57,7 +57,7 @@ public class UserController {
     }
 
     // Update
-    @PutMapping("/users/{id}") // PUT is to update
+    @PutMapping("/users/{userId}") // PUT is to update
     public User updateUserDetails(@PathVariable Long userId, @RequestBody User newUser) {
         User updatedUser = userService.updateUser(userId, newUser);
         
@@ -69,7 +69,7 @@ public class UserController {
     }
 
     // Delete
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/users/{userId}")
     public void deleteUser(@PathVariable Long userId) {
         
         try {
