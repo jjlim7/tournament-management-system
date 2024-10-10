@@ -4,8 +4,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.userservice.entity.*;
 import com.example.userservice.service.*;
+import com.example.userservice.exceptions.*;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 
 import java.util.*;
 
@@ -53,7 +55,12 @@ public class UserController {
     @PostMapping("/users") // post mapping to add the new user to the entire list of users
     @Transactional
     public User addUser(@RequestBody User user) {
-        return userService.addUser(user);
+        User savedUser = userService.addUser(user);
+
+        if(savedUser == null) {
+            throw new UserAlreadyExistsException(user.getEmail());
+        }
+        return savedUser;
     }
 
     // Update

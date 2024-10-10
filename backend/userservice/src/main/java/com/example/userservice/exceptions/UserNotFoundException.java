@@ -1,4 +1,4 @@
-package com.example.userservice.entity;
+package com.example.userservice.exceptions;
 
 import org.springframework.http.HttpStatus; // This is to make the exception work together with the HTTP status code.
 import org.springframework.web.bind.annotation.ResponseStatus; // This allows you to return specific HTTP status codes for exceptions.

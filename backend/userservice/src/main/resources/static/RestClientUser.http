@@ -2,15 +2,13 @@ POST http://localhost:8080/users
 Content-Type: application/json
 
 {
-    "user_id" : 1,
     "name" : "Bob",
-    "email" : "bob1@gmail.com",
+    "email" : "bob12@gmail.com",
     "password" : "abc123",
     "role" : "ROLE_PLAYER",
     "country" : "Bob_Country",
     "elo_rating" : 100,
     "rank" : "UNRANKED"
-
 }
 
 ### 
@@ -18,15 +16,13 @@ POST http://localhost:8080/users
 Content-Type: application/json
 
 {
-    "user_id" : 2,
-    "name" : "Murga",
+    "name" : "Bob",
     "email" : "murga@gmail.com",
     "password" : "abc1234",
     "role" : "ROLE_ADMIN",
     "country" : "Murga_Country",
     "elo_rating" : 1000,
     "rank" : "GOLD"
-
 }
 
 ###
@@ -36,11 +32,11 @@ GET http://localhost:8080/users
 GET http://localhost:8080/users/1
 
 ###
-PUT http://localhost:8080/users/1
+PUT http://localhost:8080/users/2
 Content-Type: application/json
 
 {
-    "user_id" : 1,
+    "user_id" : 2,
     "name" : "Jack",
     "email" : "jack@gmail.com",
     "password" : "abc1234",
@@ -51,5 +47,5 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:8080/users/2
+DELETE http://localhost:8080/users/3
 

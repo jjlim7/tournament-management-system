@@ -35,7 +35,7 @@ public class User {
     private String password;
 
     @Column(name = "role", nullable = false)
-    @Pattern(regexp = "ROLE_ADMIN|ROLE_PLAYER", message = "the role must be ROLE_ADMIN|ROLE_PLAYER")
+    @Pattern(regexp = "ROLE_ADMIN|ROLE_PLAYER", message = "the role must be ROLE_ADMIN|ROLE_PLAYER") // if we have this code do we need to define admin as a separate class?
     private String role;
 
     @Column(name = "country")
