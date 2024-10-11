@@ -10,37 +10,37 @@
       </div>
     </div>
   
-    <div class="mid d-flex justify-content-around p-4 pb-5">
+    <div class="p-4 pb-5">
       <img :src="'https://promotions.lenovo.com/uploads/assets/f848702b3458c766a8af753da6d227d6.png'" class="wukongtitle">
   
-      <div class="row align-items-start">
-        <div class="text col-12 col-md-4 order-1 order-md-1">
+      <div class="row mb-4">
+        <div class="col-12 col-md-4">
           <h1 style="text-decoration: underline;">Diverse Levels</h1>
           <p>{{ displayText1 }}</p>
         </div>
         <img 
           :src="'https://149367133.v2.pressablecdn.com/wp-content/uploads/2024/08/Black-Myth-Wukong.jpg'" 
-          class="wukongimg1 col-12 col-md-4 order-2 order-md-2">
+          class="col-12 col-md-8 ">
       </div>
 
-      <div class="row d-flex">
-        <div class="text col-12 col-md-4 order-1 order-md-2">
+      <div class="row mb-4">
+        <div class="col-12 col-md-4 order-1 order-md-2">
           <h1 style="text-decoration: underline;">Tough YaoGuai</h1>
           <p>{{ displayText2 }}</p>
         </div>
         <img 
           :src="'https://cdn.mos.cms.futurecdn.net/sgFRba5wiRrXrWh2bVkF5a.jpg'" 
-          class="wukongimg2 col-12 col-md-4 order-2 order-md-1">
+          class="col-12 col-md-8 order-2 order-md-1">
       </div>
 
-      <div class="row align-items-start">
-        <div class="text col-12 col-md-4 order-1 order-md-1">
+      <div class="row mb-4">
+        <div class="col-12 col-md-4">
           <h1 style="text-decoration: underline;">VAST VARIATIONS</h1>
           <p>{{ displayText3 }}</p>
         </div>
         <img 
           :src="'https://cdn.dlcompare.com/others_jpg/upload/news/image/black-myth-wukong-feature-harder-11c72142-image-11c7212b.jpg.webp'" 
-          class="wukongimg1 col-12 col-md-4 order-2 order-md-2">
+          class="col-12 col-md-8">
       </div>
   
     </div>
@@ -72,36 +72,6 @@
   background-size: cover;
 }
 
-.mid {
-  display: flex;
-  flex-direction: column;
-  gap: 50px;
-  background: linear-gradient(to bottom, #000000, #424242);
-  overflow-x: hidden;
-  width: 100%;
-}
-
-.text {
-  font-size: calc(1vw + 0.5rem); /* Scales based on viewport width */
-  line-height: 1.5;
-  color: white;
-  margin: 20px;
-  width: 50%;
-}
-
-
-/* Adjust font size for smaller screens */
-@media (max-width: 768px) {
-  .text, .text0 {
-    font-size: 1.2rem; /* Smaller text for mobile */
-  }
-}
-
-@media (min-width: 1200px) {
-  .text, .text0 {
-    font-size: 2rem; /* Larger text for larger screens */
-  }
-}
 
 .wukongtitle {
   display: block; /* Make it a block-level element */
@@ -109,17 +79,6 @@
   width: 40%; /* Makes the image responsive */
 }
 
-.wukongimg1 {
-  width: 520px;
-  /* margin-left: auto;
-  padding-right: 40px; */
-}
-
-.wukongimg2 {
-  width: 520px;
-  /* margin-right: auto;
-  padding-left: 40px; */
-}
 </style>
 
 <script>

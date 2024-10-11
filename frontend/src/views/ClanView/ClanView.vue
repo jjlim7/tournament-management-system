@@ -1,5 +1,5 @@
 <template>
-<div v-if="!userStore.hasClan">
+<div v-if="userStore.hasClan">
   <div
     class="d-flex flex-column justify-content-center align-items-center min-vh-100 w-100"
     :style="{
@@ -35,30 +35,37 @@
       <h1>Clan Wars Tournaments Signed Up</h1>
     </div>
 
-    <div>
+    <div style="height: 50vh;">
       <BlurredBGCard class="mt-1">
-        <div id="clanWarsSignedUp" class="carousel slide border border-primary border-2 rounded-5" data-bs-ride="carousel"
-        data-bs-pause="hover">
-          <!-- indicator for each slide -->
+        <div id="clanWarsSignedUp" 
+        class="carousel m-auto h-100 slide border border-primary border-2" 
+        style="width: 55vw;" 
+        data-bs-ride="carousel" data-bs-pause="hover">
           <div class="carousel-indicators">
             <button 
-              v-for="(tournamentname,index) in upcomingTournaments" 
-              :key="index" type="button" 
+              v-for="(tournamentname, index) in upcomingTournaments" 
+              :key="index" 
+              type="button" 
               data-bs-target="#clanWarsSignedUp" 
               :data-bs-slide-to="index" 
-              :class="{active: index==0 }"></button>
+              :class="{ active: index === 0 }">
+            </button>
           </div>
-          <div class="carousel-inner rounded-4">
-            <!-- list of carousel items -->
+          <div class="carousel-inner h-100">
             <div 
-              v-for="(tournament,index) in upcomingTournaments" 
+              v-for="(tournament, index) in upcomingTournaments" 
               :key="index"
-              :class="{'carousel-item': true, 'active': index===0}"
-              style="position: relative; cursor: pointer;"
-              @click="showModal = true"
-              data-bs-interval="3000">
-              <img :src="tournament.image" class="img-fluid" alt="...">
-              <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 text-center rounded d-flex flex-column justify-content-center">
+              :class="{'carousel-item': true, 'active': index === 0}"
+              style="cursor: pointer; height: 100%;" 
+              @click="showModal = true">
+              
+              <img 
+                :src="tournament.image" 
+                class="d-block img-fluid w-100 h-100" 
+                alt="..." 
+                style="object-fit: cover; height: 50vh;" /> 
+              
+              <div class="carousel-caption bg-dark bg-opacity-50 text-center rounded d-flex flex-column justify-content-center">
                 <h2 class="fw-semibold">{{tournament.name}}</h2>
                 <p style="max-height: 70px;" class="overflow-y-hidden text-wrap px-5"> {{ tournament.description }} </p>
               </div>
@@ -66,15 +73,15 @@
           </div>
 
           <button class="carousel-control-prev" type="button" data-bs-target="#clanWarsSignedUp" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" ></span>
+            <span class="carousel-control-prev-icon"></span>
           </button>
           <button class="carousel-control-next" type="button" data-bs-target="#clanWarsSignedUp" data-bs-slide="next">
-            <span class="carousel-control-next-icon" ></span>
+            <span class="carousel-control-next-icon"></span>
           </button>
         </div>
       </BlurredBGCard>
     </div>
-    
+
     <!-- Modal structure -->
     <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
       <div class="modal-content p-3">
@@ -108,9 +115,9 @@
           </table>
         </div>
 
-        <div class="mb-3"> <!-- Added margin-bottom for spacing -->
+        <div class="mb-3"> 
           <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 1.5rem; padding: 2.75rem 3.25rem;">
-            {{ selectedPosition || 'Position' }} <!-- Show selected position or default text -->
+            {{ selectedPosition || 'Position' }} 
           </button>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="#" @click="selectPosition('Healer')">Healer</a></li>
@@ -132,30 +139,30 @@
       <h1>{{ clanStore.name }} Members</h1>
     </div>
 
-    <div class="clanmembers p-4 rounded shadow-sm my-3 d-flex justify-content-center overflow-auto w-100 border border-primary border-2 rounded-5 " :style="{backgroundColor: 'rgba(255, 255, 255, 0.5)',}">
-      <table class="data-table">
-      <thead>
-        <tr>
-          <th>Position</th>
-          <th>Profile</th>
-          <th>Username</th>
-          <th>Rank</th>
-          <th>Elo</th>
-          <th>Progress</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(person, index) in members" :key="index">
-          <td>{{ person.position }}</td>
-          <td>
-            <img :src="person.profile" class="profile-image" style="height: 100px;"/>
-          </td>
-          <td>{{ person.username }}</td>
-          <td>{{ person.rank }}</td>
-          <td>{{ person.elo }}</td>
-          <td>{{ person.progress }}</td>
-        </tr>
-      </tbody>
+    <div class="p-4 rounded my-3 d-flex justify-content-center overflow-auto w-100 border border-primary border-2 rounded-5 text-center blurred-bg-card">
+      <table class="scrollable-table">
+        <thead>
+          <tr>
+            <th>Position</th>
+            <th>Profile</th>
+            <th>Username</th>
+            <th>Rank</th>
+            <th>Elo</th>
+            <th>Progress</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(person, index) in members" :key="index">
+            <td>{{ person.position }}</td>
+            <td>
+              <img :src="person.profile" style="height: 100px;"/>
+            </td>
+            <td>{{ person.username }}</td>
+            <td>{{ person.rank }}</td>
+            <td>{{ person.elo }}</td>
+            <td>{{ person.progress }}</td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>
@@ -170,17 +177,8 @@
       padding: 0
     }"
   >
-    <div class="fs-4 text-white ms-4" :style="{ alignSelf: 'flex-start' }">
-      <h1>List of available public clans to join</h1>
-    </div>
-    <div
-      class="p-4 shadow-sm my-3 w-100 d-flex justify-content-center overflow-auto border border-primary border-2 rounded-5 "
-      :style="{
-        backgroundColor: 'rgba(255, 255, 255, 0.5)',
-        border: 'none' 
-      }"
-    >
-      <table class="data-table">
+  <div class="p-4 rounded my-3 d-flex justify-content-center overflow-auto w-100 border border-primary border-2 rounded-5 text-center blurred-bg-card">
+    <table class="scrollable-table">
       <thead>
         <tr>
           <th>Clan Icon</th>
@@ -194,7 +192,7 @@
       <tbody>
         <tr v-for="(clan, index) in availableclans" :key="index">
           <td>
-            <img :src="clan.clanicon" class="profile-image" style="height: 100px;"/>
+            <img :src="clan.clanicon" style="height: 100px;"/>
           </td>
           <td>
             <span
@@ -259,7 +257,7 @@
               <tr v-for="(person, index) in members" :key="index">
                 <td>{{ person.position }}</td>
                 <td>
-                  <img :src="person.profile" class="profile-image" style="height: 100px;"/>
+                  <img :src="person.profile" style="height: 100px;"/>
                 </td>
                 <td>{{ person.username }}</td>
                 <td>{{ person.rank }}</td>
@@ -282,6 +280,7 @@
   import { useClanStore } from '@/stores/store';
   import { Modal as bsModal } from 'bootstrap';
   import Swal from 'sweetalert2'
+  import BlurredBGCard from '@/components/Cards/BlurredBGCard.vue';
 
   export default {
     name: 'TranslucentBox',
@@ -393,23 +392,40 @@
 </script>
 
 <style scoped>
-  .data-table {
+  .scrollable-table tbody th {
+    color: white;
+    border: 0;
+    background-color: transparent;
+    text-align: center; 
+    vertical-align: middle
+  }
+
+  .scrollable-table thead th {
+    color: white;
+    border: 0;
+    background-color: transparent;
+    text-align: center; 
+    vertical-align: middle;
+    font-weight: 600;
+  }
+
+  .scrollable-table tbody {
+    display: block;
+    overflow-y: auto;
+  }
+
+  .scrollable-table thead, .scrollable-table tbody tr {
+    display: table;
     width: 100%;
-    border-collapse: collapse;
+    table-layout: fixed;
   }
-  .data-table th,
-  .data-table td {
-    padding: 8px;
-    text-align: left;
-    border: none;
-  }
-  .data-table th {
-    background-color: rgba(171, 170, 170, 0.5);
-    padding: 20px;
-    margin: 10px 0; 
-    overflow-x: auto; 
-    white-space: nowrap;
-  }
+  
+.blurred-bg-card {
+  background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */ 
+  backdrop-filter: blur(10px); /* Blurring effect */
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); /* shadow effect */
+}
+
   .plusboximg {
     height: 150px;
   }
@@ -481,27 +497,6 @@
     height: 24px;
   }
 
-  /* carousel stying */
-  #clanWarsSignedUp {
-    width: 80vw; 
-    height: 50vh; 
-    max-width: 100%; 
-    max-height: 100%; 
-    overflow: hidden; 
-  }
-  #clanWarsSignedUp .carousel-inner {
-    width: 100%;
-    height: 100%;
-  }
-  #clanWarsSignedUp .carousel-item {
-    width: 100%;
-    height: 100%;
-  }
-  #clanWarsSignedUp .carousel-item img {
-    width: 100%;  
-    height: 100%; 
-    object-fit: cover;  
-  }
   .carousel-control-prev {
     left: -5%;
   }
