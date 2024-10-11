@@ -2,6 +2,7 @@ package com.example.tournamentservice.service;
 
 import com.example.tournamentservice.*;
 import com.example.tournamentservice.entity.Tournament;
+import com.example.tournamentservice.exception.TournamentsNotFoundException;
 import com.example.tournamentservice.repository.TournamentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,11 @@ public class TournamentService {
 
     //Retrieval of all the tournaments
     public List<Tournament> getAllTournaments(){
-        return tournamentRepository.findAll();
+        List<Tournament> tournaments = tournamentRepository.findAll();
+        if (tournaments.isEmpty()) {
+            throw new TournamentsNotFoundException("No tournaments found.");
+        }
+        return tournaments;
     }
 
     //Retrieval of tournament by ID
@@ -119,6 +124,21 @@ public class TournamentService {
 
         return "Player joined the tournament successfully.";
 
+    }
+
+
+    public String leaveTournament(long tournament_id, Long player_id){
+        Tournament tournament = tournamentRepository.findById(tournament_id)
+        .orElseThrow(() -> new IllegalArgumentException("Tournament is not found"));
+
+        if(!tournament.getPlayerIds().contains(player_id)){
+            throw new IllegalArgumentException("Player is not registered in this tournament");
+        }
+
+        tournament.getPlayerIds().remove(player_id);
+        tournamentRepository.save(tournament);
+
+        return "Player left the tournament successfully";
     }
 
     //Need to do a logic for leavingTournament

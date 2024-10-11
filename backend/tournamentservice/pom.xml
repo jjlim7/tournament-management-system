@@ -82,6 +82,17 @@
             <artifactId>hibernate-validator</artifactId>
             <version>7.0.0.Final</version> <!-- Updated version -->
         </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.1.0</version> <!-- Ensure this version or the latest is used -->
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.7.0</version> <!-- Replace with the latest version -->
+        </dependency>
+        
     </dependencies>
     <build>
         <plugins>

@@ -64,9 +64,9 @@ public class Tournament {
 	@Enumerated(EnumType.STRING)
 	private GameMode gameMode;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "tournament_id")
-    private List<Game> gameList;
+    //@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    //@JoinColumn(name = "tournament_id")
+    //private List<Game> gameList;
 
 	@Column(name = "admin_id", nullable = false)
     private Long adminId;
