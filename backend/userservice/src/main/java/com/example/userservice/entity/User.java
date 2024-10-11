@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Getter
 @Setter
 @ToString
-// @AllArgsConstructor
+@AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
 @Entity
@@ -49,9 +49,9 @@ public class User {
     private String rank;
 
     // The error is somewhere here
-    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    // @JsonIgnore
-    // private List<ClanUser> clanUser;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ClanUser> clanUser;
 
     // Separate constructor so that Admin can use super()
     public User(Long userId, String name, String email, String password, String role, String country, Long elo_rating,

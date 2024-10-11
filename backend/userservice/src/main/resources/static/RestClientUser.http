@@ -16,8 +16,8 @@ POST http://localhost:8080/users
 Content-Type: application/json
 
 {
-    "name" : "Bob",
-    "email" : "murga@gmail.com",
+    "name" : "Jimmy",
+    "email" : "jimmy@gmail.com",
     "password" : "abc1234",
     "role" : "ROLE_ADMIN",
     "country" : "Murga_Country",
@@ -47,5 +47,5 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:8080/users/3
+DELETE http://localhost:8080/users/1
 

@@ -20,12 +20,8 @@ public class Clan {
     @Column(name = "clan_name")
     private String clanName;
 
-    // @OneToMany(mappedBy = "clan", cascade =  CascadeType.ALL, orphanRemoval = true)
-    // @JsonIgnore
-    // private List<ClanUser> clanUsers;
+    @OneToMany(mappedBy = "clan", cascade =  CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ClanUser> clanUsers;
 
-    
-
-    
- 
 }
