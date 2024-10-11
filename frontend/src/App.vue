@@ -4,7 +4,7 @@
     <div class="tintedBG">
       <div class="mx-auto text-white m-0 p-0" style="max-width: 1280px;">
 
-        <Navbar v-if="userStore.isAuthenticated"/>
+        <Navbar v-if="userStore.isAuthenticated && !isHomePage"/>
         <NavbarLandingPage v-else-if="!userStore.isAuthenticated"/>
         
         <RouterView />
@@ -47,6 +47,10 @@ export default{
       const route = useRoute();
       return route.path; // returns the current route path
     },
+    isHomePage(){
+      const route = useRoute();
+      return route.path == '/'; 
+    }
   },
   methods:{
     defineBackgroundImage(){

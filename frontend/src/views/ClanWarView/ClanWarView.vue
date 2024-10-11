@@ -184,7 +184,7 @@ export default {
           id: "124",
           name: "Tournament #2",
           description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-          image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
+          image: "https://rukminim2.flixcart.com/image/850/1000/xif0q/poster/7/n/j/medium-black-myth-wukong-trending-hd-poster-12x18-inch-wukong1-original-imah236anfngbxaf.jpeg",
           startDate: "start date",
           endDate: "end date",
           gameMode:"Clan War"
@@ -202,7 +202,7 @@ export default {
           id: "126",
           name: "Tournament #4",
           description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-          image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
+          image: "https://rukminim2.flixcart.com/image/850/1000/xif0q/poster/7/n/j/medium-black-myth-wukong-trending-hd-poster-12x18-inch-wukong1-original-imah236anfngbxaf.jpeg",
           startDate: "start date",
           endDate: "end date",
           gameMode:"Clan War"
@@ -319,6 +319,11 @@ export default {
 .btnStyle{
   background-color: white; 
   opacity: 80%;
+}
+.carousel-item img {
+  width:100%;
+  max-height: 300px;
+  object-fit: content;
 }
 
 </style>
