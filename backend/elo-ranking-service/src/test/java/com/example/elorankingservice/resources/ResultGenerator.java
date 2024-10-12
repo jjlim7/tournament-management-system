@@ -4,7 +4,6 @@ import com.example.elorankingservice.entity.PlayerGameScore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.Getter;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,12 +14,28 @@ public class ResultGenerator {
 
     private static final Random random = new Random();
 
-    @Getter
     public static class CreateClanWarGameScore {
         Map<Long, List<PlayerGameScore>> winnerRawPlayerGameScores;
         Map<Long, List<PlayerGameScore>> loserRawPlayerGameScores;
         Long tournamentId;
         Long gameId;
+
+        // Manually add getters
+        public Map<Long, List<PlayerGameScore>> getWinnerRawPlayerGameScores() {
+            return winnerRawPlayerGameScores;
+        }
+
+        public Map<Long, List<PlayerGameScore>> getLoserRawPlayerGameScores() {
+            return loserRawPlayerGameScores;
+        }
+
+        public Long getTournamentId() {
+            return tournamentId;
+        }
+
+        public Long getGameId() {
+            return gameId;
+        }
     }
 
     public void generateBattleRoyalePlayerGameScores(int numberOfPlayers, long gameId, long tournamentId, String fileName) throws IOException {

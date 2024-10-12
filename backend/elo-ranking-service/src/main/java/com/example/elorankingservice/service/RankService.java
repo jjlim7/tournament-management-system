@@ -44,11 +44,15 @@ public class RankService {
 
     public void seedRankThresholds() {
         // Check if rank thresholds are already seeded
-        if (rankThresholdRepository.count() == 0) {
+        long thresholdCount = rankThresholdRepository.count();
+        if (thresholdCount == 0) {
             // Seed the rank thresholds in the repository
             rankThresholdRepository.saveAll(SEED_RANK_THRESHOLDS);
+        } else {
+            System.out.println("Rank thresholds already exist. Count: " + thresholdCount);
         }
     }
+
 
     public List<RankThreshold> retrieveRankThresholds() {
         return rankThresholdRepository.findAll();

@@ -4,9 +4,12 @@ import com.example.elorankingservice.service.EloRankingService;
 import com.example.elorankingservice.service.RankService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
+@Lazy
 public class SeedDataLoader implements CommandLineRunner {
 
     private final RankService rankService;
@@ -24,9 +27,8 @@ public class SeedDataLoader implements CommandLineRunner {
     }
 
     private void seedData() {
-        rankService.seedRankThresholds();
-        eloRankingService.seedPlayerEloRanks();
+//        rankService.seedRankThresholds();
+//        eloRankingService.seedPlayerEloRanks();
         System.out.println("Rank Thresholds seeded.");
     }
-
 }

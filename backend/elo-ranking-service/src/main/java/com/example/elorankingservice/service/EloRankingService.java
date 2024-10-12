@@ -29,7 +29,8 @@ public class EloRankingService {
 
     public void seedPlayerEloRanks() {
         // Check if rank thresholds are already seeded
-        if (playerEloRankRepository.count() == 0) {
+        long seeded = playerEloRankRepository.count();
+        if (seeded== 0) {
             // Seed the rank thresholds in the repository
             for (int i = 1; i < 51; i++) {
                 createNewPlayerEloRanking(i, 1001);

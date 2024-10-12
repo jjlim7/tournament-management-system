@@ -2,10 +2,14 @@ package com.example.elorankingservice.util;
 
 import com.example.elorankingservice.entity.PlayerGameScore;
 import lombok.Getter;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.*;
 
+@Component
+@Lazy
 public class GameSimulator {
     private static final Random random = new Random();
 

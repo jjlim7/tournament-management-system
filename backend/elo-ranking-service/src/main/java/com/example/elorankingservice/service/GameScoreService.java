@@ -4,8 +4,8 @@ import com.example.elorankingservice.entity.ClanGameScore;
 import com.example.elorankingservice.entity.PlayerGameScore;
 import com.example.elorankingservice.repository.ClanGameScoreRepository;
 import com.example.elorankingservice.repository.PlayerGameScoreRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -14,6 +14,7 @@ public class GameScoreService {
     private final ClanGameScoreRepository clanGameScoreRepository;
     private final PlayerGameScoreRepository playerGameScoreRepository;
 
+    @Autowired
     public GameScoreService(ClanGameScoreRepository clanGameScoreRepository, PlayerGameScoreRepository playerGameScoreRepository) {
         this.clanGameScoreRepository = clanGameScoreRepository;
         this.playerGameScoreRepository = playerGameScoreRepository;
