@@ -4,8 +4,8 @@
     <BlurredBGCard class="m-auto p-2 pb-4" style="min-width:400px;">
       
         <div class="d-flex justify-content-around">
-          <div :class="{'text-primary': isRegister}" style="font-weight: bold;" @click="switchTab(true)">Register</div>
-          <div :class="{'text-primary': !isRegister}" style="font-weight: bold;" @click="switchTab(false)">Login</div>
+          <div :class="{'text-primary': isRegister}" style="font-weight: bold; cursor: pointer;" @click="switchTab(true)">Register</div>
+          <div :class="{'text-primary': !isRegister}" style="font-weight: bold; cursor: pointer;" @click="switchTab(false)">Login</div>
         </div>
 
         <hr class="mt-1">
