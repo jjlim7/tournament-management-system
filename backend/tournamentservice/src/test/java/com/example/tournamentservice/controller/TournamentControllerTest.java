@@ -44,6 +44,16 @@ public class TournamentControllerTest {
         verify(tournamentService, times(1)).createTournament(tournament);
     }
 
+    // @Test
+    // public void testCreateTournament_InvalidInput() throws Exception {
+    //     Tournament tournament = new Tournament(); // Populate with invalid data that violates validation constraints
+
+    //     mockMvc.perform(post("/create")
+    //             .contentType(MediaType.APPLICATION_JSON)
+    //             .content(objectMapper.writeValueAsString(tournament)))
+    //             .andExpect(status().isBadRequest());
+    // }
+
     @Test
     public void testGetAllTournaments() {
         Tournament tournament = new Tournament(); // Set properties as needed

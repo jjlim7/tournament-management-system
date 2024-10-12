@@ -5,6 +5,7 @@ import com.example.tournamentservice.service.TournamentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 import com.example.tournamentservice.entity.Tournament;
@@ -91,26 +92,50 @@ public class TournamentController{
         return ResponseEntity.noContent().build();
     }
 
-    // @Operation(summary = "Join a tournament", description = "Allow a player to join a tournament")
-    // @PostMapping("/{tournament_id}/join/{player_id}")
-    // public ResponseEntity<String> joinTournament(
-    //     @PathVariable Long tournament_id,
-    //     @PathVariable Long player_id)
-    // {
-    //     String result = tournamentService.joinTournament(tournament_id, player_id);
-    //     return ResponseEntity.ok(result);
-
-    // }
+    @Operation(summary = "Join a tournament", description = "Allow a player to join a tournament")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Player joined tournament successfully"),
+        @ApiResponse(responseCode = "404", description = "Tournament not found"),
+        @ApiResponse(responseCode = "400", description = "Player cannot join the tournament due to invalid conditions")
+    })
+    @PostMapping("/{tournament_id}/join/{player_id}")
+    public ResponseEntity<String> joinTournament(
+        @PathVariable Long tournament_id,
+        @PathVariable Long player_id) 
+    {
+        try {
+            String result = tournamentService.joinTournament(tournament_id, player_id);
+            return ResponseEntity.ok(result);  // Success message
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());  // Invalid conditions
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
+        }
+    }
     
-    // @Operation(summary = "Leave a tournament", description = "Allows a player to leave a tournament.")
-    // @PostMapping("/{tournament_id}/leave/{player_id}")
-    // public ResponseEntity<String> leaveTournament(
-    //     @PathVariable Long tournament_id,
-    //     @PathVariable Long player_id)
-        
-    // {
-    //     String result = tournamentService.leaveTournament(tournament_id, player_id);
-    //     return ResponseEntity.ok(result);
-    // }
+    
+    @Operation(summary = "Leave a tournament", description = "Allows a player to leave a tournament.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Player left tournament successfully"),
+        @ApiResponse(responseCode = "404", description = "Tournament or player not found in the tournament"),
+        @ApiResponse(responseCode = "400", description = "Player is not part of this tournament")
+    })
+    @PostMapping("/{tournament_id}/leave/{player_id}")
+    public ResponseEntity<String> leaveTournament(
+        @PathVariable Long tournament_id,
+        @PathVariable Long player_id) 
+    {
+        try {
+            String result = tournamentService.leaveTournament(tournament_id, player_id);
+            return ResponseEntity.ok(result);  // Success message
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());  // Player not part of the tournament
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tournament or player not found.");
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
+        }
+    }
+
 
 }

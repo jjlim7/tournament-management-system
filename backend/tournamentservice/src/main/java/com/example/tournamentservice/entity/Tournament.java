@@ -26,6 +26,7 @@ public class Tournament {
 	}
 
 	public enum Status {
+		Inactive,
 		Rescheduled,
 		Cancelled,
 		Active,
