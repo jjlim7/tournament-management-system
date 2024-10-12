@@ -11,7 +11,7 @@ import java.util.Random;
 public class TestDataGenerator {
 
     private static final int NUMBER_OF_PLAYERS = 100; // Number of unique players
-    private static final int MAX_AVAILABILITIES_PER_PLAYER = 5; // Maximum availability records per player
+    private static final int MIN_AVAILABILITIES_PER_PLAYER = 5; // Maximum availability records per player
     private static final String CSV_FILE_PATH = "src/main/resources/seed_data/player_availability.csv";
 
     private static final int MIN_START_HOUR = 8; // Minimum start hour (e.g., 8 AM)
@@ -34,13 +34,15 @@ public class TestDataGenerator {
 
         long tournamentId = 1;
 
+        // Generate a random date within the next 30 days
+        OffsetDateTime date = OffsetDateTime.now(ZoneOffset.UTC).plusDays((long) (Math.random() * 30));
+
         for (long playerId = 1; playerId <= NUMBER_OF_PLAYERS; playerId++) {
             // Randomly select the player's availability window
             int availabilityStartHour = MIN_START_HOUR + random.nextInt(MAX_END_HOUR - MIN_START_HOUR - 1);
             int availabilityEndHour = availabilityStartHour + 2 + random.nextInt((MAX_END_HOUR - availabilityStartHour) / 2 + 1);
 
-            // Generate a random date within the next 30 days
-            OffsetDateTime date = OffsetDateTime.now(ZoneOffset.UTC).plusDays((long) (Math.random() * 30));
+            int availabilityCount = 0;
 
             // Generate full range of availability windows for the player
             for (int hour = MIN_START_HOUR; hour < MAX_END_HOUR; hour += 2) {
@@ -49,6 +51,15 @@ public class TestDataGenerator {
 
                 // Check if this time slot is within the player's availability window
                 boolean isAvailable = (hour >= availabilityStartHour && hour < availabilityEndHour);
+
+                // Ensure the player has at least the minimum number of availability records
+                if (availabilityCount < MIN_AVAILABILITIES_PER_PLAYER) {
+                    isAvailable = true; // Force availability to true if below minimum
+                }
+
+                if (isAvailable) {
+                    availabilityCount++;
+                }
 
                 writer.write(String.format("%d,%d,%s,%s,%b\n", playerId, tournamentId, startTime.format(formatter), endTime.format(formatter), isAvailable));
             }

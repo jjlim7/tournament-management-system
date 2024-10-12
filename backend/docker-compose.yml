@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  matchmaking-service:
+    build: ./matchmaking
+    ports:
+      - 8081:8080
+
+  # elo-ranking-service:
+  #   build: ./elo-ranking-service
+  #   ports:
+  #     - 8082:8080

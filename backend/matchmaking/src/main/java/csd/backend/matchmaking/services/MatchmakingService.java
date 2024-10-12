@@ -27,9 +27,9 @@ public class MatchmakingService {
     private static final int MIN_PLAYERS_PER_GAME = 3;
     private static final int MAX_PLAYERS_PER_GAME = 20;
 
-    public List<Game> scheduleGames(long tournamentId) throws Exception {
+    public List<Game> scheduleGames(long tournamentId, Game.GameMode gameMode) throws Exception {
         List<Game> games = gameService.getGamesByTournament(tournamentId);
-        Game.GameMode gameMode = games.get(0).getGameMode();
+
         if (!games.isEmpty()) {
             System.out.printf("Games already scheduled for tournament %s%n", tournamentId);
             return games;

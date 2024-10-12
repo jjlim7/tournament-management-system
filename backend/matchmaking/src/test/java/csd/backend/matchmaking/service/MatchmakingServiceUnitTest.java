@@ -38,8 +38,8 @@ public class MatchmakingServiceUnitTest {
     }
 
     @Test
-    public void testScheduling() throws Exception {
-        List<Game> gameList = matchmakingService.scheduleGames(1L);
+    public void testScheduleBattleRoyaleGames() throws Exception {
+        List<Game> gameList = matchmakingService.scheduleGames(1L, Game.GameMode.BATTLE_ROYALE);
 
         assert !gameList.isEmpty();
     }

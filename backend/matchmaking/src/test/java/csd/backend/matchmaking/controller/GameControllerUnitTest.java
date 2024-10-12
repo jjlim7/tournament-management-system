@@ -67,7 +67,7 @@ public class GameControllerUnitTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(game)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(game.getId()))
+                .andExpect(jsonPath("$.gameId").value(game.getGameId()))
                 .andExpect(jsonPath("$.tournamentId").value(TOURNAMENT_ID))
                 .andExpect(jsonPath("$.playerIds").isArray());
     }
@@ -104,9 +104,9 @@ public class GameControllerUnitTest {
 
     @Test
     void getPlayerIdsByGame() throws Exception {
-        given(gameService.getPlayerIdsByGame(game.getId())).willReturn(PLAYER_IDS);
+        given(gameService.getPlayerIdsByGame(game.getGameId())).willReturn(PLAYER_IDS);
 
-        mockMvc.perform(get("/api/games/{gameId}/playerIds", game.getId())
+        mockMvc.perform(get("/api/games/{gameId}/playerIds", game.getGameId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(PLAYER_IDS)));
@@ -117,9 +117,9 @@ public class GameControllerUnitTest {
         // Mock for PlayerIDs
         Response.EntityIdResponse response = new Response.EntityIdResponse("PLAYER", PLAYER_IDS);
 
-        given(gameService.getGamePlayerOrClanIds(game.getId())).willReturn(response);
+        given(gameService.getGamePlayerOrClanIds(game.getGameId())).willReturn(response);
 
-        mockMvc.perform(get("/api/games/{gameId}/playerOrClanIds", game.getId())
+        mockMvc.perform(get("/api/games/{gameId}/playerOrClanIds", game.getGameId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)));
