@@ -1,101 +1,108 @@
-# elo ranking service
 
 
-### Enhanced Elo Algorithm with TrueSkill and Role-Specific Performance Metrics
+# **Elo Ranking Service: Advanced Elo Algorithm with TrueSkill Integration**
 
-This algorithm integrates Microsoft's TrueSkill system with role-specific performance metrics and multi-factor adjustments to create a sophisticated and adaptive ranking system, suited for both team-based games (e.g., Clan Wars) and Free-for-All games (e.g., Battle Royale). The system ensures that players are ranked not just based on wins or losses but also on their individual contributions within the match, accounting for different roles and playstyles.
+## **Abstract**
 
-#### 1. Initial TrueSkill Rating
-- Every player starts with an initial rating consisting of:
-    - μ (mean skill estimate): A measure of the player’s perceived skill level (e.g., 25).
-    - σ (uncertainty): The system’s confidence in the player's skill (e.g., 8.333). A higher σ means the system is less certain about the player's skill and will adjust it more significantly in the early matches.
-
-  These values are used to calculate the probability of a player’s or team’s win before each match.
-
-#### 2. Role-Specific Performance Metrics
-- During the match, performance metrics relevant to the player's role are tracked. These metrics vary depending on the role and game mode:
-    - For Team Games (e.g., Clan Wars):
-        - Tanks: Damage mitigated, time spent holding objectives.
-        - Healers: Total healing done, revives, debuffs removed.
-        - Damage Dealers: Total damage dealt, kill/death ratio.
-    - For Free-for-All Games (e.g., Battle Royale):
-        - Metrics might include damage dealt, kills, survival time, and placement.
-
-  Each metric is given a weight that reflects its importance to the role. The combined weighted metrics produce a Role Performance Score (RPS) for each player, representing their individual contribution to the match.
-
-To make the formula readable in Markdown (which doesn't support LaTeX), you can convert it to plain text or use basic Markdown formatting. Here’s how you can present it in a Markdown-friendly format:
+This document presents an advanced **Elo Ranking Service** algorithm that integrates **Microsoft’s TrueSkill system** with **role-specific performance metrics** and dynamic adjustments based on player contributions. The algorithm is designed to accommodate both **team-based games** (e.g., Clan Wars) and **Free-for-All games** (e.g., Battle Royale). The system provides a fair and accurate ranking mechanism by considering not only match outcomes but also individual player performance relative to their role and match context. This paper outlines the algorithm's methodology, its performance score computation, and the subsequent updates to player ratings.
 
 ---
 
-#### 3. Performance-Based Outcome (PBO)
+## **Introduction**
 
-To account for individual player performance during a match, we use the Performance-Based Outcome (PBO) formula. This formula adjusts the match outcome based on each player's contribution, measured by their Role Performance Score (RPS).
+Traditional Elo rating systems are based solely on the win/loss outcomes of matches, assuming that each player contributes equally to the final result. However, in team-based and Free-for-All games, this assumption is often inaccurate. Players assume different roles and perform specific tasks that may not directly impact the match's final outcome but are crucial to the overall team's success. To address this, we have integrated role-specific performance metrics into the TrueSkill algorithm, allowing us to evaluate each player's contribution to the match more accurately.
 
-PBO Formula:
-
-`PBO_i = Match Outcome * (1 + α * Normalized RPS_i)`
-
-- PBO: Performance-Based Outcome for player i.
-- Match Outcome: The raw result of the match:
-    - 1 if the player’s team won.
-    - 0 if the player’s team lost.
-- α (alpha): A scaling factor that determines how much the player's performance (RPS) affects the outcome. This allows us to fine-tune the impact of the player’s role-specific performance on the final score.
-- Normalized RPS: The Role Performance Score (RPS) for player i, normalized to a range (e.g., between -1 and 1), ensuring that all performance metrics are comparable across different roles and matches.
-
-### Example:
-If Player A's team wins, and their normalized RPS is 0.5, with an α value of 0.1, the PBO would be calculated as:
-
-`PBO_A = 1 * (1 + 0.1 * 0.5) = 1.05`
-
-This means Player A’s contribution is factored into the match outcome, rewarding them slightly more for their higher performance.
+This paper explains the various components of the algorithm, from the role-specific performance metrics to the calculation of **Performance-Based Outcomes (PBO)** and adjustments to player ratings. The algorithm aims to improve upon traditional Elo systems by accounting for nuanced individual contributions, player roles, and the uncertainty in skill estimates.
 
 ---
 
-#### 4. Adjusting Player Ratings (μ and σ)
-- Once the PBO is calculated for each player, their μ (mean skill estimate) and σ (uncertainty) are adjusted to reflect their performance:
-    - Players with high PBO scores (due to good performance) will see their μ increase and σ decrease (indicating a more confident skill estimate).
-    - Players with low PBO scores will experience a decrease in μ, and their σ may increase if their performance was unexpected (e.g., a top-ranked player performing poorly).
+## **TrueSkill and Initial Ratings**
 
-  These adjustments are made before passing the final values into TrueSkill for Bayesian updates.
+Each player in the system starts with an initial TrueSkill rating consisting of:
 
-#### 5. TrueSkill Bayesian Update
-- After the match, TrueSkill’s core algorithm is used to update each player's μ and σ based on the adjusted performance scores. TrueSkill accounts for:
-    - The probability of the match outcome based on pre-match μ and σ values.
-    - Surprising outcomes: If a low-ranked player defeats a high-ranked player or if a team with lower combined skill wins, TrueSkill will adjust ratings more drastically.
+- **μ (Mean Skill Estimate):** Represents the player’s perceived skill level.
+- **σ (Uncertainty):** Indicates the system’s confidence in the player’s skill level. A high σ reflects greater uncertainty, which is typical for new players or players with few matches.
 
-  The Bayesian update further refines each player’s skill distribution, gradually reducing σ as more matches are played, making the system more confident in the player’s rating over time.
-
-#### 6. Composite Skill Rating for Matchmaking
-- In team-based games, a composite team skill rating is calculated by combining the μ values of all players on the team. The TrueSkill system also combines the uncertainties (σ values) to calculate the overall team uncertainty.
-
-  This composite rating ensures that players are matched with teams of similar skill levels, while accounting for the variability in performance (uncertainty). As σ decreases over time, players’ ratings stabilize, leading to more accurate matchmaking.
-
-#### 7. Handling Free-for-All Game Modes
-- In Free-for-All (FFA) games like Battle Royale, TrueSkill handles multiple players by evaluating each player’s placement in the match. Players who survive longer or place higher are ranked better than those who are eliminated early.
-    - FFA-specific adjustments: Performance metrics (e.g., kills, damage dealt, survival time) are factored into the ranking to account for individual contributions beyond just final placement.
-
-#### 8. Contextual Factors and Multi-Factor Adjustments
-- The system supports adjustments for contextual factors like:
-    - Map difficulty: Harder maps may increase the uncertainty (σ) adjustment.
-    - Opponent strength: Matches against significantly stronger opponents may result in smaller μ reductions for losses and larger μ gains for wins.
-    - Environmental factors: Random events (e.g., weather conditions, game-specific modifiers) can also affect the rating adjustments, allowing the system to reflect the difficulty of different match conditions.
-
-#### 9. Dynamic Matchmaking and Leaderboards
-- Matchmaking: Players with similar μ and σ values are matched together to ensure balanced games. The system can also use role-based matchmaking to create teams with complementary skills (e.g., pairing strong damage dealers with strong healers).
-
-- Leaderboards: Players are ranked based on their μ value. The system can support role-specific leaderboards, allowing players to see how they rank within their specific role (e.g., top Tanks, top Healers, etc.).
-
-- Rating Decay: For players who become inactive, their σ may gradually increase, reflecting growing uncertainty about their current skill level. This allows the system to recalibrate their rating when they return to active play.
+These initial ratings form the foundation for the system's updates after each match, with σ gradually decreasing as the system becomes more confident in a player’s skill through more match data.
 
 ---
 
-### Key Benefits of This Algorithm
-1. Fairer Ratings: Players are rewarded based on both match outcomes and their individual role-based performance, leading to more accurate skill estimates.
-2. Adaptability: The system can handle various game types, including team-based and Free-for-All modes, with flexibility for different performance metrics.
-3. Accurate Matchmaking: TrueSkill’s Bayesian approach, combined with performance-based adjustments, ensures players are matched with similarly skilled opponents.
-4. Contextual Sensitivity: The system can factor in contextual elements such as map difficulty and opponent strength, providing a nuanced view of player performance.
-5. Player Engagement: By integrating role-specific performance, players receive feedback that’s directly tied to how well they played their role, rather than just whether they won or lost.
+## **Role-Specific Performance Metrics (RPS)**
+
+The system accounts for the player's role within the game and uses **Role-Specific Performance (RPS)** to gauge individual contributions to the match. For example:
+
+- **Damage Dealers:** Metrics include Kill/Death Ratio (KDR), Accuracy, Damage Per Second (DPS), and Headshot Accuracy.
+- **Tanks:** Metrics include Damage Mitigated, Healing Done, and Assists.
+- **Healers:** Metrics include Total Healing, Revives, and Assists.
+
+Each role has a predefined weight assigned to its metrics, and the **Role Performance Score (RPS)** is calculated based on these weights. This RPS is a crucial factor in determining how much a player's performance impacts their rating adjustment after a match.
+
+### **Example of Role-Based Weights:**
+| Role          | Metric         | Weight |
+|---------------|----------------|--------|
+| Damage Dealer | KDR            | 0.4    |
+| Damage Dealer | Accuracy        | 0.2    |
+| Tank          | Damage Mitigated| 0.5    |
+| Healer        | Healing Done    | 0.6    |
 
 ---
 
-This advanced algorithm provides a comprehensive approach to player skill evaluation and matchmaking, creating a fair, flexible, and adaptive system that accurately reflects both team and individual contributions in competitive games.
+## **Performance-Based Outcome (PBO)**
+
+The algorithm uses the **Performance-Based Outcome (PBO)** to adjust the player's rating based on their individual contributions within a match. The PBO formula integrates the match result (win/loss/placement) with the normalized RPS of each player, ensuring that players are rewarded for their specific role-based performance.
+
+### **PBO Formula:**
+```
+PBO_i = Match Outcome × (1 + α × Normalized RPS_i)
+```
+- **Match Outcome:** For team-based games, this is 1 for a win and 0 for a loss. For Battle Royale, it is a placement-based score ranging from 0 to 1.
+- **α (Alpha):** A scaling factor that adjusts the influence of RPS, capped at a defined maximum to prevent over-amplification of performance differences.
+- **Normalized RPS:** The RPS of the player normalized using Z-score normalization.
+
+### **Z-Score Normalization Formula:**
+```
+Z_RPS_i = (RPS_i - μ_RPS) / σ_RPS
+```
+- **RPS_i:** The Role Performance Score of player _i_.
+- **μ_RPS:** The average RPS of all players in the match.
+- **σ_RPS:** The standard deviation of the RPS values in the match.
+
+This normalization ensures that performance metrics are comparable across different matches and roles, distributing player performance around a mean of 0.
+
+---
+
+## **Updating Player Ratings: Adjusting μ and σ**
+
+Once the PBO is calculated, the player's ratings are updated as follows:
+
+- **Mean Skill Estimate (μ):** Adjusted based on the difference between the **Performance-Based Outcome (PBO)** and the player's **Expected Performance (E_i)**, which is calculated using the player's pre-match rating.
+  ```
+  New μ = Old μ + K × (PBO - E_i)
+  ```
+  - **K:** A constant that controls the sensitivity of the updates.
+  - **E_i:** The player's expected performance, calculated using their pre-match rating and the ratings of their opponents.
+
+- **Uncertainty (σ):** Adjusted based on the surprise factor of the player's performance. If the player performed unexpectedly well or poorly, the uncertainty is adjusted to reflect this deviation from expectations.
+  ```
+  New σ = sqrt(1 / (σ^2 + (1 / v_i))) × (1 - λ)
+  ```
+  - **λ (Lambda):** A dynamic factor that adjusts uncertainty based on the performance surprise factor.
+  - **v_i:** Variance based on expected performance.
+
+These updates ensure that the system adapts to each player’s performance dynamically while gradually reducing the uncertainty (σ) as more matches are played.
+
+---
+
+## **TrueSkill Bayesian Updates**
+
+The system applies **TrueSkill's Bayesian update** to further refine the μ and σ values for each player. TrueSkill’s core algorithm ensures that ratings are updated based on both the match outcome and the pre-match rating distribution. The algorithm also handles **surprise outcomes**, adjusting ratings more significantly when players perform well against highly ranked opponents or vice versa.
+
+---
+
+## **Conclusion**
+
+This enhanced Elo Ranking Service provides a **fairer** and **more accurate** method of ranking players by integrating **role-specific performance metrics**, **TrueSkill’s Bayesian updates**, and **multi-factor adjustments**. By rewarding players based on individual contributions and incorporating performance-based outcome calculations, this system delivers a more nuanced approach to skill evaluation, ensuring better matchmaking and an engaging player experience across different game modes.
+
+This algorithm is well-suited for both **team-based games** and **Free-for-All games**, offering flexibility for different roles and gameplay scenarios. The inclusion of **Z-score normalization** and **uncertainty management** further enhances the system’s accuracy and adaptability, making it a powerful tool for competitive multiplayer gaming environments.
+
+--- 
