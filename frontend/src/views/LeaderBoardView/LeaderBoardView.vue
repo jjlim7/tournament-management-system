@@ -10,7 +10,7 @@
 
     <LeaderBoardTable 
       class="px-3 col-lg-6 col-12"
-      v-if="CWranking.length > 0 && userStore.clan!=null" 
+      v-if="CWranking.length > 0 && userStore.user.clan!=null" 
       :allranking="CWranking" 
       :myranking="myCWrank" 
       gameMode="Clan War" />

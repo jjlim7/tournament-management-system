@@ -40,7 +40,6 @@ export default {
       for (let i = 0; i < entries.length; i += 2) {
         groups.push(Object.fromEntries(entries.slice(i, i + 2)));
       }
-      console.log(groups)
       return groups;
     }
   }

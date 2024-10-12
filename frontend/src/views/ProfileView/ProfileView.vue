@@ -17,16 +17,16 @@
         style="height: 95%;">
         <!-- user info -->
         <div class="text-center p-4">
-          <img :src="userStore.image" alt="" class="rounded-circle border border-primary border-2 " style="width: 120px; height: 120px; object-fit: cover;">
-          <div class="fw-semibold">{{ userStore.name }}</div>
-          <div>UserID: #<span class="fw-semibold">{{ userStore.id }}</span></div>
+          <img :src="userStore.user.image" alt="" class="rounded-circle border border-primary border-2 " style="width: 120px; height: 120px; object-fit: cover;">
+          <div class="fw-semibold">{{ userStore.user.name }}</div>
+          <div>UserID: #<span class="fw-semibold">{{ userStore.user.id }}</span></div>
         </div>
         <!-- clan info -->
         <div class="text-center p-4">
           <img :src="clanStore.image" alt="" class="rounded-circle border border-primary border-2" style="width: 120px; height: 120px; object-fit: cover;">
   
           <div class="fw-semibold">{{ clanStore.name }}</div>
-          <div>Clan Role: <span class="fw-semibold">{{ userStore.clanRole }}</span></div>
+          <div>Clan Role: <span class="fw-semibold">{{ userStore.user.clanRole }}</span></div>
         </div>
       </BlurredBGCard>
      </div>
@@ -38,17 +38,17 @@
         <BlurredBGCard class="p-4 d-flex justify-content-between align-items-center">
           <!-- show BR rank -->
           <div class="text-center">
-            <img :src="rankImage(userStore.rank)" class="img-fluid" alt="Rank Image" style="max-width: 100px">
-            <div class="fw-semibold">{{ userStore.rank }}</div>
+            <img :src="rankImage(userStore.user.rank)" class="img-fluid" alt="Rank Image" style="max-width: 100px">
+            <div class="fw-semibold">{{ userStore.user.rank }}</div>
           </div>
           <!-- show total win -->
           <div class="fs-2 fw-bold text-center">
-              {{ userStore.totalWins }}
+              {{ userStore.user.totalWins }}
               <br>
               <span>Wins</span>
           </div>
           <div class="fs-2 fw-bold text-center">
-              {{ userStore.winRatio }}
+              {{ userStore.user.winRatio }}
               <br>
               <span>Win Ratio</span>
           </div>
@@ -86,9 +86,9 @@
         <div class="fs-5 fw-semibold">My Tournament Rank</div>
         <BlurredBGCard>
           <RankProgress 
-            :rank="userStore.rank" 
-              :currentElo="userStore.currentElo" 
-              :upperLimit="userStore.eloUpperlimit" 
+            :rank="userStore.user.rank" 
+              :currentElo="userStore.user.currentElo" 
+              :upperLimit="userStore.user.eloUpperlimit" 
               gameMode="Battle Royale"
               class="px-2" />
           <RankProgress 
@@ -138,6 +138,8 @@ export default {
     },
     logout(){
       console.log("you have logged out")
+      this.userStore.logout();
+      this.$router.push('/auth');
     }
   },
   setup(){

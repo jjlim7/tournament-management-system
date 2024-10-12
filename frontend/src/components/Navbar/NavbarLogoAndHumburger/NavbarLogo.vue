@@ -10,18 +10,21 @@
 
 <script>
 import { RouterLink } from 'vue-router';
+import { useUserStore } from '@/stores/store';
 
 export default {
   name: 'NavbarLogo',
   components:{
     RouterLink
   },
-  data(){return{
-      isLogin: true,
-  }},
   computed:{
     navlink(){
-      return this.isLogin ? "/" : "/auth"
+      if(this.userStore.isAuthenticated){
+        return "/";
+      }
+      else{
+        return "/about"
+      }
     }
   },
   methods:{
@@ -30,6 +33,10 @@ export default {
     //   console.log(this.isLargeScreen)
     // },
   },
+  setup(){
+    const userStore = useUserStore();
+    return {userStore}
+  }
 }
 </script>
 

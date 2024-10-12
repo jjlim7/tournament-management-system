@@ -128,7 +128,7 @@ methods: {
                 console.log("update successfully")
             }
             else{ // if user is making a new booking
-                if(this.tournament.gameMode === 'Clan War' && this.userStore.clanRole==='member'){
+                if(this.tournament.gameMode === 'Clan War' && this.userStore.user.clanRole==='member'){
                     this.showErrorAlert("Only the Clan Admin can book Clan War");
                     return;
                 }
