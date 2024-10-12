@@ -1,5 +1,6 @@
 package com.example.elorankingservice.service;
 
+import com.example.elorankingservice.entity.ClanEloRank;
 import com.example.elorankingservice.entity.ClanGameScore;
 import com.example.elorankingservice.entity.PlayerGameScore;
 import com.example.elorankingservice.repository.ClanGameScoreRepository;
@@ -13,24 +14,28 @@ public class GameScoreService {
     // for player and clan game score
     private final ClanGameScoreRepository clanGameScoreRepository;
     private final PlayerGameScoreRepository playerGameScoreRepository;
+    private final EloRankingService eloRankingService;
 
     @Autowired
-    public GameScoreService(ClanGameScoreRepository clanGameScoreRepository, PlayerGameScoreRepository playerGameScoreRepository) {
+    public GameScoreService(ClanGameScoreRepository clanGameScoreRepository, PlayerGameScoreRepository playerGameScoreRepository, EloRankingService eloRankingService) {
         this.clanGameScoreRepository = clanGameScoreRepository;
         this.playerGameScoreRepository = playerGameScoreRepository;
+        this.eloRankingService = eloRankingService;
     }
 
-    public List<PlayerGameScore> storeAllPlayerGameScore(List<PlayerGameScore> playersGameScore) {
-        return playerGameScoreRepository.saveAll(playersGameScore);
+    public void storeAllPlayerGameScore(List<PlayerGameScore> playersGameScore) {
+        playerGameScoreRepository.saveAll(playersGameScore);
     }
 
 
-    public ClanGameScore storeClanGameScore(Long tournamentId, Long gameId, Long clanId, List<PlayerGameScore> playersGameScore, boolean isWinner)  {
-        ClanGameScore clanGameScore = new ClanGameScore(tournamentId, gameId, clanId, 0, playersGameScore);
+    public void storeClanGameScore(Long tournamentId, Long gameId, Long clanId, List<PlayerGameScore> playersGameScore, ClanEloRank currentRank, boolean isWinner)  {
+        ClanGameScore clanGameScore = new ClanGameScore(gameId, tournamentId, clanId, 0, playersGameScore);;
+        clanGameScore.setClanEloRank(currentRank);
         if (isWinner) {
             clanGameScore.setResult(1);
         }
-        return clanGameScoreRepository.save(clanGameScore);
+        System.out.println(clanGameScore);
+        clanGameScoreRepository.save(clanGameScore);
     }
 
     // Get all the clan game scores for the tournament

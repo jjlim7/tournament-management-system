@@ -45,6 +45,20 @@ public class Request {
 
     @Getter
     @Setter
+    public static class GetSelectedPlayerEloRanks {
+        List<Long> playerIds;
+        Long tournamentId;
+    }
+
+    @Getter
+    @Setter
+    public static class GetSelectedClanEloRanks {
+        List<Long> clanIds;
+        Long tournamentId;
+    }
+
+    @Getter
+    @Setter
     public static class CreateNewClanEloRank {
         Long clanId;
         Long tournamentId;

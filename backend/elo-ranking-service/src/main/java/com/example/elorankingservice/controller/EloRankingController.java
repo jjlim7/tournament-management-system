@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.PublicKey;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,56 @@ public class EloRankingController {
         return eloRankingService.retrieveClanEloRank(clanId, tournamentId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @GetMapping("/clan/tournament/{tournamentId}")
+    public ResponseEntity<Map<String, Object>> getAllClanEloRanks(@PathVariable Long tournamentId) {
+        try {
+            List<ClanEloRank> clanEloRanks = eloRankingService.retrieveClanEloRanksByTournament(tournamentId);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    Map.of("status", "success", "clanEloRanks", clanEloRanks)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    Map.of("status", "error", "message", e.getMessage())
+            );
+        }
+    }
+
+    @GetMapping("/player/tournament/{tournamentId}")
+    public ResponseEntity<Map<String, Object>> getAllPlayerEloRanks(@PathVariable Long tournamentId) {
+        try {
+            List<PlayerEloRank> playerEloRanks = eloRankingService.retrieveAllPlayerEloRanksByTournament(tournamentId);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    Map.of("status", "success", "playerEloRanks", playerEloRanks)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    Map.of("status", "error", "message", e.getMessage())
+            );
+        }
+    }
+
+    @PostMapping("/player/tournament")
+    public ResponseEntity<Map<String, Object>> getSelectedPlayerEloRanks(@RequestBody Request.GetSelectedPlayerEloRanks req) {
+        if (
+                req.getPlayerIds() == null ||
+                req.getPlayerIds().isEmpty() ||
+                req.getTournamentId() == null
+        ) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    Map.of("status", "error", "message", "missing required fields"));
+        }
+        try {
+            List<PlayerEloRank> playerEloRanks = eloRankingService.retrieveSelectedPlayerEloRanksByTournament(req.getPlayerIds(), req.getTournamentId());
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    Map.of("status", "success", "playerEloRanks", playerEloRanks)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    Map.of("status", "error", "message", e.getMessage())
+            );
+        }
     }
 
     @PostMapping("/clan")

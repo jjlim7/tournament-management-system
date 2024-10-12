@@ -1,6 +1,7 @@
 package com.example.elorankingservice.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +21,8 @@ public class ClanEloRank extends EloRank {
 
     // One Tournament Score can have many Clan Game Scores
     @OneToMany(mappedBy = "clanEloRank", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    // This prevents serialization and deserialization
     private List<ClanGameScore> clanGameScores;
 
     public ClanEloRank() {}

@@ -29,6 +29,6 @@ public class SeedDataLoader implements CommandLineRunner {
     private void seedData() {
         rankService.seedRankThresholds();
         eloRankingService.seedPlayerEloRanks();
-        System.out.println("Rank Thresholds seeded.");
+        System.out.println("Data seeded!");
     }
 }

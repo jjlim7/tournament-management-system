@@ -31,11 +31,14 @@ public class EloRankingService {
     public void seedPlayerEloRanks() {
         // Check if rank thresholds are already seeded
         long seeded = playerEloRankRepository.count();
-        if (seeded== 0) {
+        if (seeded == 0) {
             // Seed the rank thresholds in the repository
             for (int i = 1; i < 51; i++) {
                 createNewPlayerEloRanking(i, 1001);
             }
+            System.out.println("Seed Player Elo Rank Ids = 1 ~ 50");
+        } else {
+            System.out.println("Skip seeding, already seeded. Count: " + seeded);
         }
     }
 
@@ -93,9 +96,15 @@ public class EloRankingService {
     }
 
     // Retrieve all Player Elo Ranks for a given tournament
-    public List<PlayerEloRank> retrievePlayerEloRanksByTournament(Long tournamentId) {
+    public List<PlayerEloRank> retrieveAllPlayerEloRanksByTournament(Long tournamentId) {
         return playerEloRankRepository.findEloRanksByTournamentId(tournamentId);
     }
+
+    // Retrieve all Player Elo Ranks for a given tournament
+    public List<PlayerEloRank> retrieveSelectedPlayerEloRanksByTournament(List<Long> playerIds, Long tournamentId) {
+        return playerEloRankRepository.findByPlayerIdInAndTournamentId(playerIds, tournamentId);
+    }
+
 
     // Retrieve Player Elo Ranks within a specific rating range for a tournament
     public List<PlayerEloRank> retrievePlayerEloRanksByRatingRange(Long tournamentId, double minRating, double maxRating) {
@@ -158,8 +167,7 @@ public class EloRankingService {
     }
 
     // Update Player Elo rankings
-    public List<PlayerEloRank> updatePlayerEloRanking(Map<Long, List<Double>> finalPlayerEloRating) throws Exception {
-        List<PlayerEloRank> finalPlayerEloRanks = new ArrayList<>();
+    public void updatePlayerEloRanking(Map<Long, List<Double>> finalPlayerEloRating) throws Exception {
         for (Map.Entry<Long, List<Double>> entry : finalPlayerEloRating.entrySet()) {
             long playerId = entry.getKey();
             List<Double> newEloRank = entry.getValue();
@@ -177,12 +185,10 @@ public class EloRankingService {
             playerEloRank.setRankThreshold(newRankThreshold);
 
             playerEloRankRepository.save(playerEloRank);
-            finalPlayerEloRanks.add(playerEloRank);
         }
-        return finalPlayerEloRanks;
     }
 
-    public List<PlayerEloRank> processUpdateBattleRoyaleResults(List<PlayerGameScore> battleRoyaleResults) throws Exception {
+    public void processUpdateBattleRoyaleResults(List<PlayerGameScore> battleRoyaleResults) throws Exception {
         List<PlayerEloRank> playersEloRank = new ArrayList<>();
         for (PlayerGameScore playerGameScore : battleRoyaleResults) {
             Long playerId = playerGameScore.getPlayerId();
@@ -195,7 +201,7 @@ public class EloRankingService {
         }
         Map<Long, List<Double>> finalResult = computeResultantPlayerEloRating(playersEloRank, battleRoyaleResults);
         logger.error("Final result: {}", finalResult);
-        return updatePlayerEloRanking(finalResult);
+        updatePlayerEloRanking(finalResult);
     }
 
     // Compute resultant player Elo ratings

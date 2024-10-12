@@ -9,7 +9,6 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-
 public class ClanGameScore extends GameScore {
 
     @Column(name = "clan_id", nullable = false)
@@ -42,5 +41,30 @@ public class ClanGameScore extends GameScore {
         this.clanId = clanId;
         this.result = result;
         this.playerScores = playerScores;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("ClanGameScore{");
+        sb.append("gameId=").append(this.getGameId());
+        sb.append(", tournamentId=").append(this.getTournamentId());
+        sb.append(", clanId=").append(clanId);
+        sb.append(", result=").append(result);
+        sb.append(", score=").append(score);
+        sb.append(", playerScores=[");
+
+        if (playerScores != null && !playerScores.isEmpty()) {
+            for (PlayerGameScore playerScore : playerScores) {
+                sb.append(playerScore.toString()).append(", ");
+            }
+        } else {
+            sb.append("No player scores");
+        }
+
+        sb.append("]");
+        sb.append(", clanEloRankId=").append(clanEloRank != null ? clanEloRank.getId() : "null");
+        sb.append('}');
+
+        return sb.toString();
     }
 }

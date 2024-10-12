@@ -220,4 +220,29 @@ public class PlayerGameScore extends GameScore {
 
         return rps;
     }
+
+    @Override
+    public String toString() {
+        return "PlayerGameScore{" +
+                "playerId=" + playerId +
+                ", gameMode=" + gameMode +
+                ", role=" + role +
+                ", kills=" + kills +
+                ", deaths=" + deaths +
+                ", placement=" + placement +
+                ", survivalTime=" + survivalTime +
+                ", distanceTraveled=" + distanceTraveled +
+                ", shotsFired=" + shotsFired +
+                ", shotsHit=" + shotsHit +
+                ", longestKillStreak=" + longestKillStreak +
+                ", healingDone=" + healingDone +
+                ", revives=" + revives +
+                ", damageDone=" + damageDone +
+                ", headshots=" + headshots +
+                ", damageTaken=" + damageTaken +
+                ", damageMitigated=" + damageMitigated +
+                ", assists=" + assists +
+                ", playerEloRank=" + (playerEloRank != null ? playerEloRank.getId() : "null") + // avoid lazy loading
+                '}';
+    }
 }
