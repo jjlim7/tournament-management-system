@@ -2,7 +2,7 @@ POST http://localhost:8080/clans
 Content-Type: application/json
 
 {
-    "clanName" : "Ivies"
+    "clanName" : "Nerida"
 }
 
 ### 
@@ -10,23 +10,23 @@ POST http://localhost:8080/clans
 Content-Type: application/json
 
 {
-    "clanName" : "Xolo"
+    "clanName" : "Inferno"
 }
 
 ###
 GET http://localhost:8080/clans
 
 ###
-GET http://localhost:8080/clans/9
+GET http://localhost:8080/clans/2
 
 ###
 PUT http://localhost:8080/clans/2
 Content-Type: application/json
 
 {
-    "clanName" : "Kai so Kai"
+    "clanName" : "Kai so Kool"
 }
 
 ###
-DELETE http://localhost:8080/clans/2
+DELETE http://localhost:8080/clans/1
 

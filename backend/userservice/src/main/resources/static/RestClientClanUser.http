@@ -2,10 +2,10 @@ POST http://localhost:8080/clanusers
 Content-Type: application/json
 
 {
-    "userId": 6,
+    "userId": 3,
     "clanId": 3,
     "isClanLeader": true,
-    "position": "Striker"
+    "position": "Rambo"
 }
 
 
@@ -38,15 +38,15 @@ GET http://localhost:8080/clanusers
 GET http://localhost:8080/clanusers/11
 
 ###
-PUT http://localhost:8080/clanusers/14
+PUT http://localhost:8080/clanusers/12
 Content-Type: application/json
 
 {
     "clanId" : "5",
-    "userId" : "6",
+    "userId" : "31",
     "isClanLeader" : false,
     "position" : "Testing non existing clan_user 69"
 }
 
 ###
-DELETE http://localhost:8080/clanusers/14
+DELETE http://localhost:8080/clanusers/13
