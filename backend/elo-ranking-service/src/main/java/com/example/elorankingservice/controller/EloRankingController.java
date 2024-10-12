@@ -3,7 +3,6 @@ package com.example.elorankingservice.controller;
 import com.example.elorankingservice.dto.Request;
 import com.example.elorankingservice.entity.ClanEloRank;
 import com.example.elorankingservice.entity.PlayerEloRank;
-import com.example.elorankingservice.entity.PlayerGameScore;
 import com.example.elorankingservice.repository.PlayerEloRankRepository;
 import com.example.elorankingservice.service.EloRankingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,89 +45,81 @@ public class EloRankingController {
     }
 
     @PostMapping("/clan")
-    public ResponseEntity<ClanEloRank> createClanEloRank(
+    public ResponseEntity<Map<String, Object>> createClanEloRank(
             @RequestBody Request.CreateNewClanEloRank newClanEloRankRequest) {
-
-
-        ClanEloRank newEloRank = eloRankingService.createNewClanEloRanking(
-                newClanEloRankRequest.getClanId(),
-                newClanEloRankRequest.getTournamentId());
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(newEloRank);
+        try {
+            ClanEloRank newEloRank = eloRankingService.createNewClanEloRanking(
+                    newClanEloRankRequest.getClanId(),
+                    newClanEloRankRequest.getTournamentId());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("status", "success", "message", "Clan Elo rank created successfully", "result", newEloRank));
+        } catch (IllegalArgumentException e) {
+            // Handle the case where the clan already has an Elo ranking
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("status", "error", "message", "Clan already has an Elo ranking"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("status", e, "message", "An internal error occurred"));
+        }
     }
 
     @PostMapping("/player")
-    public ResponseEntity<PlayerEloRank> createPlayerEloRank(
+    public ResponseEntity<Map<String, Object>> createPlayerEloRank(
             @RequestBody Request.CreateNewPlayerEloRank newPlayerEloRankRequest) {
-
-        PlayerEloRank newEloRank = eloRankingService.createNewPlayerEloRanking(
-                newPlayerEloRankRequest.getPlayerId(),
-                newPlayerEloRankRequest.getTournamentId());
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(newEloRank);
+        try {
+            PlayerEloRank newEloRank = eloRankingService.createNewPlayerEloRanking(
+                    newPlayerEloRankRequest.getPlayerId(),
+                    newPlayerEloRankRequest.getTournamentId());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("status", "success", "message", "Player Elo rank created successfully", "result", newEloRank));
+        } catch (IllegalArgumentException e) {
+            // Handle the case where the player already has an Elo ranking
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("status", "error", "message", "Player already has an Elo ranking"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("status", "error", "message", "An internal error occurred"));
+        }
     }
 
     @PostMapping("/player/bulk")
-    public ResponseEntity<List<PlayerEloRank>> bulkCreatePlayerEloRank(
+    public ResponseEntity<Map<String, String>> bulkCreatePlayerEloRank(
             @RequestBody Request.BulkCreatePlayerEloRank bulkPlayersEloRankRequest) {
-        List<PlayerEloRank> result = new ArrayList<>();
-        Long tournamentId = bulkPlayersEloRankRequest.getTournamentId();
-        for (Long id : bulkPlayersEloRankRequest.getPlayerIds()) {
-            PlayerEloRank eloRank = eloRankingService.createNewPlayerEloRanking(id, tournamentId);
-            result.add(eloRank);
+        try {
+            Long tournamentId = bulkPlayersEloRankRequest.getTournamentId();
+            List<Long> playerIds = bulkPlayersEloRankRequest.getPlayerIds();
+
+            List<PlayerEloRank> result = eloRankingService.bulkCreatePlayerEloRanks(playerIds, tournamentId);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("status", "success", "message", "Elo ranks created successfully"));
+        } catch (IllegalArgumentException e) {
+            // Return a conflict response with a message
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("status", "error", "message", "One or more players already have an Elo ranking"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("status", "error", "message", "An internal error occurred"));
         }
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
-
 
     @PostMapping("/clan/bulk")
     public ResponseEntity<List<ClanEloRank>> bulkCreateClanEloRank(
             @RequestBody Request.BulkCreateClanEloRank bulkClanEloRankRequest) {
-        List<ClanEloRank> result = new ArrayList<>();
-        Long tournamentId = bulkClanEloRankRequest.getTournamentId();
-        for (Long id : bulkClanEloRankRequest.getClanIds()) {
-            ClanEloRank eloRank = eloRankingService.createNewClanEloRanking(id, tournamentId);
-            result.add(eloRank);
+        try {
+            Long tournamentId = bulkClanEloRankRequest.getTournamentId();
+            List<Long> clanIds = bulkClanEloRankRequest.getClanIds();
+
+            // Call the service method to perform bulk creation
+            List<ClanEloRank> result = eloRankingService.bulkCreateClanEloRanks(clanIds, tournamentId);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        } catch (IllegalArgumentException e) {
+            // Return a conflict response if any clan already has an Elo ranking
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(null);  // Optionally, return an error message
+        } catch (Exception e) {
+            // Return an internal server error for unexpected issues
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
-    }
-
-    // NOT USED
-    @PostMapping("/battle-royale")
-    public ResponseEntity<List<PlayerEloRank>> processBattleRoyaleResults(
-            @RequestBody Request.CreateBattleRoyalePlayerGameScore processResultRequest) throws Exception {
-
-        // Check if the request is null or doesn't contain player game scores
-        if (processResultRequest == null || processResultRequest.getRawPlayerGameScores() == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        List<PlayerEloRank> finalResult = eloRankingService.processUpdateBattleRoyaleResults(
-                processResultRequest.getRawPlayerGameScores());
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(finalResult);
-    }
-
-    // NOT USED
-    @PostMapping("/clan-war")
-    public ResponseEntity<List<ClanEloRank>> processClanWarResults(
-            @RequestBody Request.CreateClanWarGameScore processResultRequest) throws Exception {
-
-        if (processResultRequest == null || processResultRequest.getWinnerRawPlayerGameScores().isEmpty() || processResultRequest.getLoserRawPlayerGameScores().isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        // create the map
-        Map<Long, List<PlayerGameScore>> winner = new HashMap<>();
-        Map<Long, List<PlayerGameScore>> loser = new HashMap<>();
-
-        winner.put(processResultRequest.getWinnerClanId(), processResultRequest.getWinnerRawPlayerGameScores());
-        loser.put(processResultRequest.getLoserClanId(), processResultRequest.getLoserRawPlayerGameScores());
-
-        List<ClanEloRank> finalResult = eloRankingService.processUpdateClanWarResults(winner, loser);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(finalResult);
     }
 }

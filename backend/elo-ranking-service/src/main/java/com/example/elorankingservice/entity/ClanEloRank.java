@@ -10,6 +10,9 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@Table(name = "clan_elo_rank", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"clan_id", "tournament_id"})
+})
 public class ClanEloRank extends EloRank {
 
     @Column(name = "clan_id", nullable = false)

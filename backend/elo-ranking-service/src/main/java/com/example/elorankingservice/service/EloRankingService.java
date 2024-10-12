@@ -3,6 +3,7 @@ package com.example.elorankingservice.service;
 import com.example.elorankingservice.entity.*;
 import com.example.elorankingservice.repository.ClanEloRankRepository;
 import com.example.elorankingservice.repository.PlayerEloRankRepository;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,27 +107,49 @@ public class EloRankingService {
         return clanEloRankRepository.findByMeanSkillEstimateBetweenAndTournamentId(maxRating, minRating, tournamentId);
     }
 
+    @Transactional
+    // Ensures the entire operation is rolled back if any exception occurs
+    public List<PlayerEloRank> bulkCreatePlayerEloRanks(List<Long> playerIds, Long tournamentId) {
+        List<PlayerEloRank> result = new ArrayList<>();
+        for (Long playerId : playerIds) {
+            PlayerEloRank eloRank = createNewPlayerEloRanking(playerId, tournamentId);
+            result.add(eloRank);
+        }
+        return result;
+    }
+
     // Create Player Elo ranking
-    public PlayerEloRank createNewPlayerEloRanking(long playerId, long tournamentId)
-            throws IllegalArgumentException {
-        // check if player already has an Elo ranking
-        playerEloRankRepository.findById(playerId).ifPresent(playerEloRank -> {
+    public PlayerEloRank createNewPlayerEloRanking(long playerId, long tournamentId) throws IllegalArgumentException {
+        // Check if player already has an Elo ranking
+        playerEloRankRepository.findByPlayerIdAndTournamentId(playerId, tournamentId).ifPresent(playerEloRank -> {
             throw new IllegalArgumentException("Player already has an Elo ranking");
         });
-        // Create new PlayerEloRank entity with default values
-        RankThreshold globalDefaultRank = rankService.retrieveRankThresholdByRank(ORIGIN_RANK);
-        PlayerEloRank playerEloRank = new PlayerEloRank(playerId, globalDefaultRank, INITIAL_MEAN, INITIAL_SIGMA, tournamentId);
+
+        // Create new PlayerEloRank entity
+        RankThreshold defaultRank = rankService.retrieveRankThresholdByRank(ORIGIN_RANK);
+        PlayerEloRank playerEloRank = new PlayerEloRank(playerId, defaultRank, INITIAL_MEAN, INITIAL_SIGMA, tournamentId);
         playerEloRankRepository.save(playerEloRank);
+
         return playerEloRank;
     }
 
+    @Transactional // Ensures the entire bulk creation is rolled back if any exception occurs
+    public List<ClanEloRank> bulkCreateClanEloRanks(List<Long> clanIds, Long tournamentId) {
+        List<ClanEloRank> result = new ArrayList<>();
+        for (Long clanId : clanIds) {
+            ClanEloRank eloRank = createNewClanEloRanking(clanId, tournamentId);
+            result.add(eloRank);
+        }
+        return result;
+    }
+
     // Create Clan Elo ranking
-    public ClanEloRank createNewClanEloRanking(long clanId, long tournamentId)
-            throws IllegalArgumentException {
-        // check if clan already has an Elo ranking
-        clanEloRankRepository.findById(clanId).ifPresent(clanEloRank -> {
+    public ClanEloRank createNewClanEloRanking(long clanId, long tournamentId) throws IllegalArgumentException {
+        // Check if the clan already has an Elo ranking
+        clanEloRankRepository.findByClanIdAndTournamentId(clanId, tournamentId).ifPresent(clanEloRank -> {
             throw new IllegalArgumentException("Clan already has an Elo ranking");
         });
+
         // Create new ClanEloRank entity with default values
         RankThreshold globalDefaultRank = rankService.retrieveRankThresholdByRank(ORIGIN_RANK);
         ClanEloRank clanEloRank = new ClanEloRank(clanId, globalDefaultRank, INITIAL_MEAN, INITIAL_SIGMA, tournamentId);

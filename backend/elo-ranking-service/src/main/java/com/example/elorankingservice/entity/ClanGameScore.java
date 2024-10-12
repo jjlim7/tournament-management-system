@@ -9,6 +9,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+
 public class ClanGameScore extends GameScore {
 
     @Column(name = "clan_id", nullable = false)
