@@ -10,7 +10,6 @@ import com.example.userservice.repository.*;
 
 import jakarta.transaction.Transactional;
 
-import java.util.List;
 
 
 @Service 
@@ -31,7 +30,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User addUser(User user) {
-        return userDB.save(user);
+
+        List<User> sameUsersList = userDB.findByEmail(user.getEmail());
+
+        if(sameUsersList.size() == 0) { // size = 0 means unique user, add him to the DB
+            return userDB.save(user);
+        } else {
+            return null;
+        }
     }
 
     @Override

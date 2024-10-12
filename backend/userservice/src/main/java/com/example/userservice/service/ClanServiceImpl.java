@@ -13,6 +13,10 @@ import java.util.*;
 public class ClanServiceImpl implements ClanService {
     @Autowired
     private ClanRepository clanDB;
+
+    public ClanServiceImpl(ClanRepository clanDB) {
+        this.clanDB = clanDB;
+    }
     
     @Override
     @Transactional

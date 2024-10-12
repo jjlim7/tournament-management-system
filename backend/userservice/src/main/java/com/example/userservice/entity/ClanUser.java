@@ -1,6 +1,9 @@
 package com.example.userservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 
@@ -16,18 +19,31 @@ public class ClanUser {
 
     // Many-to-one relationship with User
     @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     // Many-to-one relationship with Clan
     @ManyToOne
-    @JoinColumn(name = "clanId", nullable = false)
+    @JsonIgnore
+    @JoinColumn(name = "clan_id", nullable = false)
     private Clan clan;
 
     @Column(nullable = false)
     private Boolean isClanLeader;
 
-    @Column
+    @Column(nullable = false)
+    @NotNull
     private String position;
+
+    public ClanUser(User user, Clan clan, Boolean isClanLeader, String position) {
+        this.user = user;
+        this.clan = clan;
+        this.isClanLeader = isClanLeader;
+        this.position = position;
+    }
+
+    
+
     
 }

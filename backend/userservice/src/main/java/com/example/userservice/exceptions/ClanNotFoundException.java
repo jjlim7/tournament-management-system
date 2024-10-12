@@ -1,4 +1,4 @@
-package com.example.userservice.entity;
+package com.example.userservice.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -9,6 +9,10 @@ public class ClanNotFoundException extends RuntimeException {
 
     public ClanNotFoundException (Long clanId) {
         super("Could not find Clan with ClanId: " + clanId);
+    }
+
+    public ClanNotFoundException () {
+        super("Could not find Clan");
     }
     
 }

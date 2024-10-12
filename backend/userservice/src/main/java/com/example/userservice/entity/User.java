@@ -20,7 +20,7 @@ public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long userId;
+    private Long userId; // UNIQUE
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -28,14 +28,14 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     @Email
     @NotNull
-    private String email;
+    private String email; // UNIQUE
 
     @Column(name = "password", nullable = false)
     @NotNull
     private String password;
 
     @Column(name = "role", nullable = false)
-    @Pattern(regexp = "ROLE_ADMIN|ROLE_PLAYER", message = "the role must be ROLE_ADMIN|ROLE_PLAYER")
+    @Pattern(regexp = "ROLE_ADMIN|ROLE_PLAYER", message = "the role must be ROLE_ADMIN|ROLE_PLAYER") // if we have this code do we need to define admin as a separate class?
     private String role;
 
     @Column(name = "country")
@@ -65,7 +65,4 @@ public class User {
         this.elo_rating = elo_rating;
         this.rank = rank;
     }
-
-    
-
 }
