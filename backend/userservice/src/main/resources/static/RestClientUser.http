@@ -2,8 +2,8 @@ POST http://localhost:8080/users
 Content-Type: application/json
 
 {
-    "name" : "Jason",
-    "email" : "jason@gmail.com",
+    "name" : "Jasonny",
+    "email" : "jasonny@gmail.com",
     "password" : "abc123",
     "role" : "ROLE_PLAYER",
     "country" : "Australia",
@@ -29,15 +29,15 @@ Content-Type: application/json
 GET http://localhost:8080/users
 
 ###
-GET http://localhost:8080/users/6
+GET http://localhost:8080/users/7
 
 ###
-PUT http://localhost:8080/users/3
+PUT http://localhost:8080/users/7
 Content-Type: application/json
 
 {
-    "name" : "Jeremaih",
-    "email" : "jere@gmail.com",
+    "name" : "Jasonny",
+    "email" : "Jassony1243@gmail.com",
     "password" : "abc1234",
     "role" : "ROLE_ADMIN",
     "country" : "Canda",
@@ -46,5 +46,5 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:8080/users/2
+DELETE http://localhost:8080/users/7
 
