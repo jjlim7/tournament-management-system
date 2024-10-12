@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.userservice.entity.*;
 import com.example.userservice.service.*;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.transaction.Transactional;
 
 import com.example.userservice.exceptions.*;
@@ -32,11 +33,13 @@ public class ClanController {
     }
 
     // Read
+    @Operation(summary = "Get all clans", description = "Returns a list of clans")
     @GetMapping("/clans")
     public List<Clan> getAllClans() {
         return clanService.listAllClans();
     }
 
+    @Operation(summary = "Gets a specific clan", description = "Returns a specific clan with a specific clan id")
     @GetMapping("/clans/{clanId}")
     public Clan getClan(@PathVariable Long clanId) {
         Clan clan = clanService.getClan(clanId);
@@ -49,6 +52,7 @@ public class ClanController {
     }
 
     // Create
+    @Operation(summary = "Add a new clan", description = "Returns a new clan with the relevant details")
     @ResponseStatus(HttpStatus.CREATED) // Returns 201 - success
     @PostMapping("/clans") // post mapping to add the new clan to the entire list of clans
     @Transactional
@@ -57,6 +61,7 @@ public class ClanController {
     }
 
     // Update
+    @Operation(summary = "Updates a clan", description = "Returns the clan with updated clan details")
     @PutMapping("/clans/{clanId}") // PUT is to update
     public Clan updateClanDetails(@PathVariable Long clanId, @RequestBody Clan newClan) {
         Clan updatedClan = clanService.updateClan(clanId, newClan);
@@ -69,6 +74,7 @@ public class ClanController {
     }
 
     // Delete
+    @Operation(summary = "Deletes a specific clan", description = "Deletes clans based on their clan id")
     @DeleteMapping("/clans/{clanId}")
     public void deleteClan(@PathVariable Long clanId) {
         

@@ -3,6 +3,7 @@ package com.example.userservice.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 
@@ -31,7 +32,8 @@ public class ClanUser {
     @Column(nullable = false)
     private Boolean isClanLeader;
 
-    @Column
+    @Column(nullable = false)
+    @NotNull
     private String position;
 
     public ClanUser(User user, Clan clan, Boolean isClanLeader, String position) {

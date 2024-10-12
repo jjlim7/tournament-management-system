@@ -10,5 +10,9 @@ public class ClanNotFoundException extends RuntimeException {
     public ClanNotFoundException (Long clanId) {
         super("Could not find Clan with ClanId: " + clanId);
     }
+
+    public ClanNotFoundException () {
+        super("Could not find Clan");
+    }
     
 }

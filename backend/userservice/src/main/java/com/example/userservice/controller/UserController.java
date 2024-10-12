@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import io.swagger.v3.oas.annotations.Operation;
+
 
 
 @RestController
@@ -32,11 +34,13 @@ public class UserController {
     }
 
     // Read
+    @Operation(summary = "Get all users", description = "Returns a list of users")
     @GetMapping("/users")
     public List<User> getAllUsers() {
         return userService.listAllUsers();
     }
 
+    @Operation(summary = "Gets a specific user", description = "Returns a specific user with a specific user id")
     @GetMapping("/users/{userId}")
     public User getUser(@PathVariable Long userId) {
         User user = userService.getUser(userId);
@@ -49,6 +53,7 @@ public class UserController {
     }
 
     // Create
+    @Operation(summary = "Add a new user", description = "Returns a new user with the relevant details")
     @ResponseStatus(HttpStatus.CREATED) // Returns 201 - success
     @PostMapping("/users") // post mapping to add the new user to the entire list of users
     @Transactional
@@ -62,6 +67,7 @@ public class UserController {
     }
 
     // Update
+    @Operation(summary = "Updates a user", description = "Returns the user with updated user details")
     @PutMapping("/users/{userId}") // PUT is to update
     public User updateUserDetails(@PathVariable Long userId, @RequestBody User newUser) {
         User updatedUser = userService.updateUser(userId, newUser);
@@ -74,6 +80,7 @@ public class UserController {
     }
 
     // Delete
+    @Operation(summary = "Deletes a specific user", description = "Deletes users based on their user id")
     @DeleteMapping("/users/{userId}")
     public void deleteUser(@PathVariable Long userId) {
         

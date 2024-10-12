@@ -14,28 +14,39 @@ POST http://localhost:8080/clanusers
 Content-Type: application/json
 
 {
-    "userId" : 2,
+    "userId" : 3,
     "clanId" : 2,
     "isClanLeader" : false,
     "position" : "Panda"
+}
+
+### 
+POST http://localhost:8080/clanusers
+Content-Type: application/json
+
+{
+    "userId" : 5,
+    "clanId" : 4,
+    "isClanLeader" : true,
+    "position" : "CHECKING_TEST_2"
 }
 
 ###
 GET http://localhost:8080/clanusers
 
 ###
-GET http://localhost:8080/clanusers/6
+GET http://localhost:8080/clanusers/11
 
 ###
-PUT http://localhost:8080/clanusers/6
+PUT http://localhost:8080/clanusers/12
 Content-Type: application/json
 
 {
-    "clanId" : "3",
-    "userId" : "2",
-    "isClanLeader" : "True",
-    "position" : "Hahaha"
+    "clanId" : "5",
+    "userId" : "31",
+    "isClanLeader" : false,
+    "position" : "Testing non existing clan_user 69"
 }
 
 ###
-DELETE http://localhost:8080/clanusers/7
+DELETE http://localhost:8080/clanusers/13

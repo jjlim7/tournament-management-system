@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import java.util.*;
+import io.swagger.v3.oas.annotations.Operation;
 
 
 
@@ -40,11 +41,13 @@ public class ClanUserController {
         this.clanUserService = clanUserService;
     }
 
+    @Operation(summary = "Get all clanusers", description = "Returns a list of clanusers")
     @GetMapping("/clanusers")
     public List<ClanUser> getAllClanUsers() {
         return clanUserService.listAllClanUsers();
     }
 
+    @Operation(summary = "Get a specific clanUser", description = "Returns a specific clanUser with a specific Clan User Id")
     @GetMapping("/clanusers/{clanUserId}")
     public ClanUser getClanUser(@PathVariable Long clanUserId) {
         ClanUser clanUser = clanUserService.getClanUser(clanUserId);
@@ -56,40 +59,52 @@ public class ClanUserController {
         return clanUser;
     }
 
+    @Operation(summary = "Add a new Clan User", description = "Returns a new Clan User with relevant details")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/clanusers")
     @Transactional
     public ClanUser addClanUser(@Valid @RequestBody Request.CreateClanUser clanUser) {
-        System.out.println(clanUser);
+        // System.out.println(clanUser);
         
         // create a new clan and user objects here
         Long clanId = clanUser.getClanId();
         Clan clan = clanService.getClan(clanId);
+        if(clan == null) {
+            throw new ClanNotFoundException();
+        }
 
-        Long userId = clanUser.getClanId();
+        Long userId = clanUser.getUserId();
         User user = userService.getUser(userId);
+        if(user == null) {
+            throw new UserNotFoundException();
+        }
 
         ClanUser properClanUser = new ClanUser(user, clan, clanUser.getIsClanLeader(), clanUser.getPosition());
 
         return clanUserService.addClanUser(properClanUser);
     }
 
+    @Operation(summary = "Updates a Clan User", description = "Returns the Clan User with updated Clan User details")
     @PutMapping("/clanusers/{clanUserId}")
     public ClanUser updateClanUserDetails(@PathVariable Long clanUserId, @RequestBody Request.UpdateClanUser newClanUserInfo) {
 
         Long newClanId = newClanUserInfo.getClanId();
         if(newClanId == null) {
             throw new ClanUserNotFoundException();
-
         }
         Clan newClan = clanService.getClan(newClanId);
+        if(newClan == null) {
+            throw new ClanNotFoundException(newClanId);
+        }
 
         Long newUserId = newClanUserInfo.getUserId();
         if(newUserId == null) {
             throw new ClanUserNotFoundException();
-
         }
         User newUser = userService.getUser(newUserId);
+        if(newUser == null) {
+            throw new UserNotFoundException(newUserId);
+        }
 
         ClanUser newClanUser = new ClanUser(newUser, newClan, newClanUserInfo.getIsClanLeader(), newClanUserInfo.getPosition());
 
@@ -104,6 +119,7 @@ public class ClanUserController {
         return updatedClanUser;
     }
 
+    @Operation(summary = "Deletes a specific Clan User", description = "Deletes Clan User based on its Clan User Id")
     @DeleteMapping("/clanusers/{clanUserId}")
     public void deleteClanUser(@PathVariable Long clanUserId) {
 

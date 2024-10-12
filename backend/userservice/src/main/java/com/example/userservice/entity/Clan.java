@@ -1,6 +1,7 @@
 package com.example.userservice.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import java.util.*;
 
@@ -17,7 +18,8 @@ public class Clan {
     @Column(name = "clan_id")
     private Long clanId;
 
-    @Column(name = "clan_name")
+    @Column(name = "clan_name", nullable = false)
+    @NotNull
     private String clanName;
 
     @OneToMany(mappedBy = "clan", cascade =  CascadeType.ALL, orphanRemoval = true)

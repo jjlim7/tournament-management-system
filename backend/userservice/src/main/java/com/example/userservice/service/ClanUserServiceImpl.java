@@ -25,15 +25,19 @@ public class ClanUserServiceImpl implements ClanUserService {
     @Override
     @Transactional
     public ClanUser addClanUser(ClanUser clanUser) {
+        /* ClanUser only exists if the clan and user are valid. 
+         * So if clanId is invalid or if userId is invalid then ClanUser can't exist.
+         * Can only throw UserNotFoundException or ClanNotFoundException
+         */
 
         User user = clanUser.getUser();
         if(user == null ) {
-            throw new ClanUserNotFoundException(clanUser.getClanUserId());
+            throw new UserNotFoundException();
         }
 
         Clan clan = clanUser.getClan();
         if(clan == null) {
-            throw new ClanUserNotFoundException(clanUser.getClanUserId());   
+            throw new ClanNotFoundException();   
         }
 
         return clanUserDB.save(clanUser);
@@ -50,7 +54,19 @@ public class ClanUserServiceImpl implements ClanUserService {
     @Override
     @Transactional
     public ClanUser updateClanUser(Long clanUserId, ClanUser newClanUser) {
+        // Check for Clan and User first
+        // User newUser = newClanUser.getUser();
+        // if(newUser == null ) {
+        //     throw new UserNotFoundException();
+        // }
+        
+        // Clan newClan = newClanUser.getClan();
+        // if(newClan == null) {
+        //     throw new ClanNotFoundException();   
+        // }
+        
         Optional<ClanUser> optionalClanUser = clanUserDB.findById(clanUserId);
+        
 
         if(optionalClanUser.isPresent()) {
             ClanUser currentClanUser = optionalClanUser.get();
@@ -64,6 +80,8 @@ public class ClanUserServiceImpl implements ClanUserService {
         } else {
             return null;
         }
+
+
     }
 
     @Override

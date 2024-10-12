@@ -2,12 +2,12 @@ POST http://localhost:8080/users
 Content-Type: application/json
 
 {
-    "name" : "Bob",
-    "email" : "bob12@gmail.com",
+    "name" : "Jason",
+    "email" : "jason@gmail.com",
     "password" : "abc123",
     "role" : "ROLE_PLAYER",
-    "country" : "Bob_Country",
-    "elo_rating" : 100,
+    "country" : "Australia",
+    "elo_rating" : 200,
     "rank" : "UNRANKED"
 }
 
@@ -16,12 +16,12 @@ POST http://localhost:8080/users
 Content-Type: application/json
 
 {
-    "name" : "Jimmy",
-    "email" : "jimmy@gmail.com",
+    "name" : "Arba",
+    "email" : "arba@gmail.com",
     "password" : "abc1234",
     "role" : "ROLE_ADMIN",
-    "country" : "Murga_Country",
-    "elo_rating" : 1000,
+    "country" : "Monaco",
+    "elo_rating" : 300,
     "rank" : "GOLD"
 }
 
@@ -29,23 +29,22 @@ Content-Type: application/json
 GET http://localhost:8080/users
 
 ###
-GET http://localhost:8080/users/1
+GET http://localhost:8080/users/6
 
 ###
-PUT http://localhost:8080/users/2
+PUT http://localhost:8080/users/3
 Content-Type: application/json
 
 {
-    "user_id" : 2,
-    "name" : "Jack",
-    "email" : "jack@gmail.com",
+    "name" : "Jeremaih",
+    "email" : "jere@gmail.com",
     "password" : "abc1234",
     "role" : "ROLE_ADMIN",
-    "country" : "Murga_Country",
-    "elo_rating" : 1000,
-    "rank" : "GOLD"
+    "country" : "Canda",
+    "elo_rating" : 1009,
+    "rank" : "PLATINUM"
 }
 
 ###
-DELETE http://localhost:8080/users/1
+DELETE http://localhost:8080/users/2
 
