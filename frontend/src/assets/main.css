@@ -1,0 +1,11 @@
+@import './base.css';
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
+
+#app {
+  margin: 0 auto;
+  font-weight: normal;
+  color: white;
+  font-family: 'Rajdhani', sans-serif;
+  height: 100vh; /* Full viewport height */
+  background: linear-gradient(to bottom,#000000,#424242 );
+}
