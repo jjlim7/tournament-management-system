@@ -66,7 +66,7 @@ class PlayerAvailabilityControllerUnitTest {
 
         // Set properties for mockAvailability if necessary
         PlayerAvailability mockAvailability = new PlayerAvailability(
-                tournamentId,
+                playerId,
                 tournamentId,
                 startTime,
                 endTime,
