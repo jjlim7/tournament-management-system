@@ -1,216 +1,61 @@
 <template>
-    <div>
-      <h1>This is an ClanView page</h1>
-    </div>
-  </template>
-  
-  <style>
-
-<<<<<<< Updated upstream
-  </style>
-  
-=======
-    <div style="height: 50vh;">
-      <BlurredBGCard class="mt-1">
-        <div id="clanWarsSignedUp" 
-        class="carousel m-auto h-100 slide border border-primary border-2" 
-        style="width: 55vw;" 
-        data-bs-ride="carousel" data-bs-pause="hover">
-          <div class="carousel-indicators">
-            <button 
-              v-for="(tournamentname, index) in upcomingTournaments" 
-              :key="index" 
-              type="button" 
-              data-bs-target="#clanWarsSignedUp" 
-              :data-bs-slide-to="index" 
-              :class="{ active: index === 0 }">
-            </button>
-          </div>
-          <div class="carousel-inner h-100">
-            <div 
-              v-for="(tournament, index) in upcomingTournaments" 
-              :key="index"
-              :class="{'carousel-item': true, 'active': index === 0}"
-              style="cursor: pointer; height: 100%;" 
-              @click="showModal = true">
-              
-              <img 
-                :src="tournament.image" 
-                class="d-block img-fluid w-100 h-100" 
-                alt="..." 
-                style="object-fit: cover; height: 50vh;" /> 
-              
-                <div class="carousel-caption bg-dark bg-opacity-50 text-center rounded d-flex flex-column justify-content-center">
-                  <h2 class="fw-semibold">{{tournament.name}}</h2>
-                  <p style="height: 20vh;" class="overflow-y-hidden text-wrap px-5"> {{ tournament.description }} </p>
-                </div>
-                
+    <div v-if="userStore.hasClan">
+      <div style="height: 50vh;">
+        <BlurredBGCard class="mt-1">
+          <div id="clanWarsSignedUp" 
+          class="carousel m-auto h-100 slide border border-primary border-2" 
+          style="width: 55vw;" 
+          data-bs-ride="carousel" data-bs-pause="hover">
+            <div class="carousel-indicators">
+              <button 
+                v-for="(tournamentname, index) in upcomingTournaments" 
+                :key="index" 
+                type="button" 
+                data-bs-target="#clanWarsSignedUp" 
+                :data-bs-slide-to="index" 
+                :class="{ active: index === 0 }">
+              </button>
             </div>
-          </div>
+            <div class="carousel-inner h-100">
+              <div 
+                v-for="(tournament, index) in upcomingTournaments" 
+                :key="index"
+                :class="{'carousel-item': true, 'active': index === 0}"
+                style="cursor: pointer; height: 100%;" 
+                @click="showModal = true">
+                
+                <img 
+                  :src="tournament.image" 
+                  class="d-block img-fluid w-100 h-100" 
+                  alt="..." 
+                  style="object-fit: cover; height: 50vh;" /> 
+                
+                  <div class="carousel-caption bg-dark bg-opacity-50 text-center rounded d-flex flex-column justify-content-center">
+                    <h2 class="fw-semibold">{{tournament.name}}</h2>
+                    <p style="height: 20vh;" class="overflow-y-hidden text-wrap px-5"> {{ tournament.description }} </p>
+                  </div>
+                  
+              </div>
+            </div>
 
-          <button class="carousel-control-prev" type="button" data-bs-target="#clanWarsSignedUp" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#clanWarsSignedUp" data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
-          </button>
-        </div>
-      </BlurredBGCard>
-    </div>
-
-    <!-- Modal structure -->
-    <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
-      <div class="modal-content p-3">
-        <button @click="showModal = false" class="close-modal-btn">
-          <img src="https://static.vecteezy.com/system/resources/thumbnails/011/458/959/small_2x/letter-x-alphabet-in-brush-style-png.png" alt="Close">
-        </button>
-        <br>
-        <h1 class="text-center">List Of Members Signed Up</h1>
-        <div
-          class="p-4 rounded shadow-sm my-3 w-100 d-flex justify-content-center overflow-auto"
-          :style="{
-            backgroundColor: 'rgba(255, 255, 255, 0.5)', 
-            border: 'none' 
-          }"
-        >
-          <table class="table table-bordered table-striped table-responsive">
-          <thead class="table-dark text-center">
-            <tr>
-              <th>Number</th>
-              <th>Username</th>
-              <th>Position</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(person, index) in memberssignedup" :key="index">
-              <td>{{ person.number }}</td>
-              <td>{{ person.username }}</td>
-              <td>{{ person.position }}</td>
-            </tr>
-          </tbody>
-          </table>
-        </div>
-
-        <div class="mb-3"> 
-          <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 1.5rem; padding: 2.75rem 3.25rem;">
-            {{ selectedPosition || 'Position' }} 
-          </button>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#" @click="selectPosition('Healer')">Healer</a></li>
-            <li><a class="dropdown-item" href="#" @click="selectPosition('Roamer')">Roamer</a></li>
-            <li><a class="dropdown-item" href="#" @click="selectPosition('Marksman')">Marksman</a></li>
-            <li><a class="dropdown-item" href="#" @click="selectPosition('Mage')">Mage</a></li>
-            <li><a class="dropdown-item" href="#" @click="selectPosition('Tank')">Tank</a></li>
-          </ul>
-        </div>
-
-        <div class="d-flex justify-content-between">
-          <button class="btn btn-primary btn-lg w-100" @click="bookTournament()">BOOK</button> 
-        </div>    
-      </div>
-    </div>
-
-    <div class="fs-4 text-white ms-4" :style="{ alignSelf: 'flex-start' }">
-      <br>
-      <h1>{{ clanStore.name }} Members</h1>
-    </div>
-
-    <div class="p-4 rounded my-3 d-flex justify-content-center overflow-auto w-100 border border-primary border-2 rounded-5 text-center blurred-bg-card">
-      <table class="scrollable-table">
-        <thead>
-          <tr>
-            <th>Position</th>
-            <th>Profile</th>
-            <th>Username</th>
-            <th>Rank</th>
-            <th>Elo</th>
-            <th>Progress</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(person, index) in members" :key="index">
-            <td>{{ person.position }}</td>
-            <td>
-              <img :src="person.profile" style="height: 100px;"/>
-            </td>
-            <td>{{ person.username }}</td>
-            <td>{{ person.rank }}</td>
-            <td>{{ person.elo }}</td>
-            <td>{{ person.progress }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- !!!!!!!!!!!!!!!IF THIS GUY GOT NO CLAN!!!!!!!!!!!!!!!! -->
-<div v-else>
-  <div
-    class="d-flex flex-column justify-content-center align-items-center min-vh-100 w-100"
-    :style="{
-      margin: 0,
-      padding: 0
-    }"
-  >
-  <div class="p-4 rounded my-3 d-flex justify-content-center overflow-auto w-100 border border-primary border-2 rounded-5 text-center blurred-bg-card">
-    <table class="scrollable-table">
-      <thead>
-        <tr>
-          <th>Clan Icon</th>
-          <th>Clan Name</th>
-          <th>Members</th>
-          <th>Rank</th>
-          <th>Elo</th>
-          <th>Request</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(clan, index) in availableclans" :key="index">
-          <td>
-            <img :src="clan.clanicon" style="height: 100px;"/>
-          </td>
-          <td>
-            <span
-              class="text-decoration-underline text-body"
-              @click="showModal = true"
-              @mouseover="hover = true"
-              @mouseleave="hover = false"
-              :style="{
-                cursor: 'pointer',
-                border: 'none',
-                color: 'white !important'
-              }"
-            >
-              {{ clan.clanname }}
-            </span>
-          </td>
-          <td>{{ clan.members }}</td>
-          <td>{{ clan.rank }}</td>
-          <td>{{ clan.elo }}</td>
-          <td>
-            <button
-              :class="{'request': clan.request}"
-              @click="toggleRequest(index)"
-            >
-              {{ clan.request ? 'Requested' : 'Request' }}
+            <button class="carousel-control-prev" type="button" data-bs-target="#clanWarsSignedUp" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon"></span>
             </button>
-          </td>
-        </tr>
-      </tbody>
-      </table>
-      <div></div>
-    </div>
+            <button class="carousel-control-next" type="button" data-bs-target="#clanWarsSignedUp" data-bs-slide="next">
+              <span class="carousel-control-next-icon"></span>
+            </button>
+          </div>
+        </BlurredBGCard>
+      </div>
 
     <!-- Modal structure -->
-    <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
-      <div class="modal-content border border-primary border-2 rounded-5 ">
-        <h1>Clan Info</h1>
-        <!-- Close button inside the modal -->
-        <button @click="showModal = false" class="close-modal-btn">
-          <img src="https://static.vecteezy.com/system/resources/thumbnails/011/458/959/small_2x/letter-x-alphabet-in-brush-style-png.png">
-        </button>
-        <div class="modal-body">
+      <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
+        <div class="modal-content p-3">
+          <button @click="showModal = false" class="close-modal-btn">
+            <img src="https://static.vecteezy.com/system/resources/thumbnails/011/458/959/small_2x/letter-x-alphabet-in-brush-style-png.png" alt="Close">
+          </button>
+          <br>
+          <h1 class="text-center">List Of Members Signed Up</h1>
           <div
             class="p-4 rounded shadow-sm my-3 w-100 d-flex justify-content-center overflow-auto"
             :style="{
@@ -218,37 +63,183 @@
               border: 'none' 
             }"
           >
-            <table class="data-table responsive-table">
-            <thead>
+            <table class="table table-bordered table-striped table-responsive">
+            <thead class="table-dark text-center">
               <tr>
-                <th>Position</th>
-                <th>Profile</th>
+                <th>Number</th>
                 <th>Username</th>
-                <th>Rank</th>
-                <th>Elo</th>
-                <th>Progress</th>
+                <th>Position</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(person, index) in members" :key="index">
-                <td>{{ person.position }}</td>
-                <td>
-                  <img :src="person.profile" style="height: 100px;"/>
-                </td>
+              <tr v-for="(person, index) in memberssignedup" :key="index">
+                <td>{{ person.number }}</td>
                 <td>{{ person.username }}</td>
-                <td>{{ person.rank }}</td>
-                <td>{{ person.elo }}</td>
-                <td>{{ person.progress }}</td>
+                <td>{{ person.position }}</td>
               </tr>
             </tbody>
             </table>
           </div>
+
+          <div class="mb-3"> 
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 1.5rem; padding: 2.75rem 3.25rem;">
+              {{ selectedPosition || 'Position' }} 
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" @click="selectPosition('Healer')">Healer</a></li>
+              <li><a class="dropdown-item" href="#" @click="selectPosition('Roamer')">Roamer</a></li>
+              <li><a class="dropdown-item" href="#" @click="selectPosition('Marksman')">Marksman</a></li>
+              <li><a class="dropdown-item" href="#" @click="selectPosition('Mage')">Mage</a></li>
+              <li><a class="dropdown-item" href="#" @click="selectPosition('Tank')">Tank</a></li>
+            </ul>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <button class="btn btn-primary btn-lg w-100" @click="bookTournament()">BOOK</button> 
+          </div>    
         </div>
       </div>
-    </div>
 
+      <div class="fs-4 text-white ms-4" :style="{ alignSelf: 'flex-start' }">
+        <br>
+        <h1>{{ clanStore.name }} Members</h1>
+      </div>
+
+      <div class="p-4 rounded my-3 d-flex justify-content-center overflow-auto w-100 border border-primary border-2 rounded-5 text-center blurred-bg-card">
+        <table class="scrollable-table">
+          <thead>
+            <tr>
+              <th>Position</th>
+              <th>Profile</th>
+              <th>Username</th>
+              <th>Rank</th>
+              <th>Elo</th>
+              <th>Progress</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(person, index) in members" :key="index">
+              <td>{{ person.position }}</td>
+              <td>
+                <img :src="person.profile" style="height: 100px;"/>
+              </td>
+              <td>{{ person.username }}</td>
+              <td>{{ person.rank }}</td>
+              <td>{{ person.elo }}</td>
+              <td>{{ person.progress }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
   </div>
-</div>
+
+  
+  <!-- !!!!!!!!!!!!!!!IF THIS GUY GOT NO CLAN!!!!!!!!!!!!!!!! -->
+  <div v-else>
+    <div
+      class="d-flex flex-column justify-content-center align-items-center min-vh-100 w-100"
+      :style="{
+        margin: 0,
+        padding: 0
+      }"
+    >
+    <div class="p-4 rounded my-3 d-flex justify-content-center overflow-auto w-100 border border-primary border-2 rounded-5 text-center blurred-bg-card">
+      <table class="scrollable-table">
+        <thead>
+          <tr>
+            <th>Clan Icon</th>
+            <th>Clan Name</th>
+            <th>Members</th>
+            <th>Rank</th>
+            <th>Elo</th>
+            <th>Request</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(clan, index) in availableclans" :key="index">
+            <td>
+              <img :src="clan.clanicon" style="height: 100px;"/>
+            </td>
+            <td>
+              <span
+                class="text-decoration-underline text-body"
+                @click="showModal = true"
+                @mouseover="hover = true"
+                @mouseleave="hover = false"
+                :style="{
+                  cursor: 'pointer',
+                  border: 'none',
+                  color: 'white !important'
+                }"
+              >
+                {{ clan.clanname }}
+              </span>
+            </td>
+            <td>{{ clan.members }}</td>
+            <td>{{ clan.rank }}</td>
+            <td>{{ clan.elo }}</td>
+            <td>
+              <button
+                :class="{'request': clan.request}"
+                @click="toggleRequest(index)"
+              >
+                {{ clan.request ? 'Requested' : 'Request' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+        </table>
+        <div></div>
+      </div>
+  
+      <!-- Modal structure -->
+      <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
+        <div class="modal-content border border-primary border-2 rounded-5 ">
+          <h1>Clan Info</h1>
+          <!-- Close button inside the modal -->
+          <button @click="showModal = false" class="close-modal-btn">
+            <img src="https://static.vecteezy.com/system/resources/thumbnails/011/458/959/small_2x/letter-x-alphabet-in-brush-style-png.png">
+          </button>
+          <div class="modal-body">
+            <div
+              class="p-4 rounded shadow-sm my-3 w-100 d-flex justify-content-center overflow-auto"
+              :style="{
+                backgroundColor: 'rgba(255, 255, 255, 0.5)', 
+                border: 'none' 
+              }"
+            >
+              <table class="data-table responsive-table">
+              <thead>
+                <tr>
+                  <th>Position</th>
+                  <th>Profile</th>
+                  <th>Username</th>
+                  <th>Rank</th>
+                  <th>Elo</th>
+                  <th>Progress</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(person, index) in members" :key="index">
+                  <td>{{ person.position }}</td>
+                  <td>
+                    <img :src="person.profile" style="height: 100px;"/>
+                  </td>
+                  <td>{{ person.username }}</td>
+                  <td>{{ person.rank }}</td>
+                  <td>{{ person.elo }}</td>
+                  <td>{{ person.progress }}</td>
+                </tr>
+              </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+  </div>
+
 </template>
 
 <script>
@@ -462,4 +453,3 @@
   }
 
 </style>
->>>>>>> Stashed changes
