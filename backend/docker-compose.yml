@@ -1,12 +1,56 @@
 version: "3.8"
 
 services:
+  user-service:
+    build: ./userservice
+    env_file: .env
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgresdb
+
   matchmaking-service:
     build: ./matchmaking
+    env_file: .env
     ports:
       - 8081:8080
+    depends_on:
+      - postgresdb
 
-  # elo-ranking-service:
-  #   build: ./elo-ranking-service
-  #   ports:
-  #     - 8082:8080
+  elo-ranking-service:
+    build: ./elo-ranking-service
+    env_file: .env
+    ports:
+      - 8082:8080
+    depends_on:
+      - postgresdb
+
+  tournament-service:
+    build: ./tournamentservice
+    env_file: .env
+    ports:
+      - 8083:8080
+    depends_on:
+      - postgresdb
+
+  postgresdb:
+    image: postgres
+    container_name: postgresdb
+    environment:
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      # - POSTGRES_DB=$POSTGRES_DB
+      - POSTGRES_MULTIPLE_DATABASES=user-service, tournament-service, matchmaking-service, elo-ranking-service
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./postgres-initdb.sh:/docker-entrypoint-initdb.d/postgres-initdb.sh
+
+volumes:
+  db-data:
