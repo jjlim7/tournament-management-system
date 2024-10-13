@@ -148,33 +148,63 @@ public class PlayerGameScore extends GameScore {
         if (deaths == 0) {
             deaths = 1;
         }
+        if (kills == 0) {
+            kills = 1;
+        }
         return (double) kills / (double) deaths;
     }
 
     @JsonIgnore
     public double getAccuracy() {
+        if (shotsFired == 0) {
+            shotsFired = 1;
+        }
+        if (shotsHit == 0) {
+            shotsHit = 1;
+        }
         return (double) shotsHit / (double) shotsFired;
     }
 
     @JsonIgnore
     public double getEffectiveDamage() {
+        if (damageDone == 0) {
+            damageDone = 1;
+        }
+        if (damageTaken == 0) {
+            damageTaken = 1;
+        }
         return (double) damageDone / (double) shotsFired;
     }
 
     @JsonIgnore
     public double getHealingDonePerSecond() {
+        if (healingDone == 0) {
+            healingDone = 1;
+        }
         return (double) healingDone / (double) survivalTime.toSeconds();
     }
     @JsonIgnore
     public double getHeadshotAccuracy() {
+        if (headshots == 0) {
+            headshots = 1;
+        }
+        if (shotsFired == 0) {
+            shotsFired = 1;
+        }
         return (double) headshots / (double) shotsFired;
     }
     @JsonIgnore
     public double getDamageDonePerSecond() {
+        if (damageDone == 0) {
+            damageDone = 1;
+        }
         return (double) damageDone / (double) survivalTime.toSeconds();
     }
     @JsonIgnore
     public double getDamageTanked() {
+        if (damageTaken == 0) {
+            damageTaken = 1;
+        }
         return (double) damageTaken / (double) survivalTime.toSeconds();
     }
     @JsonIgnore
