@@ -9,6 +9,8 @@ lerna-debug.log*
 
 node_modules
 .DS_Store
+**/.DS_Store
+
 dist
 dist-ssr
 coverage
@@ -19,8 +21,10 @@ coverage
 
 # Editor directories and files
 .vscode/*
+**/.vscode/*
 !.vscode/extensions.json
 .idea
+**/.idea/*
 *.suo
 *.ntvs*
 *.njsproj
