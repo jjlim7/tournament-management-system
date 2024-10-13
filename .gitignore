@@ -1,3 +1,7 @@
+### Environment
+.env
+
+### JAVA
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
@@ -12,9 +16,6 @@ target/
 .settings
 .springBeans
 .sts4-cache
-
-### MAC
-.DS_STORE
 
 ### IntelliJ IDEA ###
 .idea
@@ -36,3 +37,6 @@ build/
 ### VS Code ###
 .vscode/
 application.properties
+
+### MAC
+.DS_STORE
