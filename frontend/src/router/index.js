@@ -99,7 +99,7 @@ router.beforeEach((to, from, next) => {
   userStore.initializeUser();
 
   // Check if the user is authenticated
-  if (userStore.uthenticated) {
+  if (userStore.isAuthenticated) {
     if (to.name === 'auth') {
       return next({ path: '/' }); 
     }
