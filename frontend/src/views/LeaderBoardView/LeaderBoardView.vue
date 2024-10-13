@@ -33,7 +33,7 @@ export default {
         {
           num: "#1",
           profile:"https://media.licdn.com/dms/image/v2/D5603AQFEDuzr1KwCcA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1689824025160?e=1732147200&v=beta&t=r0CQe7SV-NFKCpTkDBcyxKv_6bhmiPmDmeIs4Aom_i8",
-          name: "Isabelle",
+          name: "Kaijie",
           rank: 'Diamond',
           elo: '123',
         }
@@ -42,7 +42,7 @@ export default {
         {
           num: "#1",
           profile:"https://media.licdn.com/dms/image/v2/D5603AQFEDuzr1KwCcA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1689824025160?e=1732147200&v=beta&t=r0CQe7SV-NFKCpTkDBcyxKv_6bhmiPmDmeIs4Aom_i8",
-          name: "Isabelle",
+          name: "Kaijie",
           rank: 'Diamond',
           elo: '123',
         }
@@ -50,14 +50,14 @@ export default {
       myBRrank:{
           num: "#6969",
           profile:"https://media.licdn.com/dms/image/v2/D5603AQFEDuzr1KwCcA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1689824025160?e=1732147200&v=beta&t=r0CQe7SV-NFKCpTkDBcyxKv_6bhmiPmDmeIs4Aom_i8",
-          name: "Isabelle",
+          name: "Kaijie",
           rank: 'Diamond',
           elo: '123',
         },
       myCWrank:{
           num: "#6969",
           profile:"https://media.licdn.com/dms/image/v2/D5603AQFEDuzr1KwCcA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1689824025160?e=1732147200&v=beta&t=r0CQe7SV-NFKCpTkDBcyxKv_6bhmiPmDmeIs4Aom_i8",
-          name: "Isabelle",
+          name: "Kaijie",
           rank: 'Diamond',
           elo: '123',
         },

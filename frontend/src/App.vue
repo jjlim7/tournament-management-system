@@ -4,7 +4,7 @@
     <div class="tintedBG">
       <div class="mx-auto text-white m-0 p-0" style="max-width: 1280px;">
 
-        <Navbar v-if="userStore.isAuthenticated"/>
+        <Navbar v-if="userStore.isAuthenticated && !isHomePage"/>
         <NavbarLandingPage v-else-if="!userStore.isAuthenticated"/>
         
         <RouterView />
@@ -33,7 +33,7 @@ export default{
         '/battleroyale':'https://cdn.mos.cms.futurecdn.net/sgFRba5wiRrXrWh2bVkF5a-1920-80.jpg.webp',
         '/clanwar':'https://platform.polygon.com/wp-content/uploads/sites/2/2024/08/black-myth-wukong-secret-ending-guide-8.jpg',
         '/booking':'https://static1.thegamerimages.com/wordpress/wp-content/uploads/wm/2024/09/8-wukong-and-journey-to-the-west-1.jpg',
-        '/Clan':'https://www.digitaltrends.com/wp-content/uploads/2024/08/black-myth-wukong-best-stances-2.jpg?fit=1920%2C1080&p=1',
+        '/Clan':'',
         '/leaderboard':'https://i0.wp.com/theguidehall.com/wp-content/uploads/2024/08/Black-Myth_-Wukong_20240823164851.jpg',
         '/profile':'https://images5.alphacoders.com/112/1129255.jpg',
         '/admin':'https://gamingbolt.com/wp-content/uploads/2024/08/Black-Myth-Wukong-Featured-Image.jpg',
@@ -47,6 +47,10 @@ export default{
       const route = useRoute();
       return route.path; // returns the current route path
     },
+    isHomePage(){
+      const route = useRoute();
+      return route.path == '/'; 
+    }
   },
   methods:{
     defineBackgroundImage(){

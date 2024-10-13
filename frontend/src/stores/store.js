@@ -13,7 +13,7 @@ export const useUserStore = defineStore('user', {
       eloUpperlimit: "100",
       totalWins: 123,
       winRatio: 3.14,
-      clan: "shawny shawny's clan",
+      clan: "Code with shawn club",
       clanRole: "Admin",
       role: "Member"
     },
@@ -58,14 +58,13 @@ export const useUserStore = defineStore('user', {
     isLoggedIn: (state) => !!state.user,
     isAdmin: (state) => state.user.role === 'Admin',
     isClanAdmin: (state) => state.user.clanRole === 'Admin',
-    hasClan: (state) => state.user.clan !== '',
   }
 });
 
 
 export const useClanStore = defineStore('clan', {
   state: () => ({
-    name: "shawnty shawnty g@y club",
+    name: "Code with shawn club",
     image: "https://media.licdn.com/dms/image/v2/D5603AQFEDuzr1KwCcA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1689824025160?e=1732147200&v=beta&t=r0CQe7SV-NFKCpTkDBcyxKv_6bhmiPmDmeIs4Aom_i8",
     rank: "Diamond",
     currentElo: "23",
