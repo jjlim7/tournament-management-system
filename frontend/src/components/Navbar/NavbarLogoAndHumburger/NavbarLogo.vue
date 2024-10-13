@@ -17,6 +17,9 @@ export default {
   components:{
     RouterLink
   },
+  data(){return{
+      isLogin: true,
+  }},
   computed:{
     navlink(){
       if(this.userStore.isAuthenticated){
