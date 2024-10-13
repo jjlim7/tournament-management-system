@@ -10,7 +10,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .blurred-bg-card {
   border: 1px solid rgb(250, 144, 33, 0.4); /* Orange border */
   background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
