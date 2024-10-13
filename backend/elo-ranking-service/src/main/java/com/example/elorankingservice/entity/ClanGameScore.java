@@ -1,5 +1,6 @@
 package com.example.elorankingservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ClanGameScore extends GameScore {
 
     @Column(name = "clan_id", nullable = false)

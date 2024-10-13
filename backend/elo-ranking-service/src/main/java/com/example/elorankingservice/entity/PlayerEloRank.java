@@ -1,6 +1,7 @@
 package com.example.elorankingservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.util.List;
 @Table(name = "player_elo_rank", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"player_id", "tournament_id"})
 })
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class PlayerEloRank extends EloRank {
 
     @Column(name = "player_id", nullable = false)
