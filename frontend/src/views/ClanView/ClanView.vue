@@ -251,7 +251,7 @@
 
   export default {
     name: 'TranslucentBox',
-    components:{BlurredBGCard},
+    // components:{BlurredBGCard},
     methods: {
       toggleRequest(index) {
         this.availableclans[index].request = !this.availableclans[index].request;
