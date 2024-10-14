@@ -1,0 +1,50 @@
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+    "name" : "Jason",
+    "email" : "jason@gmail.com",
+    "password" : "abc123",
+    "role" : "ROLE_PLAYER",
+    "country" : "Australia",
+    "elo_rating" : 200,
+    "rank" : "UNRANKED"
+}
+
+### 
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+    "name" : "Arba",
+    "email" : "arba@gmail.com",
+    "password" : "abc1234",
+    "role" : "ROLE_ADMIN",
+    "country" : "Monaco",
+    "elo_rating" : 300,
+    "rank" : "GOLD"
+}
+
+###
+GET http://localhost:8080/users
+
+###
+GET http://localhost:8080/users/6
+
+###
+PUT http://localhost:8080/users/3
+Content-Type: application/json
+
+{
+    "name" : "Jeremaih",
+    "email" : "jere@gmail.com",
+    "password" : "abc1234",
+    "role" : "ROLE_ADMIN",
+    "country" : "Canda",
+    "elo_rating" : 1009,
+    "rank" : "PLATINUM"
+}
+
+###
+DELETE http://localhost:8080/users/2
+
