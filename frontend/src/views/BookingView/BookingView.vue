@@ -10,7 +10,7 @@
           <table class="table scrollable-table" v-if="myBookings.length>0">
             <thead>
               <tr>
-                <th class="fw-semibold">Name</th>
+                <th class="fw-semibold">Name1</th>
                 <th class="fw-semibold">Date</th>
                 <th class="fw-semibold" v-if="isLargeScreen">Time</th>
                 <th class="fw-semibold" v-if="isLargeScreen">Role</th>
