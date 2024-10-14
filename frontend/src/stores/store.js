@@ -17,7 +17,7 @@ export const useUserStore = defineStore('user', {
       clanRole: "Admin",
       role: "Member"
     },
-    isAuthenticated: true,
+    isAuthenticated: false,
   }),
   actions: {
     setUser(userData) {
@@ -53,6 +53,9 @@ export const useUserStore = defineStore('user', {
         this.isAuthenticated = true;
       }
     },
+    setIsAuth(){
+      this.isAuthenticated = true;
+    }
   },
   getters: {
     isLoggedIn: (state) => !!state.user,

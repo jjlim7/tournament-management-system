@@ -46,6 +46,7 @@
 
 <script>
 import BlurredBGCard from '@/components/Cards/BlurredBGCard.vue';
+import { useUserStore } from '@/stores/store';
 
 export default {
   name: "AuthView",
@@ -94,10 +95,18 @@ export default {
     },
     register() {
       console.log("Registering with", this.username, this.password, this.confirmPassword);
+      this.userStore.setIsAuth();
+      this.$router.push('/');
     },
     login() {
       console.log("Logging in with", this.username, this.password);
+      this.userStore.setIsAuth();
+      this.$router.push('/');
     }
+  },
+  setup(){
+    const userStore = useUserStore();
+    return {userStore}
   }
 }
 </script>

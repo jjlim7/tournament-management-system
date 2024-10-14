@@ -3,6 +3,7 @@ package com.example.elorankingservice.service;
 import com.example.elorankingservice.entity.*;
 import com.example.elorankingservice.repository.ClanEloRankRepository;
 import com.example.elorankingservice.repository.PlayerEloRankRepository;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,6 +178,7 @@ public class EloRankingService {
             // get new mse and uncertainty and rank threshold based on new mse
             double newMeanSkillEstimate = newEloRank.get(0);
             double newUncertainty = newEloRank.get(1);
+
             RankThreshold newRankThreshold = rankService.retrieveRankThresholdByRating(newMeanSkillEstimate);
 
             // update and save
@@ -240,6 +242,7 @@ public class EloRankingService {
     // Calculate Role Performance Scores (RPS) for all players
     private List<Double> calculateRPSForAllPlayers(List<PlayerEloRank> playersEloRank, List<PlayerGameScore> playerGameScoreList) {
         List<Double> rpsList = new ArrayList<>();
+        System.out.println(playerGameScoreList);
         for (int i = 0; i < playersEloRank.size(); i++) {
             PlayerGameScore playerScore = playerGameScoreList.get(i);
             PlayerGameScore.Role role = playerScore.getRole();
