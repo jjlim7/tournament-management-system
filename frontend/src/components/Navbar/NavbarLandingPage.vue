@@ -27,5 +27,8 @@ export default {
 </script>
 
 <style scoped>
-
+.backgoundColour{
+  background-color: rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); 
+}
 </style>
