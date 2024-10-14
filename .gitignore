@@ -36,7 +36,6 @@ build/
 
 ### VS Code ###
 .vscode/
-application.properties
 
 ### MAC
 .DS_STORE
