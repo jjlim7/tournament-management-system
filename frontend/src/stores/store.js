@@ -58,6 +58,7 @@ export const useUserStore = defineStore('user', {
     isLoggedIn: (state) => !!state.user,
     isAdmin: (state) => state.user.role === 'Admin',
     isClanAdmin: (state) => state.user.clanRole === 'Admin',
+    hasClan: (state) => state.user.clan !== '',
   }
 });
 
