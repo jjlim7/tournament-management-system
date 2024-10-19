@@ -46,10 +46,9 @@ public class SimulationController {
         List<Long> playerIds = simulateReq.getPlayerIds();
         Long tournamentId = simulateReq.getTournamentId();
         Long gameId = simulateReq.getGameId();
-
         try {
             // Simulate the game and generate player scores
-            List<PlayerGameScore> gameScores = simulator.generateBattleRoyalePlayerGameScores(playerIds, tournamentId, gameId);
+            List<PlayerGameScore> gameScores = simulator.generateBattleRoyalePlayerGameScores(playerIds, gameId, tournamentId);
 
             // Assign Elo ranks to the player game scores
             for (PlayerGameScore gameScore : gameScores) {
@@ -63,7 +62,9 @@ public class SimulationController {
 
             // Store game scores and process the results
             gameScoreService.storeAllPlayerGameScore(gameScores);
+            System.out.println("Finished storing");
             elorankingService.processUpdateBattleRoyaleResults(gameScores);
+            System.out.println("Process results");
 
             return ResponseEntity.status(HttpStatus.CREATED).body(
                     Map.of("status", "success", "message", "Simulated Battle Royale successfully"));

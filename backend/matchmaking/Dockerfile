@@ -6,5 +6,4 @@ COPY . .
 RUN ./mvnw package -Dmaven.test.skip=true
 
 EXPOSE 8080
-
-CMD ["java", "-jar", "./target/elo-ranking-service-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "./target/matchmaking-0.0.1-SNAPSHOT.jar"]
