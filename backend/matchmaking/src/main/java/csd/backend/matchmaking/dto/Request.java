@@ -1,23 +1,23 @@
 package csd.backend.matchmaking.dto;
 
 import csd.backend.matchmaking.entity.Game;
+import java.time.OffsetDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.OffsetDateTime;
-import java.util.List;
-
 public class Request {
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class PlayerAvailabilityDto {
-        long playerId;
-        long tournamentId;
-        OffsetDateTime startTime;
-        OffsetDateTime endTime;
-        boolean isAvailable;
-    }
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class CreatePlayerAvailabilityDto {
+
+    long playerId;
+    long tournamentId;
+    String startTime;
+    String endTime;
+    boolean isAvailable;
+  }
 }
