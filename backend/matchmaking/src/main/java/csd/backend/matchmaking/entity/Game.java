@@ -81,9 +81,10 @@ public class Game {
   }
 
   // Constructor for Battle Royale
-  public Game(long tournamentId, List<Long> playerIds, OffsetDateTime startTime, OffsetDateTime endTime, GameMode gameMode, GameStatus gameStatus) {
+  public Game(long tournamentId, List<Long> playerIds, List<Long> clanIds, OffsetDateTime startTime, OffsetDateTime endTime, GameMode gameMode, GameStatus gameStatus) {
     this.tournamentId = tournamentId;
     this.playerIds = playerIds;
+    this.clanIds = clanIds;
     this.startTime = startTime;
     this.endTime = endTime;
     this.gameMode = gameMode;

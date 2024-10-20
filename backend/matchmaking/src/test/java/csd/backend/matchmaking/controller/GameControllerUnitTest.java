@@ -8,6 +8,9 @@ import csd.backend.matchmaking.services.GameService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -27,6 +30,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(GameController.class)
+@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class })
+@AutoConfigureMockMvc(addFilters = false)
 public class GameControllerUnitTest {
 
     @Autowired
@@ -56,12 +61,12 @@ public class GameControllerUnitTest {
 
     private Game createTestGame() {
         OffsetDateTime startTime = OffsetDateTime.parse(OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC).format(formatter));
-        return new Game(TOURNAMENT_ID, PLAYER_IDS, startTime, startTime.plusHours(2), GAME_MODE, INITIAL_STATUS);
+        return new Game(TOURNAMENT_ID, PLAYER_IDS, null, startTime, startTime.plusHours(2), GAME_MODE, INITIAL_STATUS);
     }
 
     @Test
-    void createGame() throws Exception {
-        given(gameService.createGame(TOURNAMENT_ID, PLAYER_IDS, game.getStartTime(), game.getEndTime(), GAME_MODE, INITIAL_STATUS)).willReturn(game);
+    void createBattleRoyaleGame() throws Exception {
+        given(gameService.createGame(Game.GameMode.BATTLE_ROYALE, TOURNAMENT_ID, PLAYER_IDS, null, game.getStartTime(), game.getEndTime(), INITIAL_STATUS)).willReturn(game);
 
         mockMvc.perform(post("/api/games")
                         .contentType(MediaType.APPLICATION_JSON)

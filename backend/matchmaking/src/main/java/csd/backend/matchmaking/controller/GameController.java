@@ -23,11 +23,12 @@ public class GameController {
     @PostMapping
     public ResponseEntity<Game> createGame(@RequestBody Game gameDto) {
         Game game = gameService.createGame(
+                gameDto.getGameMode(),
                 gameDto.getTournamentId(),
                 gameDto.getPlayerIds(),
+                gameDto.getClanIds(),
                 gameDto.getStartTime(),
                 gameDto.getEndTime(),
-                gameDto.getGameMode(),
                 gameDto.getGameStatus()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(game);
