@@ -45,9 +45,6 @@ public class PlayerAvailabilityControllerIntegrationTest {
 
         // Create and save test data here, or rely on external seeding methods
         // Seed test data
-
-        objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
     }
 
     @Test

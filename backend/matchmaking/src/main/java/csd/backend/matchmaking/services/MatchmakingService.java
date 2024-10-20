@@ -1,7 +1,15 @@
 package csd.backend.matchmaking.services;
 
+import com.example.elorankingservice.dto.Request;
+import com.example.elorankingservice.entity.EloRank;
+import com.example.elorankingservice.entity.PlayerEloRank;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import csd.backend.matchmaking.entity.ClanAvailability;
 import csd.backend.matchmaking.entity.Game;
 import csd.backend.matchmaking.entity.PlayerAvailability;
+import csd.backend.matchmaking.feignclient.EloRankingClient;
+import csd.backend.matchmaking.repository.ClanAvailabilityRepository;
 import csd.backend.matchmaking.repository.GameRepository;
 import csd.backend.matchmaking.repository.PlayerAvailabilityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +17,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static csd.backend.matchmaking.entity.Game.GameMode.BATTLE_ROYALE;
 
 @Service
 public class MatchmakingService {
@@ -19,23 +30,50 @@ public class MatchmakingService {
     private PlayerAvailabilityRepository playerAvailabilityRepository;
 
     @Autowired
+    private ClanAvailabilityRepository clanAvailabilityRepository;
+
+    @Autowired
     private GameService gameService;
 
     @Autowired
     private GameRepository gameRepository;
 
+    @Autowired
+    private EloRankingClient eloRankingClient;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private static final int MIN_PLAYERS_PER_GAME = 3;
     private static final int MAX_PLAYERS_PER_GAME = 20;
 
-    public List<Game> scheduleGames(long tournamentId, Game.GameMode gameMode) throws Exception {
-        List<Game> games = gameService.getGamesByTournament(tournamentId);
-
-        if (!games.isEmpty()) {
-            System.out.printf("Games already scheduled for tournament %s%n", tournamentId);
-            return games;
+    public List<Game> scheduleGames (long tournamentId, Game.GameMode gameMode) throws Exception {
+        switch (gameMode) {
+            case BATTLE_ROYALE: {
+                return scheduleBattleRoyaleGames(tournamentId);
+            }
+            case CLAN_WAR: {
+                return scheduleClanWarGames(tournamentId);
+            }
         }
+        throw new Exception("Invalid gameMode");
+    }
 
+    private List<Game> scheduleClanWarGames(long tournamentId) {
+        List<ClanAvailability> availabilities = clanAvailabilityRepository.findClanAvailabilitiesByTournamentId(tournamentId);
+        List<Long> clanIds = availabilities.stream().map(ClanAvailability::getClanId).toList();
+
+        Map<Long, EloRank> playerEloRankMap = getPlayerEloRankMap(clanIds, tournamentId);
+
+        return null;
+    }
+
+    public List<Game> scheduleBattleRoyaleGames(long tournamentId) throws Exception {
         List<PlayerAvailability> availabilities = playerAvailabilityRepository.findAllByTournamentIdAndIsAvailableTrueOrderByStartTime(tournamentId);
+        List<Long> playerIds = availabilities.stream().map(PlayerAvailability::getPlayerId).toList();
+
+        Map<Long, EloRank> playerEloRankMap = getPlayerEloRankMap(playerIds, tournamentId);
+
         if (availabilities.isEmpty()) {
             throw new Exception("No player availabilities found for tournament %s".formatted(tournamentId));
         }
@@ -49,9 +87,18 @@ public class MatchmakingService {
             OffsetDateTime endTime = availablePlayersSlot.get(0).getEndTime();
 
             if (availablePlayersSlot.size() >= MIN_PLAYERS_PER_GAME) {
-                Game game = createGame(tournamentId, startTime, endTime, gameMode, availablePlayersSlot);
-                if (game != null) {
-                    scheduledGames.add(game);
+                // Group players by rank
+                Map<String, List<PlayerAvailability>> rankedPlayersMap = groupPlayersByRank(availablePlayersSlot, playerEloRankMap);
+
+                // Create games for each rank group
+                for (List<PlayerAvailability> rankedPlayers : rankedPlayersMap.values()) {
+                    // Check if there are enough players in this rank group to create a game
+                    if (rankedPlayers.size() >= MIN_PLAYERS_PER_GAME) {
+                        Game game = createBattleRoyaleGame(tournamentId, startTime, endTime, rankedPlayers);
+                        if (game != null) {
+                            scheduledGames.add(game);
+                        }
+                    }
                 }
             }
         }
@@ -65,7 +112,21 @@ public class MatchmakingService {
                 .collect(Collectors.groupingBy(PlayerAvailability::getStartTime));
     }
 
-    public Game createGame(long tournamentId, OffsetDateTime startTime, OffsetDateTime endTime, Game.GameMode gameMode, List<PlayerAvailability> availablePlayers) {
+    private Map<String, List<PlayerAvailability>> groupPlayersByRank(List<PlayerAvailability> availablePlayers, Map<Long, EloRank> eloRankMap) {
+        Map<String, List<PlayerAvailability>> rankedPlayersMap = new HashMap<>();
+
+        // Group players by their rank
+        for (PlayerAvailability availability : availablePlayers) {
+            Long playerId = availability.getPlayerId();
+            String rank = String.valueOf(eloRankMap.get(playerId).getRankThreshold().getRank()); // Get the player's rank
+
+            rankedPlayersMap.computeIfAbsent(rank, k -> new ArrayList<>()).add(availability);
+        }
+
+        return rankedPlayersMap; // Returns a map where the key is the rank and the value is a list of players in that rank
+    }
+
+    public Game createBattleRoyaleGame(long tournamentId, OffsetDateTime startTime, OffsetDateTime endTime, List<PlayerAvailability> availablePlayers) {
         List<Long> playerIds = availablePlayers.stream()
                 .filter(pa -> pa.getStartTime().isEqual(startTime))
                 .map(PlayerAvailability::getPlayerId)
@@ -74,12 +135,46 @@ public class MatchmakingService {
                 .collect(Collectors.toList());
 
         if (playerIds.size() >= MIN_PLAYERS_PER_GAME) {
-            return gameService.createGame(tournamentId, playerIds, startTime, endTime, gameMode, Game.GameStatus.SCHEDULED);
+            return gameService.createBattleRoyaleGame(tournamentId, playerIds, startTime, endTime, Game.GameStatus.SCHEDULED);
+        }
+        return null;
+    }
+
+    public Game createClanWarGame(long tournamentId, OffsetDateTime startTime, OffsetDateTime endTime, List<PlayerAvailability> availablePlayers) {
+        List<Long> playerIds = availablePlayers.stream()
+                .filter(pa -> pa.getStartTime().isEqual(startTime))
+                .map(PlayerAvailability::getPlayerId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (playerIds.size() == 2) {
+            return gameService.createClanWarGame(tournamentId, playerIds, startTime, endTime, Game.GameStatus.SCHEDULED);
         }
         return null;
     }
 
     public boolean isTournamentAlreadyScheduled(long tournamentId) {
         return gameRepository.existsByTournamentId(tournamentId);
+    }
+
+    public Map<Long, EloRank> getPlayerEloRankMap(List<Long> playerIds, Long tournamentId) {
+        Request.GetSelectedPlayerEloRanks request = new Request.GetSelectedPlayerEloRanks();
+        request.setPlayerIds(playerIds);
+        request.setTournamentId(tournamentId);
+
+        Map<String, Object> res = eloRankingClient.getSelectedPlayerEloRanks(request);
+        Object obj = res.get("playerEloRanks");
+        List<PlayerEloRank> playerEloRanks = objectMapper.convertValue(
+                obj,
+                new TypeReference<>() {
+                }
+        );
+
+        // Create a map of player ID to Elo Rank for quick access
+        Map<Long, EloRank> eloRankMap = new HashMap<>();
+        for (PlayerEloRank eloRank : playerEloRanks) {
+            eloRankMap.put(eloRank.getPlayerId(), eloRank);
+        }
+        return eloRankMap;
     }
 }
