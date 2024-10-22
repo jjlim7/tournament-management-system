@@ -1,13 +1,15 @@
 package com.example.tournamentservice.entity;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
-@Data
 @NoArgsConstructor
 @Entity
+@Data
 @Table(name = "games")
 public class Game {
 
