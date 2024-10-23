@@ -20,4 +20,16 @@ public class Request {
     String endTime;
     boolean isAvailable;
   }
+
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class CreateClanAvailabilityDto {
+
+    long clanId;
+    long tournamentId;
+    String startTime;
+    String endTime;
+    boolean isAvailable;
+  }
 }
