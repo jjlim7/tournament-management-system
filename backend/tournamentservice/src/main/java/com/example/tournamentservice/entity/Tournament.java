@@ -21,8 +21,8 @@ import java.util.List;
 public class Tournament {
 
 	public enum GameMode {
-		Royale,
-		ClanWar,
+		BATTLE_ROYALE,
+		CLAN_WAR,
 	}
 
 	public enum Status {
