@@ -43,8 +43,8 @@ public class MatchmakingController {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @PostMapping("/schedule-games")
-    public ResponseEntity<String> scheduleGames(@RequestParam long tournamentId) {
+    @PostMapping("/scheduleGames")
+    public ResponseEntity<String> scheduleGames(@RequestParam long tournamentId, @RequestParam String gameMode) {
         if (matchmakingService.isTournamentAlreadyScheduled(tournamentId)) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("The tournament has already been scheduled.");
@@ -57,7 +57,7 @@ public class MatchmakingController {
 
         List<Game> scheduledGames = null;
         try {
-            scheduledGames = matchmakingService.scheduleGames(tournamentId, Game.GameMode.BATTLE_ROYALE);
+            scheduledGames = matchmakingService.scheduleGames(tournamentId, gameMode);
             if (scheduledGames.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("Failed to schedule games for tournament " + tournamentId);
@@ -67,7 +67,7 @@ public class MatchmakingController {
                     .body("Internal Server Error. Failed to schedule games for tournament " + tournamentId);
         }
 
-        return new ResponseEntity<>("Games scheduled for tournament " + tournamentId, HttpStatus.CREATED);
+        return new ResponseEntity<>("Games scheduled for tournament " + tournamentId, HttpStatus.OK);
     }
 
     @GetMapping("/getPlayerGameScore")
