@@ -40,3 +40,9 @@ endpoints:
           method: GET
           access:
             - ADMIN
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: DEBUG
+    com.example.gateway: DEBUG
