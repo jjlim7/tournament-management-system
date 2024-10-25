@@ -1,0 +1,42 @@
+endpoints:
+  securedEndpoints:
+    - host: localhost:8000
+      paths:
+        - path: /api/userclan/
+          method: GET
+          access:
+            - USER
+            - ADMIN
+
+        - path: /api/userclan/
+          method: POST
+          access:
+            - USER
+            - ADMIN
+
+    - host: localhost:8001
+      paths:
+        - path: /api/matching/
+          method: GET
+          access:
+            - USER
+            - ADMIN
+
+        - path: /api/matching/
+          method: POST
+          access:
+            - ADMIN
+
+    - host: localhost:8002
+      paths:
+        - path: /api/tournament/
+          method: GET
+          access:
+            - TOURNAMENT_MANAGER
+
+    - host: localhost:8003
+      paths:
+        - path: /api/elorank/
+          method: GET
+          access:
+            - ADMIN
