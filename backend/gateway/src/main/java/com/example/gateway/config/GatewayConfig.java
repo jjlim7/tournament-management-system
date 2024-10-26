@@ -32,50 +32,58 @@ public class GatewayConfig {
     @Value("${ms.elo-ranking-service.root}")
     private String msEloRankRoot;
 
-    @Value("{ms.tournament-service.root}")
-    private String msTournamentRoot;
+    @Value("${ms.matchmaking-service.root}")
+    private String msMatchmakingRoot;
 
-    @Value("{ms.user-service.root}")
+    @Value("${ms.user-service.root}")
     private String msUserRoot;
 
-    @Value("{ms.matchmaking-service.root}")
-    private String msMatchmakingRoot;
+    @Value("${ms.tournament-service.root}")
+    private String msTournamentRoot;
 
     @Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder routeLocatorBuilder) {
         logger.info("Initializing Gateway Routes with ELO Rank Root: {}", msEloRankRoot);
 
         RouteLocator routeLocator = routeLocatorBuilder.routes()
+                // ELO Ranking Service Route
                 .route(ConfigurationConstants.ER_SERVICE_ID, r -> r
-                        .path(
-                                "/api/elo-ranking/**",
-                                "/api/game-score/**",
-                                "/api/simulate/**",
-                                "/api/rank/**"  // Multiple paths
+                        .path("/elo-ranking/api/**")  // Incoming prefixed path
+                        .filters(f -> f
+                                .filter(jwtAuthenticationFilter)
+                                .rewritePath("/elo-ranking/api/(?<segment>.*)", "/api/${segment}")  // Rewrite path
                         )
-                        .filters(f -> f.filter(jwtAuthenticationFilter))  // Apply JWT filter
                         .uri(msEloRankRoot)  // Forward to ELO service
                 )
+
+                // Matchmaking Service Route
                 .route(ConfigurationConstants.MM_SERVICE_ID, r -> r
-                        .path(
-                                "" // add matchmaking paths
+                        .path("/matchmaking/api/**")  // Incoming prefixed path
+                        .filters(f -> f
+                                .filter(jwtAuthenticationFilter)
+                                .rewritePath("/matchmaking/api/(?<segment>.*)", "/api/${segment}")
                         )
-                        .filters(f -> f.filter(jwtAuthenticationFilter))
-                        .uri(msMatchmakingRoot)
+                        .uri(msMatchmakingRoot)  // Forward to Matchmaking service
                 )
+
+                // Tournament Service Route
                 .route(ConfigurationConstants.T_SERVICE_ID, r -> r
-                        .path(
-                                "" // add tournament paths
+                        .path("/tournament/api/**")  // Incoming prefixed path
+                        .filters(f -> f
+                                .filter(jwtAuthenticationFilter)
+                                .rewritePath("/tournament/api/(?<segment>.*)", "/api/${segment}")
                         )
-                        .filters(f -> f.filter(jwtAuthenticationFilter))
-                        .uri(msTournamentRoot)
+                        .uri(msTournamentRoot)  // Forward to Tournament service
                 )
+
+                // User Service Route
                 .route(ConfigurationConstants.U_SERVICE_ID, r -> r
-                        .path(
-                                "" // add user paths
+                        .path("/userclan/api/**")  // Incoming prefixed path
+                        .filters(f -> f
+                                .filter(jwtAuthenticationFilter)
+                                .rewritePath("/userclan/api/(?<segment>.*)", "/${segment}")
                         )
-                        .filters(f -> f.filter(jwtAuthenticationFilter))
-                        .uri(msUserRoot)
+                        .uri(msUserRoot)  // Forward to User service
                 )
                 .build();
 

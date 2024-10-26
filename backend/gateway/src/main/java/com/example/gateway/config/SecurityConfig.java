@@ -15,9 +15,14 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)  // Disable CSRF for the gateway
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/api/**").permitAll()  // Allow access to /api/** paths
+                        .pathMatchers(
+                                "/elo-ranking/api/**",
+                                "/matchmaking/api/**",
+                                "/tournament/api/**",
+                                "/userclan/api/**"  // Allow access without authentication
+                        ).permitAll()
                         .anyExchange().authenticated()  // Authenticate all other paths
                 )
-                .build();  // No need to disable httpBasic() explicitly
+                .build();
     }
 }
