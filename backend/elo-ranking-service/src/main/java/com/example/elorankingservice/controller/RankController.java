@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/rank")
+@RequestMapping("/api/elo-rankning/rank")
 public class RankController {
     private final RankService rankService;
 

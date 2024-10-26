@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/simulate")
+@RequestMapping("/api/elo-ranking/simulate")
 public class SimulationController {
     private final GameSimulator simulator;
     private final GameScoreService gameScoreService;
