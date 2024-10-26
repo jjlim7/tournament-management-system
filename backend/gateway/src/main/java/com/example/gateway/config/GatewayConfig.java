@@ -29,17 +29,53 @@ public class GatewayConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Value("${ms.elo-ranking.root}")
+    @Value("${ms.elo-ranking-service.root}")
     private String msEloRankRoot;
+
+    @Value("{ms.tournament-service.root}")
+    private String msTournamentRoot;
+
+    @Value("{ms.user-service.root}")
+    private String msUserRoot;
+
+    @Value("{ms.matchmaking-service.root}")
+    private String msMatchmakingRoot;
 
     @Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder routeLocatorBuilder) {
         logger.info("Initializing Gateway Routes with ELO Rank Root: {}", msEloRankRoot);
 
         RouteLocator routeLocator = routeLocatorBuilder.routes()
-                .route(
-                        ConfigurationConstants.ER_SERVICE_ID,
-                        getRoute(ConfigurationConstants.ER_SERVICE_ROOT, msEloRankRoot)
+                .route(ConfigurationConstants.ER_SERVICE_ID, r -> r
+                        .path(
+                                "/api/elo-ranking/**",
+                                "/api/game-score/**",
+                                "/api/simulate/**",
+                                "/api/rank/**"  // Multiple paths
+                        )
+                        .filters(f -> f.filter(jwtAuthenticationFilter))  // Apply JWT filter
+                        .uri(msEloRankRoot)  // Forward to ELO service
+                )
+                .route(ConfigurationConstants.MM_SERVICE_ID, r -> r
+                        .path(
+                                "" // add matchmaking paths
+                        )
+                        .filters(f -> f.filter(jwtAuthenticationFilter))
+                        .uri(msMatchmakingRoot)
+                )
+                .route(ConfigurationConstants.T_SERVICE_ID, r -> r
+                        .path(
+                                "" // add tournament paths
+                        )
+                        .filters(f -> f.filter(jwtAuthenticationFilter))
+                        .uri(msTournamentRoot)
+                )
+                .route(ConfigurationConstants.U_SERVICE_ID, r -> r
+                        .path(
+                                "" // add user paths
+                        )
+                        .filters(f -> f.filter(jwtAuthenticationFilter))
+                        .uri(msUserRoot)
                 )
                 .build();
 
