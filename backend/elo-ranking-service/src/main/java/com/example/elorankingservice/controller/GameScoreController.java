@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/elo-ranking/game-score")
+@RequestMapping("/api/game-score")
 public class GameScoreController {
 
     private final GameScoreService gameScoreService;
