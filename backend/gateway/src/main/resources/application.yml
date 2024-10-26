@@ -1,48 +1,27 @@
-endpoints:
-  securedEndpoints:
-    - host: localhost:8000
-      paths:
-        - path: /api/userclan/
-          method: GET
-          access:
-            - USER
-            - ADMIN
+server:
+  port: 8080
+  servlet:
+    application-display-name: gateway
+spring:
+  application:
+    name: gateway
+  security:
+    basic:
+      enabled: false
+  cloud:
+    gateway:
+      routes:
+        - id: elo-ranking-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/elo-ranking/**
 
-        - path: /api/userclan/
-          method: POST
-          access:
-            - USER
-            - ADMIN
-
-    - host: localhost:8001
-      paths:
-        - path: /api/matching/
-          method: GET
-          access:
-            - USER
-            - ADMIN
-
-        - path: /api/matching/
-          method: POST
-          access:
-            - ADMIN
-
-    - host: localhost:8002
-      paths:
-        - path: /api/tournament/
-          method: GET
-          access:
-            - TOURNAMENT_MANAGER
-
-    - host: localhost:8003
-      paths:
-        - path: /api/elorank/
-          method: GET
-          access:
-            - ADMIN
+ms:
+  elo-ranking:
+    root: http://localhost:8082
 
 logging:
   level:
+    root: INFO
     org.springframework.cloud.gateway: DEBUG
-    org.springframework.security: DEBUG
     com.example.gateway: DEBUG

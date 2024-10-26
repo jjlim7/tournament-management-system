@@ -1,50 +1,76 @@
 package com.example.gateway.filter;
 
+import com.example.gateway.config.GatewayConfig;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.core.Ordered;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.Optional;
-
+@Slf4j
 @Component
-public class JwtAuthenticationFilter implements GatewayFilter {
-
+@RequiredArgsConstructor
+public class JwtAuthenticationFilter implements GatewayFilter, Ordered {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
+//    @Value("${security.auth.url}")
+//    private String authServiceBase;
+//
+//    @Value("${security.auth.introspect-api}")
+//    private String authServiceIntrospect;
+
+//    @Override
+//    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+//        ServerHttpRequest request = exchange.getRequest();
+//
+//
+//        WebClient webClient = WebClient.builder().baseUrl(authServiceBase).build();
+//
+//        return webClient
+//                .get()
+//                .uri(authServiceIntrospect)
+//                .retrieve()
+//                .bodyToMono(Boolean.class)
+//                .flatMap(
+//                        credentials -> {
+//                            log.info("Starting authentication, ACCESS: {}", credentials);
+//                            return chain.filter(exchange);
+//                        })
+//                .onErrorResume(
+//                        ex -> onError(exchange, "Failed to authenticate token.", HttpStatus.UNAUTHORIZED));
+//    }
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        // Log the incoming request
         ServerHttpRequest request = exchange.getRequest();
-        logger.info("Request received at gateway: {}", request.getURI());
+        logger.info("Request received: {}", request.getURI());
 
-        // Extract JWT token from Authorization header
-        Optional<String> tokenOptional = extractToken(request);
-        if (tokenOptional.isEmpty()) {
-            logger.warn("Missing or invalid Authorization header");
-            return onError(exchange, "Missing or invalid Authorization header");
-        }
-
-        logger.info("JWT Token found: {}", tokenOptional.get());
-
-        // Proceed with the filter chain
+        // Bypass authentication and directly proceed to the next filter or target service
         return chain.filter(exchange);
     }
 
-    private Optional<String> extractToken(ServerHttpRequest request) {
-        String authorizationHeader = request.getHeaders().getFirst("Authorization");
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            return Optional.of(authorizationHeader.substring(7));
-        }
-        return Optional.empty();
+    private Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus httpStatus) {
+        logger.error("ERROR ON CALL: {}", err);
+        exchange.getResponse().setStatusCode(httpStatus);
+        exchange.getResponse().getHeaders().set(HttpHeaders.CONTENT_TYPE, "text/plain");
+        return exchange
+                .getResponse()
+                .writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap(err.getBytes())));
     }
 
-    private Mono<Void> onError(ServerWebExchange exchange, String message) {
-        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-        return exchange.getResponse().setComplete();
+
+    @Override
+    public int getOrder() {
+        return -1;
     }
 }
