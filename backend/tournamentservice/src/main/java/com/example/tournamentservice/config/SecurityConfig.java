@@ -17,16 +17,16 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests((authz) -> authz
                 .requestMatchers("/error").permitAll() // Default error page
-                // Open access to GET requests for retrieving tournaments
+                //Open access to GET requests for retrieving tournaments
                 .requestMatchers(HttpMethod.GET, "/tournaments", "/tournaments/**").permitAll()
                 .requestMatchers("/api/tournaments/swagger-ui.html", "/api/tournaments/v3/api-docs/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll() // Allow Swagger access
-                // Admin-only access for creating or modifying tournaments
+                //Admin-only access for creating or modifying tournaments
                 .requestMatchers(HttpMethod.POST, "/tournaments").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/tournaments").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/tournaments").hasRole("ADMIN")
                 .anyRequest().permitAll() // Allow all other requests
             )
-            // Stateless REST API: no session creation
+            //Stateless REST API: no session creation
             .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .csrf(csrf -> csrf.disable()) // Disable CSRF for API
             .formLogin(form -> form.disable()) // Disable form login
