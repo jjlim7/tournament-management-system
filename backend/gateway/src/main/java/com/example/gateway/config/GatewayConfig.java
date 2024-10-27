@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -13,6 +14,7 @@ import org.springframework.cloud.gateway.route.builder.Buildable;
 import org.springframework.cloud.gateway.route.builder.PredicateSpec;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.cloud.gateway.route.builder.GatewayFilterSpec;
 import java.util.function.Function;
@@ -21,14 +23,16 @@ import reactor.core.publisher.Flux;
 import static com.example.gateway.config.constant.ConfigurationConstants.API_V1;
 
 @Slf4j
-@RequiredArgsConstructor
 @Configuration
 public class GatewayConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(GatewayConfig.class);
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
+    @Autowired
+    public GatewayConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
     @Value("${ms.elo-ranking-service.root}")
     private String msEloRankRoot;
 
