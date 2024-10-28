@@ -17,7 +17,7 @@ export const useUserStore = defineStore('user', {
       clanRole: "Admin",
       role: "Member"
     },
-    isAuthenticated: false,
+    isAuthenticated: true,
   }),
   actions: {
     setUser(userData) {
