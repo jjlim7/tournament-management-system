@@ -17,7 +17,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.cloud.gateway.route.builder.GatewayFilterSpec;
+
+import java.util.List;
 import java.util.function.Function;
+
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import reactor.core.publisher.Flux;
 
 import static com.example.gateway.config.constant.ConfigurationConstants.API_V1;
@@ -105,6 +111,25 @@ public class GatewayConfig {
 
 
         return routeLocator;
+    }
+    /**
+     * Configure CORS to allow requests from any origin with specific methods and headers.
+     */
+    @Bean
+    public CorsWebFilter corsWebFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        // Allow requests from any origin
+        config.setAllowedOrigins(List.of("*"));
+        // Allow specific HTTP methods
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // Allow all headers
+        config.setAllowedHeaders(List.of("*"));
+        // Allow credentials if needed
+        config.setAllowCredentials(true);
+        // Register the CORS configuration for all paths
+        source.registerCorsConfiguration("/**", config);
+        return new CorsWebFilter(source);
     }
 
     private Function<PredicateSpec, Buildable<Route>> getRoute(String root, String uri) {
