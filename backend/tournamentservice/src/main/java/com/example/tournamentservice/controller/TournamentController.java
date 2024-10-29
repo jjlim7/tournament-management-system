@@ -2,6 +2,7 @@ package com.example.tournamentservice.controller;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,8 +18,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.tournamentservice.DTO.ClanEloRankDTO;
+import com.example.tournamentservice.DTO.PlayerEloRankDTO;
 import com.example.tournamentservice.entity.Tournament;
 import com.example.tournamentservice.exception.TournamentsNotFoundException;
+import com.example.tournamentservice.service.EloRankingFeignClient;
 import com.example.tournamentservice.service.TournamentService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,6 +37,9 @@ public class TournamentController {
 
     @Autowired
     private TournamentService tournamentService;
+    
+    @Autowired
+    private EloRankingFeignClient eloRankingFeignClient;
 
     @Operation(summary = "Create a tournament", description = "Create a new tournament")
     @ApiResponses(value = {
@@ -181,4 +188,70 @@ public class TournamentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }
+
+    @GetMapping("/clan/{clanId}/tournament/{tournamentId}")
+    public ResponseEntity<Optional<ClanEloRankDTO>> getClanEloRank(
+            @PathVariable Long clanId,
+            @PathVariable Long tournamentId
+    ) {
+        Optional<ClanEloRankDTO> clanEloRank = eloRankingFeignClient.getClanEloRank(clanId, tournamentId);
+        return ResponseEntity.ok(clanEloRank);
+    }
+
+    @GetMapping("/player/{playerId}/tournament/{tournamentId}")
+    public ResponseEntity<Optional<PlayerEloRankDTO>> getPlayerEloRank(
+            @PathVariable Long playerId,
+            @PathVariable Long tournamentId
+    ) {
+        Optional<PlayerEloRankDTO> playerEloRank = eloRankingFeignClient.getPlayerEloRank(playerId, tournamentId);
+        return ResponseEntity.ok(playerEloRank);
+    }
+
+    @GetMapping("/clan/tournament/{tournamentId}")
+    public ResponseEntity<List<ClanEloRankDTO>> getClanEloRanksByTournament(
+            @PathVariable Long tournamentId
+    ) {
+        List<ClanEloRankDTO> clanEloRanks = eloRankingFeignClient.getClanEloRanksByTournament(tournamentId);
+        return ResponseEntity.ok(clanEloRanks);
+    }
+
+    @GetMapping("/player/tournament/{tournamentId}")
+    public ResponseEntity<List<PlayerEloRankDTO>> getAllPlayerEloRanksByTournament(
+            @PathVariable Long tournamentId
+    ) {
+        List<PlayerEloRankDTO> playerEloRanks = eloRankingFeignClient.getAllPlayerEloRanksByTournament(tournamentId);
+        return ResponseEntity.ok(playerEloRanks);
+    }
+
+    @GetMapping("/player/tournament/{tournamentId}/selected")
+    public ResponseEntity<List<PlayerEloRankDTO>> getSelectedPlayerEloRanksByTournament(
+            @PathVariable Long tournamentId,
+            @RequestParam List<Long> playerIds
+    ) {
+        List<PlayerEloRankDTO> selectedPlayerEloRanks = eloRankingFeignClient.getSelectedPlayerEloRanksByTournament(tournamentId, playerIds);
+        return ResponseEntity.ok(selectedPlayerEloRanks);
+    }
+
+    @GetMapping("/player/tournament/{tournamentId}/rating-range")
+    public ResponseEntity<List<PlayerEloRankDTO>> getPlayerEloRanksByRatingRange(
+            @PathVariable Long tournamentId,
+            @RequestParam double minRating,
+            @RequestParam double maxRating
+    ) {
+        List<PlayerEloRankDTO> playerEloRanks = eloRankingFeignClient.getPlayerEloRanksByRatingRange(tournamentId, minRating, maxRating);
+        return ResponseEntity.ok(playerEloRanks);
+    }
+
+    @GetMapping("/clan/tournament/{tournamentId}/rating-range")
+    public ResponseEntity<List<ClanEloRankDTO>> getClanEloRanksByRatingRange(
+            @PathVariable Long tournamentId,
+            @RequestParam double minRating,
+            @RequestParam double maxRating
+    ) {
+        List<ClanEloRankDTO> clanEloRanks = eloRankingFeignClient.getClanEloRanksByRatingRange(tournamentId, minRating, maxRating);
+        return ResponseEntity.ok(clanEloRanks);
+    }
+
+
+
 }

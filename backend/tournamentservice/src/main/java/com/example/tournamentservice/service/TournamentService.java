@@ -3,11 +3,13 @@ package com.example.tournamentservice.service;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import com.example.tournamentservice.DTO.UserDTO;
+import com.example.tournamentservice.DTO.ClanEloRankDTO;
+import com.example.tournamentservice.DTO.PlayerEloRankDTO;
 import com.example.tournamentservice.entity.Tournament;
 import com.example.tournamentservice.entity.Tournament.GameMode;
 import com.example.tournamentservice.entity.Tournament.Status;
@@ -21,18 +23,11 @@ public class TournamentService {
     private TournamentRepository tournamentRepository;
 
     @Autowired
-    private MatchmakingServiceClient matchmakingClient;
+    private EloRankingFeignClient eloRankingFeignClient;
 
-    @Autowired
-    private UserServiceClient userServiceClient;
+    //@Autowired
+    //private MatchmakingServiceClient matchmakingClient;
 
-    public String getMatchmakingDetails(Long tournamentId) {
-        return matchmakingClient.getMatchmakingInfo(tournamentId);
-    }
-
-    public UserDTO getUserDetails(Long userId) {
-        return userServiceClient.getUserById(userId);
-    }
 
 
     public Tournament createTournament(Tournament tournament) {
@@ -187,4 +182,36 @@ public class TournamentService {
             throw new IllegalArgumentException("Player capacity must be greater than zero");
         }
     }
+
+
+    //Feign Client for EloRanking
+    public Optional<ClanEloRankDTO> getClanEloRank(Long clanId, Long tournamentId) {
+        return eloRankingFeignClient.getClanEloRank(clanId, tournamentId);
+    }
+
+    public Optional<PlayerEloRankDTO> getPlayerEloRank(Long playerId, Long tournamentId) {
+        return eloRankingFeignClient.getPlayerEloRank(playerId, tournamentId);
+    }
+
+    public List<ClanEloRankDTO> getClanEloRanksByTournament(Long tournamentId) {
+        return eloRankingFeignClient.getClanEloRanksByTournament(tournamentId);
+    }
+
+    public List<PlayerEloRankDTO> getAllPlayerEloRanksByTournament(Long tournamentId) {
+        return eloRankingFeignClient.getAllPlayerEloRanksByTournament(tournamentId);
+    }
+
+    public List<PlayerEloRankDTO> getSelectedPlayerEloRanksByTournament(List<Long> playerIds, Long tournamentId) {
+        return eloRankingFeignClient.getSelectedPlayerEloRanksByTournament(tournamentId, playerIds);
+    }
+
+    public List<PlayerEloRankDTO> getPlayerEloRanksByRatingRange(Long tournamentId, double minRating, double maxRating) {
+        return eloRankingFeignClient.getPlayerEloRanksByRatingRange(tournamentId, minRating, maxRating);
+    }
+
+    public List<ClanEloRankDTO> getClanEloRanksByRatingRange(Long tournamentId, double minRating, double maxRating) {
+        return eloRankingFeignClient.getClanEloRanksByRatingRange(tournamentId, minRating, maxRating);
+    }
+
+
 }

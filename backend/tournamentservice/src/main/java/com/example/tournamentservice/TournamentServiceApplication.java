@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication(scanBasePackages = "com.example.tournamentservice")
-@EnableFeignClients
+@EnableFeignClients(basePackages = "com.example.tournamentservice")
 @EnableTransactionManagement
 public class TournamentServiceApplication {
 

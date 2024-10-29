@@ -1,44 +1,4 @@
-package com.example.tournamentservice.service;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import com.example.tournamentservice.DTO.UserDTO;
-
-class TournamentServiceTest {
-
-    @Mock
-    private UserServiceClient userServiceClient;
-
-    @InjectMocks
-    private TournamentService tournamentService;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
-
-    @Test
-    void testGetUserDetails() {
-        Long userId = 1L;
-        UserDTO mockUser = new UserDTO();
-        mockUser.setId(userId);
-        mockUser.setUsername("testuser");
-        // Set other fields as necessary
-
-        when(userServiceClient.getUserById(userId)).thenReturn(mockUser);
-
-        UserDTO user = tournamentService.getUserDetails(userId);
-
-        assertEquals("testuser", user.getUsername());
-        // Add more assertions to verify other fields if needed
-    }
-}
 // package com.example.tournamentservice.service;
 
 // import static org.junit.jupiter.api.Assertions.*;
