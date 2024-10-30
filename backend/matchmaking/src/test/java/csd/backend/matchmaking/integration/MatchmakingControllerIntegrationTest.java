@@ -71,7 +71,7 @@ class MatchmakingControllerIntegrationTest {
         tournament.setStartDate(OffsetDateTime.now().plusDays(1));  // Start in 1 day
         tournament.setEndDate(OffsetDateTime.now().plusDays(10));   // Ends in 10 days
         tournament.setPlayerCapacity(100);
-        tournament.setStatus(Tournament.Status.Active);
+        tournament.setStatus(Tournament.Status.ACTIVE);
         tournament.setGameMode(Tournament.GameMode.BATTLE_ROYALE);
         tournament.setAdminId(123L);  // Example admin ID
         tournament.setPlayerIds(List.of(1L, 2L, 3L, 4L));
@@ -84,7 +84,7 @@ class MatchmakingControllerIntegrationTest {
         tournament2.setStartDate(OffsetDateTime.now().plusDays(1));  // Start in 1 day
         tournament2.setEndDate(OffsetDateTime.now().plusDays(10));   // Ends in 10 days
         tournament2.setPlayerCapacity(100);
-        tournament2.setStatus(Tournament.Status.Active);
+        tournament2.setStatus(Tournament.Status.ACTIVE);
         tournament2.setGameMode(Tournament.GameMode.CLAN_WAR);
         tournament2.setAdminId(123L);  // Example admin ID
         tournament2.setPlayerIds(List.of(1L, 2L, 3L, 4L));

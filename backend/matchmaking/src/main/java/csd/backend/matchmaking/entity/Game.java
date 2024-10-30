@@ -19,7 +19,8 @@ import java.util.Objects;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "game", uniqueConstraints={@UniqueConstraint(columnNames={"tournament_id", "start_time"})})
+//@Table(name = "game", uniqueConstraints={@UniqueConstraint(columnNames={"tournament_id", "start_time"})})
+@Table(name = "game")
 public class Game {
 
   @Id

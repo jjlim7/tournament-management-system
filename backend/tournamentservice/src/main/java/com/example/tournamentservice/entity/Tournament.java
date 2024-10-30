@@ -26,11 +26,11 @@ public class Tournament {
 	}
 
 	public enum Status {
-		Inactive,
-		Rescheduled,
-		Cancelled,
-		Active,
-		Ended,
+		INACTIVE,
+		SCHEDULED,
+		ACTIVE,
+		CANCELLED,
+		ENDED,
 	}
 
 	@Id

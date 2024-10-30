@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -96,9 +97,7 @@ public class TournamentService {
     private void updateTournamentStatus(Tournament tournament) {
         OffsetDateTime now = OffsetDateTime.now();
         if (tournament.getStartDate().isBefore(now)) {
-            tournament.setStatus(Tournament.Status.Active);
-        } else {
-            tournament.setStatus(Tournament.Status.Rescheduled);
+            tournament.setStatus(Tournament.Status.ACTIVE);
         }
     }
 
@@ -139,6 +138,26 @@ public class TournamentService {
         tournamentRepository.save(tournament);
 
         return "Player left the tournament successfully";
+    }
+
+    public List<Tournament> findUpcomingTournaments() {
+        return tournamentRepository.findUpcomingTournaments();
+    }
+
+    public boolean updateTournamentStatus(Long tournamentId, Tournament.Status newStatus) {
+        OffsetDateTime now = OffsetDateTime.now();
+        return tournamentRepository.findById(tournamentId)
+                .map(tournament -> {
+                    // Add transition validation logic here
+                    if (tournament.getStartDate().isBefore(now)) {
+                        tournament.setStatus(newStatus);
+                        tournamentRepository.save(tournament);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                })
+                .orElse(false);
     }
 
     //Need to do a logic for leavingTournament

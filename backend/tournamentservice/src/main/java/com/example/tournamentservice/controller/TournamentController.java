@@ -14,6 +14,8 @@ import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.springframework.web.bind.annotation.*;
 
@@ -137,5 +139,26 @@ public class TournamentController{
         }
     }
 
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<Tournament>> getUpcomingTournaments() {
+        List<Tournament> upcomingTournaments = tournamentService.findUpcomingTournaments();
+        return new ResponseEntity<>(upcomingTournaments, HttpStatus.OK);
+    }
 
+    @PutMapping("/{tournamentId}/status")
+    public ResponseEntity<Void> updateTournamentStatus(@PathVariable("tournamentId") Long tournamentId, @RequestParam("newStatus") String newStatus) {
+        // Convert the newStatus string to the Tournament.Status enum
+        try {
+            Tournament.Status statusEnum = Tournament.Status.valueOf(newStatus.toUpperCase());
+            boolean updated = tournamentService.updateTournamentStatus(tournamentId, statusEnum);
+            if (updated) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (IllegalArgumentException e) {
+            // Return BAD_REQUEST if the status is not valid
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 }

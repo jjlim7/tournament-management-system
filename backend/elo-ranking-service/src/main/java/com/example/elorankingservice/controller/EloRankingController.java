@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.PublicKey;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/elo-ranking")
@@ -31,8 +32,13 @@ public class EloRankingController {
             @PathVariable Long tournamentId) {
 
         return eloRankingService.retrievePlayerEloRank(playerId, tournamentId)
+                .or(() -> {
+                    // Create a new PlayerEloRank if it doesn't exist
+                    PlayerEloRank newEloRank = eloRankingService.createNewPlayerEloRanking(playerId, tournamentId);
+                    return Optional.of(newEloRank);
+                })
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
     @GetMapping("/clan/{clanId}/tournament/{tournamentId}")
@@ -41,6 +47,11 @@ public class EloRankingController {
             @PathVariable Long tournamentId) {
 
         return eloRankingService.retrieveClanEloRank(clanId, tournamentId)
+                .or(() -> {
+                    // Create a new ClanEloRank if it doesn't exist
+                    ClanEloRank newEloRank = eloRankingService.createNewClanEloRanking(clanId, tournamentId);
+                    return Optional.of(newEloRank);
+                })
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
