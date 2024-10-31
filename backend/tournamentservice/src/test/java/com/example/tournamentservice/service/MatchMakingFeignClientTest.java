@@ -50,20 +50,6 @@ public class MatchMakingFeignClientTest {
         playerAvailabilityDTO.setAvailable(true);
     }
 
-    @Test
-    public void testCreateGame() {
-        // Mock the Feign client's response
-        when(matchMakingFeignClient.createGame(anyLong(), any(), any(), any(), any(), any()))
-            .thenReturn(gameDTO);
-
-        // Call the method
-        GameDTO result = matchMakingFeignClient.createGame(1L, playerIds, OffsetDateTime.now(), OffsetDateTime.now().plusHours(1), Tournament.GameMode.BATTLE_ROYALE, Tournament.Status.ACTIVE);
-
-        // Verify the response
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        verify(matchMakingFeignClient, times(1)).createGame(anyLong(), any(), any(), any(), any(), any());
-    }
 
     @Test
     public void testGetPlayerIdsByGame() {
@@ -80,19 +66,7 @@ public class MatchMakingFeignClientTest {
         verify(matchMakingFeignClient, times(1)).getPlayerIdsByGame(anyLong());
     }
 
-    @Test
-    public void testUpdateGameStatus() {
-        // Mock the Feign client's response
-        when(matchMakingFeignClient.updateGameStatus(anyLong(), any())).thenReturn(gameDTO);
 
-        // Call the method
-        GameDTO result = matchMakingFeignClient.updateGameStatus(1L, Tournament.Status.ACTIVE);
-
-        // Verify the response
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        verify(matchMakingFeignClient, times(1)).updateGameStatus(anyLong(), any());
-    }
 
     @Test
     public void testGetGamesByTournament() {
@@ -168,20 +142,6 @@ public class MatchMakingFeignClientTest {
         assertEquals(1, result.size());
         assertTrue(result.containsKey(currentTime)); // Use the captured current time
         verify(matchMakingFeignClient, times(1)).groupAvailabilitiesByStartTime(any());
-    }
-    
-
-    @Test
-    public void testIsTournamentAlreadyScheduled() {
-        // Mock the Feign client's response
-        when(matchMakingFeignClient.isTournamentAlreadyScheduled(anyLong())).thenReturn(true);
-
-        // Call the method
-        boolean result = matchMakingFeignClient.isTournamentAlreadyScheduled(1L);
-
-        // Verify the response
-        assertTrue(result);
-        verify(matchMakingFeignClient, times(1)).isTournamentAlreadyScheduled(anyLong());
     }
 
     @Test

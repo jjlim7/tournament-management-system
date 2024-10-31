@@ -14,7 +14,7 @@ public class TournamentTestDataGenerator {
     private static final String CSV_FILE_PATH = "backend/tournamentservice/src/main/resources/seed_data/tournaments.csv";
     private static final String CSV_HEADER = "name,game_mode,status,start_date,end_date,player_capacity,admin_id,playlist,gamelist";
     private static final String[] GAME_MODES = {"BATTLE_ROYALE", "CLANWAR"};
-    private static final int NUMBER_OF_TOURNAMENTS = 20; // Number of tournaments to generate
+    private static final int NUMBER_OF_TOURNAMENTS = 50; // Number of tournaments to generate
     private static final int MAX_PLAYER_CAPACITY = 110;
     private static final int MIN_PLAYER_CAPACITY = 10;
     private static final int MAX_ADMIN_ID = 5;
@@ -23,6 +23,7 @@ public class TournamentTestDataGenerator {
     private static final int MIN_HOURS_OFFSET = 8; // Start no earlier than 8 AM
     private static final Random random = new Random();
 
+    
     public static void main(String[] args) {
         try {
             generateTournamentData();
