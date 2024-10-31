@@ -1,6 +1,7 @@
 package com.example.tournamentservice.entity;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CollectionTable;
@@ -19,8 +20,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-
 @Entity
 @Table(name = "tournaments")
 @Data
@@ -76,7 +75,7 @@ public class Tournament {
 	@ElementCollection
 	@CollectionTable(name = "tournament_games", joinColumns = @JoinColumn(name = "tournament_id"))
 	@Column(name = "game_id")
-	private List<Long> gameList;
+	private List<Long> gameList = new ArrayList<>();
 
 	@Column(name = "admin_id", nullable = false)
     private Long adminId;
@@ -84,7 +83,8 @@ public class Tournament {
 	@ElementCollection
     @CollectionTable(name = "tournament_players", joinColumns = @JoinColumn(name = "tournament_id"))
     @Column(name = "player_id")
-    private List<Long> playerIds;
+    private List<Long> playerIds = new ArrayList<>();
+
 
 }
 

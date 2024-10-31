@@ -2,6 +2,7 @@ package com.example.tournamentservice.controller;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +20,15 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.tournamentservice.DTO.ClanEloRankDTO;
+import com.example.tournamentservice.DTO.EntityResponseDTO;
+import com.example.tournamentservice.DTO.GameDTO;
+import com.example.tournamentservice.DTO.PlayerAvailabilityDTO;
 import com.example.tournamentservice.DTO.PlayerEloRankDTO;
+import com.example.tournamentservice.dataloader.TournamentDataLoader;
 import com.example.tournamentservice.entity.Tournament;
 import com.example.tournamentservice.exception.TournamentsNotFoundException;
 import com.example.tournamentservice.service.EloRankingFeignClient;
+import com.example.tournamentservice.service.MatchMakingFeignClient;
 import com.example.tournamentservice.service.TournamentService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,6 +39,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/tournaments")
 //@CrossOrigin(origins = "http://your-frontend-domain.com") //adjust accordingly
+
 public class TournamentController {
 
     @Autowired
@@ -41,7 +48,26 @@ public class TournamentController {
     @Autowired
     private EloRankingFeignClient eloRankingFeignClient;
 
-    @Operation(summary = "Create a tournament", description = "Create a new tournament")
+    @Autowired
+    private MatchMakingFeignClient matchMakingFeignClient;
+
+    @Autowired
+    private TournamentDataLoader tournamentDataLoader;
+    
+    @Operation(summary = "Creation of Bulk Data", description = "Seeding data",tags = {"Others"})
+    @PostMapping("/load-from-csv")
+    public String loadTournamentsFromCsv() {
+        try {
+            tournamentDataLoader.loadTournamentsFromCsv();
+            return "Tournament data loaded successfully!";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Failed to load tournament data: " + e.getMessage();
+        }
+    }
+    
+    //Operations for Tournaments
+    @Operation(summary = "Create a tournament", description = "Create a new tournament",tags = {"Tournament Basic Operations"})
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Tournament created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input provided"),
@@ -62,7 +88,7 @@ public class TournamentController {
         }
     }
 
-    @Operation(summary = "Get all tournaments", description = "Retrieve a list of all tournaments.")
+    @Operation(summary = "Get all tournaments", description = "Retrieve a list of all tournaments.",tags = {"Tournament Basic Operations"})
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved list of tournaments"),
         @ApiResponse(responseCode = "204", description = "No tournaments found")
@@ -73,7 +99,7 @@ public class TournamentController {
         return ResponseEntity.ok(tournaments);
     }
 
-    @Operation(summary = "Get tournament by ID", description = "Retrieve a tournament by its ID.")
+    @Operation(summary = "Get tournament by ID", description = "Retrieve a tournament by its ID.",tags = {"Tournament Filter Operations"})
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved tournament"),
         @ApiResponse(responseCode = "404", description = "Tournament not found with the given ID")
@@ -84,7 +110,7 @@ public class TournamentController {
         return ResponseEntity.ok(tournament);
     }
 
-    @Operation(summary = "Get tournament by name", description = "Retrieve a tournament by its name.")
+    @Operation(summary = "Get tournament by name", description = "Retrieve a tournament by its name.",tags = {"Tournament Filter Operations"})
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved tournament"),
         @ApiResponse(responseCode = "404", description = "Tournament not found with the given name")
@@ -95,7 +121,7 @@ public class TournamentController {
         return ResponseEntity.ok(tournament);
     }
 
-    @Operation(summary = "Get tournaments by date range", description = "Retrieve tournaments within a specified date range.")
+    @Operation(summary = "Get tournaments by date range", description = "Retrieve tournaments within a specified date range.",tags = {"Tournament Filter Operations"})
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved list of tournaments"),
         @ApiResponse(responseCode = "404", description = "No tournaments found in the given date range")
@@ -108,7 +134,7 @@ public class TournamentController {
         return ResponseEntity.ok(tournaments);
     }
 
-    @Operation(summary = "Update a tournament", description = "Update a tournament by its ID")
+    @Operation(summary = "Update a tournament", description = "Update a tournament by its ID",tags = {"Tournament Basic Operations"})
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Tournament updated successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input provided"),
@@ -129,7 +155,7 @@ public class TournamentController {
         }
     }
 
-    @Operation(summary = "Delete a tournament", description = "Delete a tournament by its ID")
+    @Operation(summary = "Delete a tournament", description = "Delete a tournament by its ID",tags = {"Tournament Basic Operations"})
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Tournament deleted successfully"),
         @ApiResponse(responseCode = "404", description = "Tournament not found"),
@@ -149,7 +175,7 @@ public class TournamentController {
         }
     }
 
-    @Operation(summary = "Join a tournament", description = "Allow a player to join a tournament")
+    @Operation(summary = "Join a tournament", description = "Allow a player to join a tournament",tags = {"Tournament Basic Operations"})
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Player joined tournament successfully"),
         @ApiResponse(responseCode = "404", description = "Tournament not found"),
@@ -169,7 +195,7 @@ public class TournamentController {
         }
     }
 
-    @Operation(summary = "Leave a tournament", description = "Allows a player to leave a tournament.")
+    @Operation(summary = "Leave a tournament", description = "Allows a player to leave a tournament.",tags = {"Tournament Basic Operations"})
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Player left tournament successfully"),
         @ApiResponse(responseCode = "404", description = "Tournament not found"),
@@ -189,6 +215,13 @@ public class TournamentController {
         }
     }
 
+
+    @Operation(summary = "Get Clan Elo Rank", description = "Retrieve the Elo rank of a clan in a specified tournament.", tags = {"IPC - Elo Ranking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Clan Elo rank retrieved successfully"),
+        @ApiResponse(responseCode = "404", description = "Clan or Tournament not found"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while fetching the clan Elo rank")
+    })
     @GetMapping("/clan/{clanId}/tournament/{tournamentId}")
     public ResponseEntity<Optional<ClanEloRankDTO>> getClanEloRank(
             @PathVariable Long clanId,
@@ -198,6 +231,12 @@ public class TournamentController {
         return ResponseEntity.ok(clanEloRank);
     }
 
+    @Operation(summary = "Get Player Elo Rank", description = "Retrieve the Elo rank of a player in a specified tournament.", tags = {"IPC - Elo Ranking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Player Elo rank retrieved successfully"),
+        @ApiResponse(responseCode = "404", description = "Player or Tournament not found"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while fetching the player Elo rank")
+    })
     @GetMapping("/player/{playerId}/tournament/{tournamentId}")
     public ResponseEntity<Optional<PlayerEloRankDTO>> getPlayerEloRank(
             @PathVariable Long playerId,
@@ -207,6 +246,12 @@ public class TournamentController {
         return ResponseEntity.ok(playerEloRank);
     }
 
+    @Operation(summary = "Get Clan Elo Ranks by Tournament", description = "Retrieve all clan Elo ranks for a specified tournament.", tags = {"IPC - Elo Ranking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Clan Elo ranks retrieved successfully"),
+        @ApiResponse(responseCode = "404", description = "Tournament not found"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while fetching clan Elo ranks")
+    })
     @GetMapping("/clan/tournament/{tournamentId}")
     public ResponseEntity<List<ClanEloRankDTO>> getClanEloRanksByTournament(
             @PathVariable Long tournamentId
@@ -215,6 +260,12 @@ public class TournamentController {
         return ResponseEntity.ok(clanEloRanks);
     }
 
+    @Operation(summary = "Get All Player Elo Ranks by Tournament", description = "Retrieve all player Elo ranks for a specified tournament.", tags = {"IPC - Elo Ranking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Player Elo ranks retrieved successfully"),
+        @ApiResponse(responseCode = "404", description = "Tournament not found"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while fetching player Elo ranks")
+    })
     @GetMapping("/player/tournament/{tournamentId}")
     public ResponseEntity<List<PlayerEloRankDTO>> getAllPlayerEloRanksByTournament(
             @PathVariable Long tournamentId
@@ -223,6 +274,12 @@ public class TournamentController {
         return ResponseEntity.ok(playerEloRanks);
     }
 
+    @Operation(summary = "Get Selected Player Elo Ranks by Tournament", description = "Retrieve Elo ranks of selected players in a specified tournament.", tags = {"IPC - Elo Ranking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Selected player Elo ranks retrieved successfully"),
+        @ApiResponse(responseCode = "404", description = "Tournament or Players not found"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while fetching selected player Elo ranks")
+    })
     @GetMapping("/player/tournament/{tournamentId}/selected")
     public ResponseEntity<List<PlayerEloRankDTO>> getSelectedPlayerEloRanksByTournament(
             @PathVariable Long tournamentId,
@@ -232,6 +289,12 @@ public class TournamentController {
         return ResponseEntity.ok(selectedPlayerEloRanks);
     }
 
+    @Operation(summary = "Get Player Elo Ranks by Rating Range", description = "Retrieve player Elo ranks within a specified rating range for a tournament.", tags = {"IPC - Elo Ranking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Player Elo ranks by rating range retrieved successfully"),
+        @ApiResponse(responseCode = "404", description = "Tournament not found"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while fetching player Elo ranks by rating range")
+    })
     @GetMapping("/player/tournament/{tournamentId}/rating-range")
     public ResponseEntity<List<PlayerEloRankDTO>> getPlayerEloRanksByRatingRange(
             @PathVariable Long tournamentId,
@@ -242,6 +305,12 @@ public class TournamentController {
         return ResponseEntity.ok(playerEloRanks);
     }
 
+    @Operation(summary = "Get Clan Elo Ranks by Rating Range", description = "Retrieve clan Elo ranks within a specified rating range for a tournament.", tags = {"IPC - Elo Ranking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Clan Elo ranks by rating range retrieved successfully"),
+        @ApiResponse(responseCode = "404", description = "Tournament not found"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while fetching clan Elo ranks by rating range")
+    })
     @GetMapping("/clan/tournament/{tournamentId}/rating-range")
     public ResponseEntity<List<ClanEloRankDTO>> getClanEloRanksByRatingRange(
             @PathVariable Long tournamentId,
@@ -252,6 +321,115 @@ public class TournamentController {
         return ResponseEntity.ok(clanEloRanks);
     }
 
+    @Operation(summary = "Get Player IDs by Game", description = "Retrieve a list of player IDs associated with a specified game.", tags = {"IPC - Matchmaking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Player IDs retrieved successfully"),
+        @ApiResponse(responseCode = "404", description = "Game not found"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while fetching player IDs")
+    })
+    @GetMapping("/games/{gameId}/players")
+    public List<Long> getPlayerIdsByGame(@PathVariable Long gameId) {
+        return matchMakingFeignClient.getPlayerIdsByGame(gameId);
+    }
 
+    @Operation(summary = "Get Games by Tournament", description = "Retrieve a list of games associated with a specified tournament.", tags = {"IPC - Matchmaking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Games retrieved successfully"),
+        @ApiResponse(responseCode = "404", description = "Tournament not found"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while fetching games")
+    })
+    @GetMapping("/tournaments/{tournamentId}/games")
+    public List<GameDTO> getGamesByTournament(@PathVariable Long tournamentId) {
+        return matchMakingFeignClient.getGamesByTournament(tournamentId);
+    }
+
+    @Operation(summary = "Get Game by ID", description = "Retrieve details of a specific game using its ID.", tags = {"IPC - Matchmaking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Game retrieved successfully"),
+        @ApiResponse(responseCode = "404", description = "Game not found"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while fetching the game details")
+    })
+    @GetMapping("/games/{gameId}")
+    public GameDTO getGameById(@PathVariable Long gameId) {
+        return matchMakingFeignClient.getGameById(gameId);
+    }
+
+    @Operation(summary = "Get Game Player or Clan IDs", description = "Retrieve player or clan IDs associated with a specified game.", tags = {"IPC - Matchmaking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Player or clan IDs retrieved successfully"),
+        @ApiResponse(responseCode = "404", description = "Game not found"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while fetching player or clan IDs")
+    })
+    @GetMapping("/games/{gameId}/player-or-clan-ids")
+    public EntityResponseDTO.EntityIdResponse getGamePlayerOrClanIds(@PathVariable long gameId) {
+        return matchMakingFeignClient.getGamePlayerOrClanIds(gameId);
+    }
+
+    @Operation(summary = "Schedule Games", description = "Schedule games for a specified tournament based on the game mode.", tags = {"IPC - Matchmaking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Games scheduled successfully"),
+        @ApiResponse(responseCode = "404", description = "Tournament not found"),
+        @ApiResponse(responseCode = "400", description = "Invalid game mode provided"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while scheduling games")
+    })
+    @PostMapping("/tournaments/{tournamentId}/games/schedule")
+    public List<GameDTO> scheduleGames(
+            @PathVariable long tournamentId,
+            @RequestParam Tournament.GameMode gameMode) {
+        return matchMakingFeignClient.scheduleGames(tournamentId, gameMode);
+    }
+
+    @Operation(summary = "Group Availabilities by Start Time", description = "Group player availabilities by their start time.", tags = {"IPC - Matchmaking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Availabilities grouped by start time successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid availabilities list provided"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while grouping availabilities")
+    })
+    @PostMapping("/availabilities/group-by-start")
+    public Map<OffsetDateTime, List<PlayerAvailabilityDTO>> groupAvailabilitiesByStartTime(
+            @RequestBody List<PlayerAvailabilityDTO> availabilities) {
+        return matchMakingFeignClient.groupAvailabilitiesByStartTime(availabilities);
+    }
+
+    @Operation(summary = "Create Game", description = "Create a new game for a specified tournament with the given start and end times.", tags = {"IPC - Matchmaking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Game created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid game parameters provided"),
+        @ApiResponse(responseCode = "404", description = "Tournament not found"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while creating the game")
+    })
+    @PostMapping("/games/schedule")
+    public GameDTO createGame(
+            @RequestParam long tournamentId,
+            @RequestParam OffsetDateTime startTime,
+            @RequestParam OffsetDateTime endTime,
+            @RequestParam Tournament.GameMode gameMode,
+            @RequestBody List<PlayerAvailabilityDTO> availablePlayers) {
+        return matchMakingFeignClient.createGame(tournamentId, startTime, endTime, gameMode, availablePlayers);
+    }
+
+    @Operation(summary = "Get Player Availabilities by Player ID", description = "Retrieve availabilities for a specified player.", tags = {"IPC - Matchmaking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Player availabilities retrieved successfully"),
+        @ApiResponse(responseCode = "404", description = "Player not found"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while fetching player availabilities")
+    })
+    @GetMapping("/players/{playerId}/availabilities")
+    public List<PlayerAvailabilityDTO> getPlayerAvailabilitiesByPlayerId(@PathVariable long playerId) {
+        return matchMakingFeignClient.getPlayerAvailabilitiesByPlayerId(playerId);
+    }
+
+    @Operation(summary = "Get Player Availabilities by Tournament ID", description = "Retrieve availabilities for players in a specified tournament.", tags = {"IPC - Matchmaking"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Player availabilities retrieved successfully"),
+        @ApiResponse(responseCode = "404", description = "Tournament not found"),
+        @ApiResponse(responseCode = "500", description = "An error occurred while fetching player availabilities")
+    })
+    @GetMapping("/tournaments/{tournamentId}/availabilities")
+    public List<PlayerAvailabilityDTO> getPlayerAvailabilitiesByTournamentId(@PathVariable long tournamentId) {
+        return matchMakingFeignClient.getPlayerAvailabilitiesByTournamentId(tournamentId);
+    }
+
+    
 
 }

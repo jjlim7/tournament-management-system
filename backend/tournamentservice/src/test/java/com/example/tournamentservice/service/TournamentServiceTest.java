@@ -1,224 +1,190 @@
+package com.example.tournamentservice.service;
 
-// package com.example.tournamentservice.service;
+import com.example.tournamentservice.entity.Tournament;
+import com.example.tournamentservice.entity.Tournament.Status;
+import com.example.tournamentservice.exception.TournamentsNotFoundException;
+import com.example.tournamentservice.repository.TournamentRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-// import static org.junit.jupiter.api.Assertions.*;
-// import static org.mockito.ArgumentMatchers.*;
-// import static org.mockito.Mockito.*;
+import java.time.OffsetDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-// import java.time.OffsetDateTime;
-// import java.util.ArrayList;
-// import java.util.List;
-// import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+import org.springframework.data.domain.Sort;
 
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
-// import org.mockito.InjectMocks;
-// import org.mockito.Mock;
-// import org.mockito.MockitoAnnotations;
+@ExtendWith(MockitoExtension.class)
+public class TournamentServiceTest {
 
-// import com.example.tournamentservice.entity.Tournament;
-// import com.example.tournamentservice.exception.TournamentsNotFoundException;
-// import com.example.tournamentservice.repository.TournamentRepository;
+    @Mock
+    private TournamentRepository tournamentRepository;
 
-// class TournamentServiceTest {
+    @InjectMocks
+    private TournamentService tournamentService;
 
-//     @Mock
-//     private TournamentRepository tournamentRepository;
+    private Tournament tournament;
 
-//     @InjectMocks
-//     private TournamentService tournamentService;
+    @BeforeEach
+    public void setup() {
+        tournament = new Tournament();
+        tournament.setTournament_id(1L);
+        tournament.setName("Sample Tournament");
+        tournament.setPlayerCapacity(10);
+        tournament.setStartDate(OffsetDateTime.now().plusDays(1));
+        tournament.setEndDate(OffsetDateTime.now().plusDays(2));
+        tournament.setStatus(Status.INACTIVE);
+    }
 
-//     private Tournament tournament;
+    @Test
+    public void testCreateTournament_ValidTournament_ShouldSaveAndReturnTournament() {
+        when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
 
-//     @BeforeEach
-//     void setUp() {
-//         MockitoAnnotations.openMocks(this);
+        Tournament result = tournamentService.createTournament(tournament);
 
-//         tournament = new Tournament();
-//         tournament.setId(1L);
-//         tournament.setName("Test Tournament");
-//         tournament.setStartDate(OffsetDateTime.now().plusDays(1));
-//         tournament.setEndDate(OffsetDateTime.now().plusDays(2));
-//         tournament.setPlayerCapacity(10);
-//         tournament.setPlayerIds(new ArrayList<>());
-//     }
+        assertNotNull(result);
+        assertEquals(Status.INACTIVE, result.getStatus());
+        verify(tournamentRepository, times(1)).save(tournament);
+    }
 
-//     @Test
-//     void testCreateTournamentSuccess() {
-//         when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
+    @Test
+    public void testCreateTournament_InvalidDates_ShouldThrowException() {
+        tournament.setStartDate(OffsetDateTime.now().minusDays(1));
+        tournament.setEndDate(OffsetDateTime.now().plusDays(1));
 
-//         Tournament createdTournament = tournamentService.createTournament(tournament);
+        assertThrows(IllegalArgumentException.class, () -> tournamentService.createTournament(tournament));
+        verify(tournamentRepository, never()).save(any(Tournament.class));
+    }
 
-//         assertNotNull(createdTournament);
-//         assertEquals("Test Tournament", createdTournament.getName());
-//     }
+    @Test
+    public void testGetAllTournaments_WhenTournamentsExist_ShouldReturnSortedTournaments() {
+        when(tournamentRepository.findAll(
+            Sort.by(Sort.Direction.ASC, "status").and(Sort.by(Sort.Direction.ASC, "startDate"))
+        )).thenReturn(List.of(tournament));
 
-//     @Test
-//     void testCreateTournamentWithInvalidDates() {
-//         tournament.setStartDate(OffsetDateTime.now().minusDays(1));
+        List<Tournament> tournaments = tournamentService.getAllTournaments();
 
-//         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-//             tournamentService.createTournament(tournament);
-//         });
+        assertFalse(tournaments.isEmpty());
+        assertEquals("Sample Tournament", tournaments.get(0).getName());
+        verify(tournamentRepository, times(1)).findAll(any(Sort.class));
+    }
 
-//         assertEquals("Start date must be in the future", exception.getMessage());
-//     }
+    @Test
+    public void testGetAllTournaments_NoTournamentsFound_ShouldThrowException() {
+        when(tournamentRepository.findAll(
+            Sort.by(Sort.Direction.ASC, "status").and(Sort.by(Sort.Direction.ASC, "startDate"))
+        )).thenReturn(Collections.emptyList());
 
-//     @Test
-//     void testGetAllTournamentsSuccess() {
-//         List<Tournament> tournaments = List.of(tournament);
-//         when(tournamentRepository.findAll(any())).thenReturn(tournaments);
+        assertThrows(TournamentsNotFoundException.class, () -> tournamentService.getAllTournaments());
+    }
 
-//         List<Tournament> result = tournamentService.getAllTournaments();
+    @Test
+    public void testGetTournamentById_ExistingTournament_ShouldReturnTournament() {
+        when(tournamentRepository.findById(anyLong())).thenReturn(Optional.of(tournament));
 
-//         assertNotNull(result);
-//         assertEquals(1, result.size());
-//         assertEquals("Test Tournament", result.get(0).getName());
-//     }
+        Tournament result = tournamentService.getTournamentById(1L);
 
-//     @Test
-//     void testGetAllTournamentsNoTournamentsFound() {
-//         when(tournamentRepository.findAll(any())).thenReturn(new ArrayList<>());
+        assertNotNull(result);
+        assertEquals("Sample Tournament", result.getName());
+        verify(tournamentRepository, times(1)).findById(1L);
+    }
 
-//         Exception exception = assertThrows(TournamentsNotFoundException.class, () -> {
-//             tournamentService.getAllTournaments();
-//         });
+    @Test
+    public void testGetTournamentById_NonExistingTournament_ShouldThrowException() {
+        when(tournamentRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-//         assertEquals("No tournaments found.", exception.getMessage());
-//     }
+        assertThrows(TournamentsNotFoundException.class, () -> tournamentService.getTournamentById(1L));
+    }
 
-//     @Test
-//     void testGetTournamentByIdSuccess() {
-//         when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
+    @Test
+    public void testUpdateTournament_ValidUpdate_ShouldReturnUpdatedTournament() {
+        when(tournamentRepository.findById(anyLong())).thenReturn(Optional.of(tournament));
+        when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
 
-//         Tournament result = tournamentService.getTournamentById(1L);
+        Tournament updatedTournament = new Tournament();
+        updatedTournament.setName("Updated Tournament");
 
-//         assertNotNull(result);
-//         assertEquals("Test Tournament", result.getName());
-//     }
+        Tournament result = tournamentService.updateTournament(1L, updatedTournament);
 
-//     @Test
-//     void testGetTournamentByIdNotFound() {
-//         when(tournamentRepository.findById(1L)).thenReturn(Optional.empty());
+        assertEquals("Updated Tournament", result.getName());
+        verify(tournamentRepository, times(1)).save(tournament);
+    }
 
-//         Exception exception = assertThrows(TournamentsNotFoundException.class, () -> {
-//             tournamentService.getTournamentById(1L);
-//         });
+    @Test
+    public void testUpdateTournament_ActiveTournament_ShouldThrowException() {
+        tournament.setStatus(Status.ACTIVE);
+        when(tournamentRepository.findById(anyLong())).thenReturn(Optional.of(tournament));
 
-//         assertEquals("Tournament with ID 1 not found.", exception.getMessage());
-//     }
+        Tournament updatedTournament = new Tournament();
+        updatedTournament.setName("Updated Tournament");
 
-//     @Test
-//     void testUpdateTournamentSuccess() {
-//         Tournament updatedTournament = new Tournament();
-//         updatedTournament.setName("Updated Tournament");
-//         updatedTournament.setPlayerCapacity(15);
+        assertThrows(IllegalStateException.class, () -> tournamentService.updateTournament(1L, updatedTournament));
+        verify(tournamentRepository, never()).save(any(Tournament.class));
+    }
 
-//         when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
-//         when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
+    @Test
+    public void testDeleteTournament_AdminCanDelete_ShouldDeleteTournament() {
+        tournament.setAdminId(1L);
+        when(tournamentRepository.findById(anyLong())).thenReturn(Optional.of(tournament));
 
-//         Tournament result = tournamentService.updateTournament(1L, updatedTournament);
+        tournamentService.deleteTournament(1L, 1L);
 
-//         assertNotNull(result);
-//         assertEquals("Updated Tournament", result.getName());
-//     }
+        verify(tournamentRepository, times(1)).deleteById(1L);
+    }
 
-//     @Test
-//     void testUpdateTournamentNotFound() {
-//         Tournament updatedTournament = new Tournament();
-//         updatedTournament.setName("Updated Tournament");
+    @Test
+    public void testDeleteTournament_NonAdminAttemptToDelete_ShouldThrowException() {
+        tournament.setAdminId(1L);
+        when(tournamentRepository.findById(anyLong())).thenReturn(Optional.of(tournament));
 
-//         when(tournamentRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(SecurityException.class, () -> tournamentService.deleteTournament(1L, 2L));
+        verify(tournamentRepository, never()).deleteById(anyLong());
+    }
 
-//         Exception exception = assertThrows(RuntimeException.class, () -> {
-//             tournamentService.updateTournament(1L, updatedTournament);
-//         });
+    @Test
+    public void testJoinTournament_PlayerNotRegistered_ShouldAddPlayer() {
+        when(tournamentRepository.findById(anyLong())).thenReturn(Optional.of(tournament));
 
-//         assertEquals("Tournament not found", exception.getMessage());
-//     }
+        String result = tournamentService.joinTournament(1L, 100L);
 
-//     @Test
-//     void testDeleteTournamentSuccess() {
-//         when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
-//         when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
+        assertEquals("Player joined the tournament successfully.", result);
+        verify(tournamentRepository, times(1)).save(tournament);
+    }
 
-//         tournamentService.deleteTournament(1L, 1L); // Assuming adminId is 1
+    @Test
+    public void testJoinTournament_TournamentFull_ShouldThrowException() {
+        tournament.setPlayerCapacity(1);
+        tournament.getPlayerIds().add(100L);
+        when(tournamentRepository.findById(anyLong())).thenReturn(Optional.of(tournament));
 
-//         verify(tournamentRepository, times(1)).deleteById(1L);
-//     }
+        assertThrows(IllegalArgumentException.class, () -> tournamentService.joinTournament(1L, 101L));
+    }
 
-//     @Test
-//     void testDeleteTournamentNotFound() {
-//         when(tournamentRepository.findById(1L)).thenReturn(Optional.empty());
+    @Test
+    public void testLeaveTournament_PlayerRegistered_ShouldRemovePlayer() {
+        tournament.getPlayerIds().add(100L);
+        when(tournamentRepository.findById(anyLong())).thenReturn(Optional.of(tournament));
 
-//         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-//             tournamentService.deleteTournament(1L, 1L);
-//         });
+        String result = tournamentService.leaveTournament(1L, 100L);
 
-//         assertEquals("Tournament not found with ID: 1", exception.getMessage());
-//     }
+        assertEquals("Player with ID 100 left the tournament successfully.", result);
+        verify(tournamentRepository, times(1)).save(tournament);
+    }
 
-//     @Test
-//     void testJoinTournamentSuccess() {
-//         tournament.setPlayerIds(new ArrayList<>());
+    @Test
+    public void testLeaveTournament_PlayerNotRegistered_ShouldThrowException() {
+        when(tournamentRepository.findById(anyLong())).thenReturn(Optional.of(tournament));
 
-//         when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
-//         when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
-
-//         String result = tournamentService.joinTournament(1L, 123L);
-
-//         assertEquals("Player joined the tournament successfully.", result);
-//         assertTrue(tournament.getPlayerIds().contains(123L));
-//     }
-
-//     @Test
-//     void testJoinTournamentAlreadyJoined() {
-//         tournament.getPlayerIds().add(123L);
-
-//         when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
-
-//         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-//             tournamentService.joinTournament(1L, 123L);
-//         });
-
-//         assertEquals("Player is already registered in this tournament.", exception.getMessage());
-//     }
-
-//     @Test
-//     void testJoinTournamentCapacityReached() {
-//         tournament.setPlayerCapacity(1);
-//         tournament.getPlayerIds().add(123L);
-
-//         when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
-
-//         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-//             tournamentService.joinTournament(1L, 456L);
-//         });
-
-//         assertEquals("Tournament has reached its player capacity.", exception.getMessage());
-//     }
-
-//     @Test
-//     void testLeaveTournamentSuccess() {
-//         tournament.getPlayerIds().add(123L);
-
-//         when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
-//         when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
-
-//         String result = tournamentService.leaveTournament(1L, 123L);
-
-//         assertEquals("Player with ID 123 left the tournament successfully.", result);
-//         assertFalse(tournament.getPlayerIds().contains(123L));
-//     }
-
-//     @Test
-//     void testLeaveTournamentNotRegistered() {
-//         when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
-
-//         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-//             tournamentService.leaveTournament(1L, 456L); // 456 is not registered
-//         });
-
-//         assertEquals("Player with ID 456 is not registered in this tournament.", exception.getMessage());
-//     }
-// }
+        assertThrows(IllegalArgumentException.class, () -> tournamentService.leaveTournament(1L, 100L));
+        verify(tournamentRepository, never()).save(any(Tournament.class));
+    }
+}
