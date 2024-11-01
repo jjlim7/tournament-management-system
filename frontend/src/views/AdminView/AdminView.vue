@@ -23,11 +23,11 @@
 
     <!-- admin modal to create or update -->
     <Modal
-        :header="selectedTournament.id ? 'Update Tournament' : 'Create Tournament'"
+        :header="selectedTournament.tournament_id ? 'Update Tournament' : 'Create Tournament'"
         modalID="adminModal"
         :showFooter="true"
-        :action="selectedTournament.id ? updateTournament : createTournament"
-        :actionName="selectedTournament.id ? 'Update' : 'Create'">
+        :action="selectedTournament.tournament_id ? updateTournament : createTournament"
+        :actionName="selectedTournament.tournament_id ? 'Update' : 'Create'">
         <div class="d-flex justify-content-between">
             <!-- Game mode -->
             <div class="dropdown mb-3">
@@ -41,16 +41,16 @@
               </button>
               <ul class="dropdown-menu">
                 <li>
-                  <a class="dropdown-item" href="#" @click="selectedTournament.gameMode = 'Battle Royale'">Battle Royale</a>
+                  <a class="dropdown-item" href="#" @click="selectedTournament.gameMode = 'Royale'">Battle Royale</a>
                 </li>
                 <li>
-                  <a class="dropdown-item" href="#" @click="selectedTournament.gameMode = 'Clan War'">Clan War</a>
+                  <a class="dropdown-item" href="#" @click="selectedTournament.gameMode = 'ClanWar'">Clan War</a>
                 </li>
               </ul>
             </div>
             <!-- delete button for existing tournament -->
              <div>
-                <button class="btn btn-secondary" @click="deleteTournament" v-if="selectedTournament.id != null">Delete</button>
+                <button class="btn btn-secondary" @click="deleteTournament" v-if="selectedTournament.tournament_id != null">Delete</button>
              </div>
         </div>
     
@@ -64,7 +64,7 @@
           <!-- Description -->
           <div class="mb-3 col-md-6">
             <label for="desc" class="form-label">Description</label>
-            <textarea type="text" class="form-control" id="desc" v-model="selectedTournament.desc"></textarea>
+            <textarea type="text" class="form-control" id="desc" v-model="selectedTournament.description"></textarea>
           </div>
     
           <!-- Start Date -->
@@ -78,28 +78,18 @@
             <label for="endDate" class="form-label">End Date</label>
             <DatePicker v-model="selectedTournament.endDate" :minDate="minDate" fluid dateFormat="dd/mm/yy" showIcon />
           </div>
-    
-          <!-- Games Per Day -->
+
+          <!-- player Capacity -->
           <div class="mb-3 col-md-6">
-            <label for="gamesPerDay" class="form-label">Games Per Day</label>
+            <label for="PlayerCapacity" class="form-label">Player Capacity</label>
             <input
               type="number"
               class="form-control"
-              id="gamesPerDay"
-              v-model="selectedTournament.gamesPerDay"
+              id="PlayerCapacity"
+              v-model="selectedTournament.playerCapacity"
             />
           </div>
     
-          <!-- People Limit (only for BR) -->
-          <div class="mb-3 col-md-6" v-if="selectedTournament.gameMode === 'Battle Royale'">
-            <label for="peopleLimit" class="form-label">People Limit</label>
-            <input
-              type="number"
-              class="form-control"
-              id="peopleLimit"
-              v-model="selectedTournament.peopleLimit"
-            />
-          </div>
         </div>
     </Modal>
   </div>
@@ -111,6 +101,8 @@ import Modal from "@/components/modal/Modal.vue";
 import TournamentTable from "@/components/TournamentTable/TournamentTable.vue";
 import { Modal as bsModal } from 'bootstrap';
 import Swal from 'sweetalert2'
+import axios from "@/utils/axiosInstance";
+import { useUserStore } from '@/stores/store';
 
 
 export default {
@@ -119,99 +111,117 @@ export default {
   data() {
     return {
       selectedTournament: {
-        id:null,
-        gameMode: "",
+        tournament_id: null,
         name: "",
-        desc: "",
+        description: "",
         startDate: null,
         endDate: null,
-        gamesPerDay: "",
-        peopleLimit: "",
+        playerCapacity: null,
+        status: "",
+        gameMode: "",
+        adminId: null,
+        playerIds: [],
       },
-      activeTournaments:[
-        {
-            id:123,
-            gameMode: "Battle Royale",
-            name: "Tournament 1",
-            desc: " this is a tournament ...",
-            startDate: new Date(),
-            endDate: new Date(),
-            gamesPerDay: 7,
-            peopleLimit: null,
-        }
-      ],
-      upcomingTournaments:[
-        {
-            id:123,
-            gameMode: "Battle Royale",
-            name: "Tournament 1",
-            desc: " this is a tournament ...",
-            startDate: new Date(),
-            endDate: new Date(),
-            gamesPerDay: 7,
-            peopleLimit: 20,
-        }
-      ],
+      activeTournaments:[],
+      upcomingTournaments:[],
       isLargeScreen: window.innerWidth >= 992,
       minDate: new Date(),
     };
   },
   methods: {
-      createTournament() {
-        if (!this.validateInput()){
-          this.showErrorAlert('Please fill in all inputs');
-          return;
-        } 
-        if(!this.validateDates()) {
-            this.showErrorAlert('Please verfiy your date.');
-            return;
-        }
-      this.hideAdminModal()
-      this.bookSuccess("Tournament Created Successfully")
+    async createTournament() {
+      if (!this.validateInput()) {
+        this.showErrorAlert('Please fill in all inputs');
+        return;
+      }
+      if (!this.validateDates()) {
+        this.showErrorAlert('Please verify your date.');
+        return;
+      }
+
+      try {
+        const response = await axios.post('/tournament/api/tournaments/create', {
+          ...this.selectedTournament,
+          "adminId": this.userStore.user.id,
+          "status": "Inactive"
+        });
+        
+        this.hideAdminModal();
+        this.bookSuccess("Tournament Created Successfully", "Tournament Created!");
+      } catch (error) {
+        console.error('Error creating tournament:', error);
+        const errorMessage = error.response?.data?.message || 'An error occurred while creating the tournament.';
+        this.showErrorAlert(errorMessage);
+      }
+      this.fetchTournament();
     },
-    updateTournament() {
-        if (!this.validateInput()){
-          this.showErrorAlert('Please fill in all inputs');
+
+    async updateTournament() {
+      if (!this.validateInput()){
+        this.showErrorAlert('Please fill in all inputs');
+        return;
+      } 
+      if(!this.validateDates()) {
+          this.showErrorAlert('Please verfiy your date.');
           return;
-        } 
-        if(!this.validateDates()) {
-            this.showErrorAlert('Please verfiy your date.');
-            return;
-        }
-      this.hideAdminModal()
-      this.bookSuccess("Tournament Updated Successfully")
+      }
+      
+      try {
+        const response = await axios.put(`/tournament/api/tournaments/${this.selectedTournament.tournament_id}`, this.selectedTournament);
+        console()
+        this.hideAdminModal();
+        this.bookSuccess("Tournament Updated Successfully", "Tournament Updated!");
+      } catch (error) {
+        console.error('Error creating tournament:', error);
+        const errorMessage = error.response?.data?.message || 'An error occurred while creating the tournament.';
+        this.showErrorAlert(errorMessage);
+      }
+      this.fetchTournament();
     },
-    deleteTournament(){
-        Swal.fire({
-                title: "Confirm Delete?",
-                icon: "warning",
-                showCancelButton: true,
-                cancelButtonColor: "#DDDDDD",
-                confirmButtonColor: "#FA9021",
-                confirmButtonText: "Delete"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                            Swal.fire({
-                                title: "Deleted!",
-                                text: "Your booking has been deleted.",
-                                icon: "success",
-                                timer: 1500
-                            });
-                            this.hideAdminModal()
-                    }
-            });
+    async deleteTournament() {
+      const result = await Swal.fire({
+        title: "Confirm Delete?",
+        icon: "warning",
+        showCancelButton: true,
+        cancelButtonColor: "#DDDDDD",
+        confirmButtonColor: "#FA9021",
+        confirmButtonText: "Delete"
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.delete(`/tournament/api/tournaments/${this.selectedTournament.tournament_id}`);
+
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your booking has been deleted.",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false
+          });
+
+          this.hideAdminModal();
+          this.fetchTournament();
+        } catch (error) {
+          console.error('Error deleting tournament:', error);
+          const errorMessage = error.response?.data?.message || 'An error occurred while deleting the tournament.';
+          this.showErrorAlert(errorMessage);
+        }
+      }
     },
     resetAdminModal() {
     //   console.log('clear')
       this.selectedTournament={
-            id:null,
-            gameMode: "",
-            name: "",
-            desc: "",
-            startDate: null,
-            endDate: null,
-            gamesPerDay: "",
-            peopleLimit: "",
+          tournament_id: null,
+          name: "",
+          description: "",
+          startDate: null,
+          endDate: null,
+          playerCapacity: null,
+          status: "",
+          gameMode: "",
+          adminId: null,
+          playerIds: [],
         }
     },
     validateDates() {
@@ -231,11 +241,7 @@ export default {
         return Object.keys(this.selectedTournament).every(key => {
             const value = this.selectedTournament[key];
             // Skip the 'id' field
-            if (key === 'id') {
-                return true;
-            }
-            // Skip 'peopleLimit' check if gameMode is "clan war"
-            if (key === 'peopleLimit' && this.selectedTournament.gameMode === 'Clan War') {
+            if (key === 'tournament_id' || key === 'status' || key === 'adminId' || key === 'playerIds' ) {
                 return true;
             }
             // Check that value is filled
@@ -260,6 +266,7 @@ export default {
     },
     showErrorAlert(errorMessage){
         Swal.fire({
+            toast: true,
             position: "top-end",
             icon: "error",
             title: "Invalid Input",
@@ -268,16 +275,50 @@ export default {
             timer: 1500
         });
     },
-    bookSuccess(successMessage){
+    bookSuccess(successMessage, title){
         Swal.fire({
             position: "center",
             icon: "success",
-            title: "Booked!",
+            title: title,
             text: successMessage,
             showConfirmButton: false,
             timer: 1500
         });
     },
+    async fetchTournament() {
+      try {
+        const response = await axios.get('/tournament/api/tournaments');
+        
+        if (response.status === 404) {
+          this.activeTournaments = [];
+          this.upcomingTournaments = [];
+          return;
+        }
+        
+        const allTournaments = response.data;
+        const currentDateTime = new Date();
+        
+        this.activeTournaments = [];
+        this.upcomingTournaments = [];
+
+        for (const tournament of allTournaments) {
+          const startDate = new Date(tournament.startDate);
+          const endDate = new Date(tournament.endDate);
+          let formattedTournament = { ...tournament, "startDate":startDate, "endDate": endDate}
+          
+          if (startDate <= currentDateTime && endDate >= currentDateTime) {
+            // Tournament is currently active
+            this.activeTournaments.push(formattedTournament);
+          } else if (startDate > currentDateTime) {
+            // Tournament is upcoming
+            this.upcomingTournaments.push(formattedTournament);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching tournaments:', error);
+        throw error;
+      }
+    }
   },
   mounted() {
     const myModalEl = document.getElementById("adminModal");
@@ -286,13 +327,18 @@ export default {
     myModalEl.addEventListener("hidden.bs.modal", (event) => {
       this.resetAdminModal();
     });
+    this.fetchTournament();
   },
   async created() {
       window.addEventListener("resize", this.checkScreenSize);
-    },
+  },
   destroyed() {
     window.removeEventListener("resize", this.checkScreenSize);
   },
+  setup(){
+    const userStore = useUserStore();
+    return {userStore}
+  }
 
 };
 </script>

@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 
-
+// role is either "Admin" or "Member"
 export const useUserStore = defineStore('user', {
   state: () => ({
     user:{
@@ -15,7 +15,7 @@ export const useUserStore = defineStore('user', {
       winRatio: 3.14,
       clan: "Code with shawn club",
       clanRole: "Admin",
-      role: "Member"
+      role: "Admin"
     },
     isAuthenticated: true,
   }),

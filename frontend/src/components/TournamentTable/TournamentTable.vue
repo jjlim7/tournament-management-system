@@ -11,22 +11,20 @@
                 <th class="fw-semibold">Start</th>
                 <th class="fw-semibold">End</th>
                 <th class="fw-semibold">Mode</th>
-                <th class="fw-semibold" v-if="isLargeScreen">Games/day</th>
                 <th class="fw-semibold" v-if="isLargeScreen">Max no.</th>
                 <th class="fw-semibold" v-if="!isActive">Action</th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="count in 10" :key="count">
-            <th  v-if="isLargeScreen">{{ TournamentList[0].id }}</th>
-            <th>{{ TournamentList[0].name }}</th>
-            <th>{{ formattedDate(TournamentList[0].startDate) }}</th>
-            <th>{{ formattedDate(TournamentList[0].endDate) }}</th>
-            <th>{{ TournamentList[0].gameMode }}</th>
-            <th v-if="isLargeScreen">{{ TournamentList[0].gamesPerDay }}</th>
-            <th v-if="isLargeScreen">{{ TournamentList[0].peopleLimit ?? '-' }}</th>
+            <tr v-for="tournament in sortedTournamentList" :key="tournament.tournament_id">
+            <th  v-if="isLargeScreen">{{ tournament.tournament_id }}</th>
+            <th>{{ tournament.name }}</th>
+            <th>{{ formattedDate(tournament.startDate) }}</th>
+            <th>{{ formattedDate(tournament.endDate) }}</th>
+            <th>{{ formmattedMode(tournament.gameMode) }}</th>
+            <th v-if="isLargeScreen">{{ tournament.playerCapacity ?? '-' }}</th>
             <th class="fw-semibold" v-if="!isActive">
-                <button class="btn btn-primary fw-semibold text-white" @click="this.$emit('action', TournamentList[0])">Edit</button>
+                <button class="btn btn-primary fw-semibold text-white" @click="this.$emit('action', tournament)">Edit</button>
             </th>
             </tr>
         </tbody>
@@ -54,6 +52,15 @@ export default {
         const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
         const year = date.getFullYear();
         return this.isLargeScreen ? `${day}/${month}/${year}` : `${day}/${month}`;
+    },
+    formmattedMode(mode){
+      if(mode == "Royale") return "Battle Royale";
+      if(mode == "ClanWar") return "Clan War";
+    },
+  },
+  computed:{
+    sortedTournamentList(){
+      return this.TournamentList.sort((a, b) => a.startDate - b.startDate);
     }
   }
   

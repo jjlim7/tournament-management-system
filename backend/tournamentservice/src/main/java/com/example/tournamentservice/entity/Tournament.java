@@ -61,7 +61,7 @@ public class Tournament {
 	@Enumerated(EnumType.STRING)
 	private Status status;
 
-	@Column(name = "game_mode", nullable = false, unique = true)
+	@Column(name = "game_mode", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private GameMode gameMode;
 
