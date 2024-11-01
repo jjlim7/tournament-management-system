@@ -39,8 +39,21 @@ public class ClanUserDataLoader implements CommandLineRunner {
             for(int i = 0; i < 10; i++) {
                 ClanUser clanUser = new ClanUser();
 
-                clanUser.setUser(users.get(i)); // Hopefully this does not throw IndexOutOfBoundsException
-                clanUser.setClan(clans.get(i));
+                // To handle IndexOutOfBoundsException
+                try {
+                    clanUser.setUser(users.get(i)); 
+        
+                } catch (IndexOutOfBoundsException e) {
+                    e.getMessage();
+                }
+
+                try {
+                    clanUser.setClan(clans.get(i));
+                    
+                } catch (IndexOutOfBoundsException e) {
+                    e.getMessage();
+                }
+
                 clanUser.setIsClanLeader(clanLeader[random.nextInt(clanLeader.length)]);
                 clanUser.setPosition(position[random.nextInt(position.length)]);
 

@@ -18,7 +18,7 @@ import java.util.Map;
 public interface EloRankingClient {
 
     // Elo rank for users
-    @GetMapping("/api/elo-ranking/player/{playerId}/tournament/{tournamentId}")
+    @GetMapping("/api/elo-ranking/player/{playerId}/tournament/{tournamentId}") // Do I need to change this? 
     PlayerEloRank getPlayerEloRank(@PathVariable long playerId, @PathVariable long tournamentId);
 
     @GetMapping("/api/elo-ranking/player/tournament")
