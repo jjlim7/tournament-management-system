@@ -146,6 +146,7 @@ import { useUserStore } from '@/stores/store';
 import Modal from '@/components/modal/Modal.vue'; 
 import { Modal as bsModal } from 'bootstrap';
 import BookingModal from '@/components/modal/BookingModal.vue';
+import axios from 'axios';
 
 export default {
   name: "BattleRoyaleView",
@@ -269,6 +270,7 @@ export default {
   },
   async created() {
       window.addEventListener("resize", this.checkScreenSize);
+      axios.get("http://localhost:8083/tournaments");
   },
   beforeUnmount() {
     clearInterval(this.intervalId); // Clear the interval when the component is destroyed
