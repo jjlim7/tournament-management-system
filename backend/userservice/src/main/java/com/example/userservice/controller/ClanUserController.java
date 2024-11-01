@@ -48,7 +48,7 @@ public class ClanUserController {
     }
 
     @Operation(summary = "Get a specific clanUser", description = "Returns a specific clanUser with a specific Clan User Id")
-    @GetMapping("/clanusers/{clanUserId}")
+    @GetMapping("/clanusers/user/{clanUserId}")
     public ClanUser getClanUser(@PathVariable Long clanUserId) {
         ClanUser clanUser = clanUserService.getClanUser(clanUserId);
 
@@ -57,6 +57,16 @@ public class ClanUserController {
         }
 
         return clanUser;
+    }
+
+    @Operation(summary="Get all users from clan", description = "Returns a list of clan users under specific clan")
+    @GetMapping("/clanusers/clan/{clanId}")
+    public List<ClanUser> getClanUsersByClan(@PathVariable Long clanId) {
+        Clan clan = clanService.getClan(clanId);
+        if(clan == null) {
+            throw new ClanNotFoundException();
+        }
+        return clanUserService.listAllClanUsersFromClan(clanId);
     }
 
     @Operation(summary = "Add a new Clan User", description = "Returns a new Clan User with relevant details")
