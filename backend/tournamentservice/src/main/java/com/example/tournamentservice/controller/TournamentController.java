@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/tournaments")
+@RequestMapping("/api/tournaments")
 public class TournamentController{
 
     @Autowired
