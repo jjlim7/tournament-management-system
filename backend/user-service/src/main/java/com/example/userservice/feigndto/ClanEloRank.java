@@ -14,13 +14,13 @@ public class ClanEloRank {
     private Long clanId;
     private Long tournamentId;
     private String rankThreshold;  // Adjust type based on actual implementation
-    private double skillMeanEstimate;
+    private double meanSkillEstimate;
     private double uncertainty;
 
-    public ClanEloRank(long clanId, RankThreshold rankThreshold, double skillMeanEstimate, long uncertainty) {
+    public ClanEloRank(long clanId, RankThreshold rankThreshold, double meanSkillEstimate, long uncertainty) {
         this.clanId = clanId;
         this.rankThreshold = rankThreshold.rank.toString();
-        this.skillMeanEstimate = skillMeanEstimate;
+        this.meanSkillEstimate = meanSkillEstimate;
         this.uncertainty = uncertainty;
     }
 }

@@ -29,11 +29,11 @@ public class PlayerEloRank extends EloRank {
     public PlayerEloRank(
             Long playerId,
             RankThreshold rankThreshold,
-            double skillMeanEstimate,
+            double meanSkillEstimate,
             double uncertainty,
             Long tournamentId
     ) {
-        super(rankThreshold, skillMeanEstimate, uncertainty, tournamentId);
+        super(rankThreshold, meanSkillEstimate, uncertainty, tournamentId);
         this.playerId = playerId;
     }
 }

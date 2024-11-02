@@ -32,11 +32,11 @@ public class ClanEloRank extends EloRank {
     public ClanEloRank(
             Long clanId,
             RankThreshold rankThreshold,
-            double skillMeanEstimate,
+            double meanSkillEstimate,
             double uncertainty,
             Long tournamentId
     ) {
-        super(rankThreshold, skillMeanEstimate, uncertainty, tournamentId);
+        super(rankThreshold, meanSkillEstimate, uncertainty, tournamentId);
         this.clanId = clanId;
     }
 }

@@ -13,14 +13,14 @@ public class PlayerEloRank extends EloRank {
     private Long playerId;
     private Long tournamentId;
     private RankThreshold rankThreshold;  // Adjust type based on actual implementation
-    private double skillMeanEstimate;
+    private double meanSkillEstimate;
     private double uncertainty;
 
     // Constructor without Lombok, if needed
-    public PlayerEloRank(Long playerId, RankThreshold rankThreshold, double skillMeanEstimate, double uncertainty) {
+    public PlayerEloRank(Long playerId, RankThreshold rankThreshold, double meanSkillEstimate, double uncertainty) {
         this.playerId = playerId;
         this.rankThreshold = rankThreshold;
-        this.skillMeanEstimate = skillMeanEstimate;
+        this.meanSkillEstimate = meanSkillEstimate;
         this.uncertainty = uncertainty;
     }
 }
