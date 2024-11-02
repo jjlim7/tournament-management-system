@@ -141,12 +141,16 @@ public class TournamentController {
         @ApiResponse(responseCode = "404", description = "Tournament not found"),
         @ApiResponse(responseCode = "409", description = "Conflict: Cannot edit an active tournament")
     })
+    
     @PutMapping("/{id}")
     public ResponseEntity<String> updateTournament(@PathVariable Long id, @RequestBody Tournament tournament) {
         try {
             Tournament updatedTournament = tournamentService.updateTournament(id, tournament);
             return ResponseEntity.ok("Tournament updated successfully! ID: " + updatedTournament.getTournament_id());
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
+            // For cases where the user tries to modify restricted fields like tournament ID or admin ID
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (TournamentsNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -154,6 +158,7 @@ public class TournamentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating tournament: " + e.getMessage());
         }
     }
+    
 
     @Operation(summary = "Delete a tournament", description = "Delete a tournament by its ID",tags = {"Tournament Basic Operations"})
     @ApiResponses(value = {
