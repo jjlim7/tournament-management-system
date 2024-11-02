@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "elo.service.url",
+    "type": "java.lang.String",
+    "description": "A description for 'elo.service.url'"
+  },
+  {
+    "name": "matchmaking.service.url",
+    "type": "java.lang.String",
+    "description": "A description for 'matchmaking.service.url'"
+  }
+]}
