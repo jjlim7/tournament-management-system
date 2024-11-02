@@ -31,7 +31,7 @@ public class TournamentDataLoader implements CommandLineRunner{
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        loadTournamentsFromCsv();
+        // loadTournamentsFromCsv();
     }
 
     @Transactional

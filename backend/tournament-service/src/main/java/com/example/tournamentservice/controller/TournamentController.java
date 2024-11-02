@@ -37,8 +37,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/tournaments")
+@RequestMapping("/api/tournaments")
 //@CrossOrigin(origins = "http://your-frontend-domain.com") //adjust accordingly
+
 
 public class TournamentController {
 
