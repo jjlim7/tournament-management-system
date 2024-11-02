@@ -1,15 +1,10 @@
 package csd.backend.matchmaking.service;
 
-import com.example.elorankingservice.dto.Request;
-import com.example.elorankingservice.entity.ClanEloRank;
-import com.example.elorankingservice.entity.EloRank;
-import com.example.elorankingservice.entity.PlayerEloRank;
-import com.example.elorankingservice.entity.RankThreshold;
-import com.fasterxml.jackson.core.type.TypeReference;
+import csd.backend.matchmaking.dto.ClanEloRank;
+import csd.backend.matchmaking.dto.EloRank;
+import csd.backend.matchmaking.dto.PlayerEloRank;
+import csd.backend.matchmaking.dto.RankThreshold;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import csd.backend.matchmaking.controller.GameController;
-import csd.backend.matchmaking.controller.MatchmakingController;
 import csd.backend.matchmaking.entity.ClanAvailability;
 import csd.backend.matchmaking.entity.Game;
 import csd.backend.matchmaking.entity.PlayerAvailability;
@@ -20,16 +15,13 @@ import csd.backend.matchmaking.repository.GameRepository;
 import csd.backend.matchmaking.repository.PlayerAvailabilityRepository;
 import csd.backend.matchmaking.services.GameService;
 import csd.backend.matchmaking.services.MatchmakingService;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -39,7 +31,6 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @WebMvcTest(MatchmakingService.class)
@@ -93,9 +84,9 @@ public class MatchmakingServiceUnitTest {
         );
 
         mockPlayerEloRanks = Arrays.asList(
-                new PlayerEloRank(1L, new RankThreshold(RankThreshold.Rank.BRONZE, 1, 1L), 1L, 1L, 1L),
-                new PlayerEloRank(2L, new RankThreshold(RankThreshold.Rank.BRONZE, 1, 1L), 1L, 1L, 1L),
-                new PlayerEloRank(3L, new RankThreshold(RankThreshold.Rank.BRONZE, 1, 1L), 1L, 1L, 1L)
+                new PlayerEloRank(1L, new RankThreshold(RankThreshold.Rank.GOLD, 1, 1L), 1L, 1L, 1L),
+                new PlayerEloRank(2L, new RankThreshold(RankThreshold.Rank.GOLD, 1, 1L), 1L, 1L, 1L),
+                new PlayerEloRank(3L, new RankThreshold(RankThreshold.Rank.GOLD, 1, 1L), 1L, 1L, 1L)
         );
 
         mockEloRankingResponse = new HashMap<>();

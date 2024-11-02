@@ -1,10 +1,9 @@
 package csd.backend.matchmaking.integration;
 
-import com.example.elorankingservice.entity.ClanEloRank;
-import com.example.elorankingservice.entity.EloRank;
-import com.example.elorankingservice.entity.PlayerEloRank;
-import com.example.elorankingservice.entity.RankThreshold;
-import com.example.tournamentservice.entity.Tournament;
+import csd.backend.matchmaking.dto.ClanEloRank;
+import csd.backend.matchmaking.dto.PlayerEloRank;
+import csd.backend.matchmaking.dto.RankThreshold;
+import csd.backend.matchmaking.dto.Tournament;
 import csd.backend.matchmaking.entity.ClanAvailability;
 import csd.backend.matchmaking.entity.PlayerAvailability;
 import csd.backend.matchmaking.feignclient.EloRankingClient;
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

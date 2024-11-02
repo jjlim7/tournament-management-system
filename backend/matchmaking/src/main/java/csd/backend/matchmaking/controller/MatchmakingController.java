@@ -1,29 +1,20 @@
 package csd.backend.matchmaking.controller;
 
-import com.example.elorankingservice.dto.Request;
-import com.example.elorankingservice.entity.EloRank;
-import com.example.elorankingservice.entity.GameScore;
-import com.example.elorankingservice.entity.PlayerEloRank;
-import com.example.elorankingservice.entity.PlayerGameScore;
-import com.example.tournamentservice.entity.Tournament;
+import csd.backend.matchmaking.dto.PlayerEloRank;
+import csd.backend.matchmaking.dto.PlayerGameScore;
+import csd.backend.matchmaking.dto.Request;
+import csd.backend.matchmaking.dto.Tournament;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import csd.backend.matchmaking.entity.Game;
 import csd.backend.matchmaking.feignclient.EloRankingClient;
 import csd.backend.matchmaking.feignclient.TournamentClient;
-import csd.backend.matchmaking.repository.GameRepository;
-import csd.backend.matchmaking.repository.PlayerAvailabilityRepository;
-import csd.backend.matchmaking.entity.Game;
-import csd.backend.matchmaking.services.GameService;
 import csd.backend.matchmaking.services.MatchmakingService;
-import csd.backend.matchmaking.services.PlayerAvailabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 

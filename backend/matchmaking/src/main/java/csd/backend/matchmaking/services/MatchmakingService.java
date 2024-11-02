@@ -1,11 +1,8 @@
 package csd.backend.matchmaking.services;
 
-import com.example.elorankingservice.dto.Request;
-import com.example.elorankingservice.entity.ClanEloRank;
-import com.example.elorankingservice.entity.EloRank;
-import com.example.elorankingservice.entity.PlayerEloRank;
-import com.example.elorankingservice.entity.RankThreshold;
-import com.fasterxml.jackson.core.type.TypeReference;
+import csd.backend.matchmaking.dto.ClanEloRank;
+import csd.backend.matchmaking.dto.EloRank;
+import csd.backend.matchmaking.dto.PlayerEloRank;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import csd.backend.matchmaking.entity.ClanAvailability;
 import csd.backend.matchmaking.entity.Game;
@@ -21,8 +18,6 @@ import org.springframework.stereotype.Service;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static csd.backend.matchmaking.entity.Game.GameMode.BATTLE_ROYALE;
 
 @Service
 public class MatchmakingService {
@@ -72,11 +67,11 @@ public class MatchmakingService {
                 .distinct()
                 .toList();
 
-        Map<Long, RankThreshold.Rank> clanEloRankMap = new HashMap<>();
+        Map<Long, String> clanEloRankMap = new HashMap<>();
         for (Long clanId : clanIds) {
             try {
                 ClanEloRank eloRank = eloRankingClient.getClanEloRank(clanId, tournamentId);
-                clanEloRankMap.put(clanId, eloRank.getRankThreshold().getRank());
+                clanEloRankMap.put(clanId, eloRank.getRankThreshold());
             } catch (Exception e) {
                 System.out.printf("Failed to retrieve ELO rank for clan %d in tournament %d: %s%n", clanId, tournamentId, e.getMessage());
                 throw new Exception(String.format("Failed to retrieve ELO rank for clan %d in tournament %d: %s", clanId, tournamentId, e.getMessage()));
@@ -84,7 +79,7 @@ public class MatchmakingService {
         }
 
         // Step 3: Group Clans by ELO Rank
-        Map<RankThreshold.Rank, List<Long>> clansGroupedByElo = clanEloRankMap.entrySet().stream()
+        Map<String, List<Long>> clansGroupedByElo = clanEloRankMap.entrySet().stream()
                 .collect(Collectors.groupingBy(
                         Map.Entry::getValue,
                         Collectors.mapping(Map.Entry::getKey, Collectors.toList())
@@ -95,8 +90,8 @@ public class MatchmakingService {
         // Step 4: Pair Clans Within Each ELO Rank Group Based on Overlapping Availability
         List<Game> scheduledGames = new ArrayList<>();
 
-        for (Map.Entry<RankThreshold.Rank, List<Long>> entry : clansGroupedByElo.entrySet()) {
-            RankThreshold.Rank eloRank = entry.getKey();
+        for (Map.Entry<String, List<Long>> entry : clansGroupedByElo.entrySet()) {
+            String eloRank = entry.getKey();
             List<Long> clansInRank = entry.getValue();
 
             System.out.println("Processing Clan War scheduling for ELO Rank: " + eloRank);
@@ -210,7 +205,7 @@ public class MatchmakingService {
         // Group players by their rank
         for (PlayerAvailability availability : availablePlayers) {
             Long playerId = availability.getPlayerId();
-            String rank = String.valueOf(eloRankMap.get(playerId).getRankThreshold().getRank()); // Get the player's rank
+            String rank = String.valueOf(eloRankMap.get(playerId).getRankThresholdId()); // Get the player's rank
 
             rankedPlayersMap.computeIfAbsent(rank, k -> new ArrayList<>()).add(availability);
         }

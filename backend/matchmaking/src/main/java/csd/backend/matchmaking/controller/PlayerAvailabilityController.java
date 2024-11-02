@@ -1,12 +1,9 @@
 package csd.backend.matchmaking.controller;
 
-import csd.backend.matchmaking.dto.Request;
 import csd.backend.matchmaking.entity.PlayerAvailability;
 import csd.backend.matchmaking.services.PlayerAvailabilityService;
 
-import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

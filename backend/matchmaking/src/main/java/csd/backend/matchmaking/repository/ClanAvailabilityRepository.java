@@ -1,8 +1,6 @@
 package csd.backend.matchmaking.repository;
 
 import csd.backend.matchmaking.entity.ClanAvailability;
-import csd.backend.matchmaking.entity.Game;
-import csd.backend.matchmaking.entity.PlayerAvailability;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.OffsetDateTime;

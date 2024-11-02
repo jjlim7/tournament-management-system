@@ -1,31 +1,20 @@
 package csd.backend.matchmaking.controller;
 
-import com.example.elorankingservice.entity.EloRank;
-import com.example.elorankingservice.entity.PlayerEloRank;
-import com.example.elorankingservice.entity.RankThreshold;
-import com.example.tournamentservice.entity.Tournament;
+import csd.backend.matchmaking.dto.Tournament;
+import csd.backend.matchmaking.feignclient.EloRankingClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import csd.backend.matchmaking.entity.Game;
-import csd.backend.matchmaking.entity.PlayerAvailability;
-import csd.backend.matchmaking.feignclient.EloRankingClient;
 import csd.backend.matchmaking.feignclient.TournamentClient;
-import csd.backend.matchmaking.repository.PlayerAvailabilityRepository;
 import csd.backend.matchmaking.services.MatchmakingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -50,6 +39,9 @@ public class MatchmakingControllerUnitTest {
 
     @MockitoBean
     private TournamentClient tournamentClient;
+
+    @MockitoBean
+    private EloRankingClient eloRankingClient;
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
     private static final long TOURNAMENT_ID = 1L;
@@ -101,7 +93,7 @@ public class MatchmakingControllerUnitTest {
         mockMvc.perform(post("/api/matchmaking/scheduleGames")
                         .param("tournamentId", String.valueOf(TOURNAMENT_ID))
                         .param("gameMode", GAME_MODE))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(content().string("Games scheduled for tournament " + TOURNAMENT_ID));
 
         verify(matchmakingService, times(1)).isTournamentAlreadyScheduled(TOURNAMENT_ID);
