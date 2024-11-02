@@ -1,5 +1,9 @@
 package com.example.userservice.controller;
 
+import com.example.userservice.feigndto.PlayerEloRank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.userservice.entity.*;
@@ -28,6 +32,9 @@ import io.swagger.v3.oas.annotations.Operation;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -95,7 +102,16 @@ public class UserController {
     // complex ms fn that calls elo-ranking-service
     @Operation(summary = "Get elo rank for specific user", description = "Get latest/current elo ranking of player")
     @GetMapping("/users/{userId}/latest-rank")
-    public Object getUserEloRank(@PathVariable Long userId) {
-        return 0;
+    public ResponseEntity<?> getUserEloRank(@PathVariable Long userId) {
+        try {
+            PlayerEloRank rank = userService.getLatestPlayerRank(userId);
+            return ResponseEntity.ok(rank);
+        } catch (Exception e) {
+// Log the exception for debugging
+            log.error("Failed to retrieve Elo rank for user: {}", userId, e);
+
+            // Return a meaningful error message
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not retrieve Elo rank at this time.");
+        }
     }
 }
