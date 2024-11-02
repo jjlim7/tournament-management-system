@@ -12,9 +12,7 @@ services:
       - internal-network
 
   matchmaking-service:
-    build:
-      context: .
-      dockerfile: matchmaking/Dockerfile
+    build: ./matchmaking
     env_file: .env
     ports:
       - 8081:8080
