@@ -91,5 +91,11 @@ public class UserController {
             throw new UserNotFoundException(userId);
         }
     }
-     
+
+    // complex ms fn that calls elo-ranking-service
+    @Operation(summary = "Get elo rank for specific user", description = "Get latest/current elo ranking of player")
+    @GetMapping("/users/{userId}/latest-rank")
+    public Object getUserEloRank(@PathVariable Long userId) {
+        return 0;
+    }
 }

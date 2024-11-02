@@ -18,6 +18,12 @@ public class ClanUserServiceImpl implements ClanUserService {
 
     @Override
     @Transactional
+    public List<ClanUser> listAllClanUsersFromClan(Long clanId) {
+        return clanUserDB.findByClan_ClanId(clanId);
+    }
+
+    @Override
+    @Transactional
     public List<ClanUser> listAllClanUsers() {
         return clanUserDB.findAll();
     }

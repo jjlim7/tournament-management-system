@@ -38,31 +38,17 @@ public class User {
     @Pattern(regexp = "ROLE_ADMIN|ROLE_PLAYER", message = "the role must be ROLE_ADMIN|ROLE_PLAYER") // if we have this code do we need to define admin as a separate class?
     private String role;
 
-    @Column(name = "country")
-    private String country;
-
-    @Column(name = "elo_rating")
-    private Long elo_rating; // This uses the snake case
-
-    @Column(name = "rank")
-    @Pattern(regexp = "UNRANKED|IRON|SILVER|GOLD|PLATINIUM|EMERALD|DIAMOND|MASTER|GRANDMASTER|CHALLENGER", message = "INCORRECT RANKING. SEARCH LOL RANKING SYSTEM")
-    private String rank;
-
     // The error is somewhere here
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<ClanUser> clanUser;
 
     // Separate constructor so that Admin can use super()
-    public User(Long userId, String name, String email, String password, String role, String country, Long elo_rating,
-            String rank) {
+    public User(Long userId, String name, String email, String password, String role) {
         this.userId = userId;
         this.name = name;
         this.email = email;
         this.password = password;
         this.role = role;
-        this.country = country;
-        this.elo_rating = elo_rating;
-        this.rank = rank;
     }
 }

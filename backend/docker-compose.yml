@@ -3,6 +3,8 @@ version: "3.8"
 services:
   user-service:
     build: ./user-service
+    platform: linux/amd64
+    image: vynious/user-service
     env_file: .env
     ports:
       - 8084:8080
@@ -13,6 +15,8 @@ services:
 
   matchmaking-service:
     build: ./matchmaking-service
+    platform: linux/amd64
+    image: vynious/matchmaking-service
     env_file: .env
     ports:
       - 8081:8080
@@ -21,10 +25,22 @@ services:
     networks:
       - internal-network
 
+  auth-service:
+    build: ./auth-service
+    platform: linux/arm64
+    image: vynious/auth-service
+    env_file: .env
+    ports:
+      - 8085:8080
+    depends_on:
+      - postgresdb
+    networks:
+      - internal-network
+
   elo-ranking-service:
-    build:
-      context: .
-      dockerfile: elo-ranking-service/Dockerfile
+    build: ./elo-ranking-service
+    platform: linux/amd64
+    image: vynious/elo-ranking-service
     env_file: .env
     ports:
       - 8082:8080
@@ -35,6 +51,8 @@ services:
 
   tournament-service:
     build: ./tournament-service
+    platform: linux/amd64
+    image: vynious/tournament-service
     env_file: .env
     ports:
       - 8083:8080
@@ -43,16 +61,19 @@ services:
     networks:
       - internal-network
 
-  gateway-service:
+  gateway:
     build: ./gateway-service
+    platform: linux/amd64
+    image: vynious/gateway-service
     env_file: .env
     environment:
-      SPRING_PROFILES_ACTIVE: docker # Activate docker profile
+      SPRING_PROFILES_ACTIVE: docker  # Activate docker profile
     ports:
       - 8080:8080
     depends_on:
+      - auth-service
       - user-service
-      #      - matchmaking-service
+      - matchmaking-service
       - elo-ranking-service
       - tournament-service
     networks:
@@ -64,7 +85,7 @@ services:
     environment:
       - POSTGRES_USER=$POSTGRES_USER
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-      - POSTGRES_MULTIPLE_DATABASES=user-service, tournament-service, matchmaking-service, elo-ranking-service
+      - POSTGRES_MULTIPLE_DATABASES=user-service, tournament-service, matchmaking-service, elo-ranking-service, auth-service
     ports:
       - 5432:5432
     healthcheck:

@@ -6,5 +6,5 @@ import com.example.tournamentservice.entity.Game;
 
 @Repository
 public interface GameRepository extends JpaRepository<Game, Long>{
-    
+
 }

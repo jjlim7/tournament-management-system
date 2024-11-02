@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
 
         List<User> sameUsersList = userDB.findByEmail(user.getEmail());
 
-        if(sameUsersList.size() == 0) { // size = 0 means unique user, add him to the DB
+        if(sameUsersList.isEmpty()) { // size = 0 means unique user, add him to the DB
             return userDB.save(user);
         } else {
             return null;
@@ -60,9 +60,6 @@ public class UserServiceImpl implements UserService {
             user.setEmail(newUser.getEmail());
             user.setPassword(newUser.getPassword());
             user.setRole(newUser.getRole());
-            user.setCountry(newUser.getCountry());
-            user.setElo_rating(newUser.getElo_rating());
-            user.setRank(newUser.getRank());
             
             return userDB.save(user); // need to save the updates in the DB
 

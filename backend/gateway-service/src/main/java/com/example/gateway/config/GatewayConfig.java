@@ -119,18 +119,17 @@ public class GatewayConfig {
     public CorsWebFilter corsWebFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        // Allow requests from any origin
-        config.setAllowedOrigins(List.of("*"));
-        // Allow specific HTTP methods
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        // Allow all headers
-        config.setAllowedHeaders(List.of("*"));
-        // Allow credentials if needed
-        config.setAllowCredentials(true);
-        // Register the CORS configuration for all paths
+        
+        config.setAllowedOrigins(List.of("http://localhost:5173")); // Allow specific origin
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Allow required HTTP methods
+        config.setAllowedHeaders(List.of("*")); // Allow all headers
+        config.setAllowCredentials(true); // Allow credentials if needed
+
         source.registerCorsConfiguration("/**", config);
         return new CorsWebFilter(source);
     }
+
+
 
     private Function<PredicateSpec, Buildable<Route>> getRoute(String root, String uri) {
         logger.info("Configuring route: {} -> {}", root, uri);

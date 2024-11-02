@@ -2,8 +2,10 @@ package com.example.userservice.service;
 
 import java.util.*;
 import com.example.userservice.entity.*;
+import jakarta.transaction.Transactional;
 
 public interface ClanUserService {
+    List<ClanUser> listAllClanUsersFromClan(Long clanId);
     List<ClanUser> listAllClanUsers();
     ClanUser addClanUser(ClanUser clanUser);
     ClanUser getClanUser(Long clanUserId);
