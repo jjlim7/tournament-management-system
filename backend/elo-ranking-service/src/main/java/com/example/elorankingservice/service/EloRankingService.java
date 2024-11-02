@@ -106,7 +106,6 @@ public class EloRankingService {
         return playerEloRankRepository.findByPlayerIdInAndTournamentId(playerIds, tournamentId);
     }
 
-
     // Retrieve Player Elo Ranks within a specific rating range for a tournament
     public List<PlayerEloRank> retrievePlayerEloRanksByRatingRange(Long tournamentId, double minRating, double maxRating) {
         return playerEloRankRepository.findByMeanSkillEstimateBetweenAndTournamentId(maxRating, minRating, tournamentId);
@@ -115,6 +114,15 @@ public class EloRankingService {
     // Retrieve Clan Elo Ranks within a specific rating range for a tournament
     public List<ClanEloRank> retrieveClanEloRanksByRatingRange(Long tournamentId, double minRating, double maxRating) {
         return clanEloRankRepository.findByMeanSkillEstimateBetweenAndTournamentId(maxRating, minRating, tournamentId);
+    }
+
+    public Optional<PlayerEloRank> retrievePlayerEloRankByLatestTournament(Long playerId) {
+        return playerEloRankRepository.findTopByPlayerIdOrderByTournamentIdDesc(playerId);
+    }
+
+
+    public Optional<ClanEloRank> retrieveClanEloRankByLatestTournament(Long clanId) {
+        return clanEloRankRepository.findTopByClanIdOrderByTournamentIdDesc(clanId);
     }
 
     @Transactional
