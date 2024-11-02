@@ -1,17 +1,13 @@
 package csd.backend.matchmaking.feignclient;
 
-import com.example.elorankingservice.dto.Request;
-import com.example.elorankingservice.entity.ClanEloRank;
-import com.example.elorankingservice.entity.GameScore;
-import com.example.elorankingservice.entity.PlayerEloRank;
-import lombok.Getter;
+import csd.backend.matchmaking.dto.ClanEloRank;
+import csd.backend.matchmaking.dto.PlayerEloRank;
+import csd.backend.matchmaking.dto.Request;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.List;
 import java.util.Map;
 
 @FeignClient(value = "EloRankingService", url = "http://localhost:8082")
