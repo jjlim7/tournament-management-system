@@ -27,7 +27,7 @@ services:
 
   auth-service:
     build: ./auth-service
-    platform: linux/arm64
+    platform: linux/amd64
     image: vynious/auth-service
     env_file: .env
     ports:
@@ -85,7 +85,7 @@ services:
     environment:
       - POSTGRES_USER=$POSTGRES_USER
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-      - POSTGRES_MULTIPLE_DATABASES=user-service, tournament-service, matchmaking-service, elo-ranking-service, auth-service
+      - POSTGRES_MULTIPLE_DATABASES=$POSTGRES_MULTIPLE_DATABASES
     ports:
       - 5432:5432
     healthcheck:

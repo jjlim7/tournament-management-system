@@ -1,7 +1,7 @@
 FROM openjdk:17
 WORKDIR /app
 
-COPY ./elo-ranking-service .
+COPY . .
 
 RUN ./mvnw package -Dmaven.test.skip=true
 
