@@ -7,15 +7,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@FeignClient(value = "TournamentService", url = "http://localhost:8083")
+@FeignClient(value = "TournamentService", url = "${tournament.service.url}")
 public interface TournamentClient {
 
-    @GetMapping("/tournaments/{id}")
+    @GetMapping("/api/tournaments/{id}")
     ResponseEntity<Tournament> getTournamentById(@PathVariable Long id);
 
-    @GetMapping("/tournaments/upcoming")
+    @GetMapping("/api/tournaments/upcoming")
     List<Tournament> getUpcomingTournaments();
 
-    @PutMapping("/tournaments/{tournamentId}/status")
+    @PutMapping("/api/tournaments/{tournamentId}/status")
     void updateTournamentStatus(@PathVariable("tournamentId") Long tournamentId, @RequestParam("newStatus") String newStatus);
 }

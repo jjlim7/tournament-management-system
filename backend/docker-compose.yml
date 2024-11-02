@@ -3,7 +3,7 @@ version: "3.8"
 services:
   user-service:
     build: ./user-service
-    platform: linux/amd64
+
     image: vynious/user-service
     env_file: .env
     ports:
@@ -15,7 +15,7 @@ services:
 
   matchmaking-service:
     build: ./matchmaking-service
-    platform: linux/amd64
+
     image: vynious/matchmaking-service
     env_file: .env
     ports:
@@ -27,7 +27,7 @@ services:
 
   auth-service:
     build: ./auth-service
-    platform: linux/amd64
+
     image: vynious/auth-service
     env_file: .env
     ports:
@@ -39,7 +39,7 @@ services:
 
   elo-ranking-service:
     build: ./elo-ranking-service
-    platform: linux/amd64
+
     image: vynious/elo-ranking-service
     env_file: .env
     ports:
@@ -51,7 +51,7 @@ services:
 
   tournament-service:
     build: ./tournament-service
-    platform: linux/amd64
+
     image: vynious/tournament-service
     env_file: .env
     ports:
@@ -63,7 +63,7 @@ services:
 
   gateway:
     build: ./gateway-service
-    platform: linux/amd64
+
     image: vynious/gateway-service
     env_file: .env
     environment:

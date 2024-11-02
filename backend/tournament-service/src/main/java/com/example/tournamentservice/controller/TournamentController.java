@@ -37,23 +37,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
-import com.example.tournamentservice.entity.Tournament;
-
-import org.apache.coyote.Response;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-import org.springframework.web.bind.annotation.*;
-
-
+//@CrossOrigin(origins = "http://your-frontend-domain.com") //adjust accordingly
 @RestController
 @RequestMapping("/api/tournaments")
-//@CrossOrigin(origins = "http://your-frontend-domain.com") //adjust accordingly
-
-
 public class TournamentController {
 
     @Autowired

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Map;
 
-@FeignClient(value = "EloRankingService", url = "http://localhost:8082")
+@FeignClient(value = "EloRankingService", url = "${elo.service.url}")
 public interface EloRankingClient {
 
     @GetMapping("/api/elo-ranking/player/{playerId}/tournament/{tournamentId}")
