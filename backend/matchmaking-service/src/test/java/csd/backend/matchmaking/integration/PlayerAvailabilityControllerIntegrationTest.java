@@ -1,11 +1,7 @@
 package csd.backend.matchmaking.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import csd.backend.matchmaking.controller.PlayerAvailabilityController;
 import csd.backend.matchmaking.entity.PlayerAvailability;
-import csd.backend.matchmaking.repository.PlayerAvailabilityRepository;
-import csd.backend.matchmaking.services.PlayerAvailabilityService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,9 +41,6 @@ public class PlayerAvailabilityControllerIntegrationTest {
 
         // Create and save test data here, or rely on external seeding methods
         // Seed test data
-
-        objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
     }
 
     @Test

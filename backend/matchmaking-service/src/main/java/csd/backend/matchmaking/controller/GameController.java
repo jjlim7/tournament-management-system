@@ -1,6 +1,5 @@
 package csd.backend.matchmaking.controller;
 
-import csd.backend.matchmaking.dto.Request;
 import csd.backend.matchmaking.dto.Response;
 import csd.backend.matchmaking.entity.Game;
 import csd.backend.matchmaking.services.GameService;
@@ -9,9 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/games")
@@ -23,11 +20,12 @@ public class GameController {
     @PostMapping
     public ResponseEntity<Game> createGame(@RequestBody Game gameDto) {
         Game game = gameService.createGame(
+                gameDto.getGameMode(),
                 gameDto.getTournamentId(),
                 gameDto.getPlayerIds(),
+                gameDto.getClanIds(),
                 gameDto.getStartTime(),
                 gameDto.getEndTime(),
-                gameDto.getGameMode(),
                 gameDto.getGameStatus()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(game);

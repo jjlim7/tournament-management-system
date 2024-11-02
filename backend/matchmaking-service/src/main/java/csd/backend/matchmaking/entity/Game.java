@@ -10,16 +10,15 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Setter
 @Getter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "game", uniqueConstraints={@UniqueConstraint(columnNames={"tournament_id", "start_time"})})
+//@Table(name = "game", uniqueConstraints={@UniqueConstraint(columnNames={"tournament_id", "start_time"})})
+@Table(name = "game")
 public class Game {
 
   @Id
@@ -81,9 +80,10 @@ public class Game {
   }
 
   // Constructor for Battle Royale
-  public Game(long tournamentId, List<Long> playerIds, OffsetDateTime startTime, OffsetDateTime endTime, GameMode gameMode, GameStatus gameStatus) {
+  public Game(long tournamentId, List<Long> playerIds, List<Long> clanIds, OffsetDateTime startTime, OffsetDateTime endTime, GameMode gameMode, GameStatus gameStatus) {
     this.tournamentId = tournamentId;
     this.playerIds = playerIds;
+    this.clanIds = clanIds;
     this.startTime = startTime;
     this.endTime = endTime;
     this.gameMode = gameMode;

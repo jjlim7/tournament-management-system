@@ -17,8 +17,25 @@ public class GameService {
     @Autowired
     private GameRepository gameRepository;
 
-    public Game createGame(long tournamentId, List<Long> playerIds, OffsetDateTime startTime, OffsetDateTime endTime, Game.GameMode gameMode, Game.GameStatus gameStatus) {
-        Game game = new Game(tournamentId, playerIds, startTime, endTime, gameMode, gameStatus);
+    public Game createGame(Game.GameMode gameMode, long tournamentId, List<Long> playerIds, List<Long> clanIds, OffsetDateTime startTime, OffsetDateTime endTime, Game.GameStatus gameStatus) {
+        switch (gameMode) {
+            case BATTLE_ROYALE -> {
+                return createBattleRoyaleGame(tournamentId, playerIds, startTime, endTime, gameStatus);
+            }
+            case CLAN_WAR -> {
+                return createClanWarGame(tournamentId, clanIds, startTime, endTime, gameStatus);
+            }
+        }
+        return null;
+    }
+
+    public Game createBattleRoyaleGame(long tournamentId, List<Long> playerIds, OffsetDateTime startTime, OffsetDateTime endTime, Game.GameStatus gameStatus) {
+        Game game = new Game(tournamentId, playerIds, null, startTime, endTime, Game.GameMode.BATTLE_ROYALE, gameStatus);
+        return gameRepository.save(game);
+    }
+
+    public Game createClanWarGame(long tournamentId, List<Long> clanIds, OffsetDateTime startTime, OffsetDateTime endTime, Game.GameStatus gameStatus) {
+        Game game = new Game(tournamentId, null, clanIds, startTime, endTime, Game.GameMode.CLAN_WAR, gameStatus);
         return gameRepository.save(game);
     }
 
