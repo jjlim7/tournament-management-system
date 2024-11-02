@@ -45,7 +45,6 @@ public class AuthenticationService {
         }
         //create new person
         request.setPassword(passwordEncoder.encode(request.getPassword()));
-        request.setRank("UNRANKED");
         User newUser = userRepository.save(request);
 
         //generate token and save token for user

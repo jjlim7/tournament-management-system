@@ -10,8 +10,6 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -39,14 +37,6 @@ public class User implements UserDetails {
             message = "the role must be ROLE_ADMIN|ROLE_PLAYER")
     @NotNull
     private String role;
-    @Column(name="country")
-    private String country;
-    @Column(name="elo_rating")
-    private long elo_rating;
-    @Column(name="rank")
-    @Pattern(regexp = "UNRANKED|IRON|SILVER|GOLD|PLATINIUM|EMERALD|DIAMOND|MASTER|GRANDMASTER|CHALLENGER",
-            message = "INCORRECT RANKING. SEARCH LOL RANKING SYSTEM")
-    private String rank;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -54,7 +44,11 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Arrays.asList(new SimpleGrantedAuthority(role));
+        return List.of(new SimpleGrantedAuthority(role));
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getUsername(){
@@ -64,6 +58,7 @@ public class User implements UserDetails {
     public String getPassword(){
         return password;
     }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
