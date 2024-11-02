@@ -1,26 +1,26 @@
 package com.example.tournamentservice.repository;
 
-import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Optional;
+import com.example.tournamentservice.entity.Tournament;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
-import com.example.tournamentservice.entity.Tournament;
+import java.util.List;
 
 @Service
 public interface TournamentRepository extends JpaRepository<Tournament, Long> {
 
-    Optional<Tournament> findByName(String name);
+    //@Autowired
 
-    List<Tournament> findByStartDateBetween(OffsetDateTime startDate, OffsetDateTime endDate);
-
-    List<Tournament> findByEndDateBetween(OffsetDateTime startDate, OffsetDateTime endDate);
     
-    @Query("SELECT t FROM Tournament t WHERE t.startDate BETWEEN :startDate AND :endDate OR t.endDate BETWEEN :startDate AND :endDate")
-    List<Tournament> findByDateRange(OffsetDateTime startDate, OffsetDateTime endDate);
+    //List<Tournament> findByStatus(String status);
+    //List<Tournament> findByStatusAndName(String Status, String name);
 
+    
+    //Searching of tournament dynamically
+    //List<Tournament> findByCriteria();
+
+
+    
 }

@@ -1,22 +1,23 @@
 package com.example.tournamentservice.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.util.Collections;
-import java.util.List;
-
+import com.example.tournamentservice.entity.Tournament;
+import com.example.tournamentservice.service.TournamentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.example.tournamentservice.entity.Tournament;
-import com.example.tournamentservice.exception.TournamentsNotFoundException;
-import com.example.tournamentservice.service.TournamentService;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 public class TournamentControllerTest {
 
@@ -43,13 +44,22 @@ public class TournamentControllerTest {
         verify(tournamentService, times(1)).createTournament(tournament);
     }
 
-    @SuppressWarnings("null")
+    // @Test
+    // public void testCreateTournament_InvalidInput() throws Exception {
+    //     Tournament tournament = new Tournament(); // Populate with invalid data that violates validation constraints
+
+    //     mockMvc.perform(post("/create")
+    //             .contentType(MediaType.APPLICATION_JSON)
+    //             .content(objectMapper.writeValueAsString(tournament)))
+    //             .andExpect(status().isBadRequest());
+    // }
+
     @Test
     public void testGetAllTournaments() {
         Tournament tournament = new Tournament(); // Set properties as needed
         when(tournamentService.getAllTournaments()).thenReturn(Collections.singletonList(tournament));
 
-        ResponseEntity<List<Tournament>> response = tournamentController.getAllTournaments();
+        ResponseEntity<List<Tournament>> response = tournamentController.getAllTournament();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
@@ -60,7 +70,7 @@ public class TournamentControllerTest {
     public void testGetTournamentById() {
         Long tournamentId = 1L;
         Tournament tournament = new Tournament(); // Set properties as needed
-        when(tournamentService.getTournamentById(tournamentId)).thenReturn(tournament);
+        when(tournamentService.getTournamentById(tournamentId)).thenReturn(Optional.of(tournament));
 
         ResponseEntity<Tournament> response = tournamentController.getTournamentById(tournamentId);
 
@@ -72,9 +82,9 @@ public class TournamentControllerTest {
     @Test
     public void testGetTournamentById_NotFound() {
         Long tournamentId = 1L;
-        when(tournamentService.getTournamentById(tournamentId)).thenThrow(new TournamentsNotFoundException("Tournament cannot be found"));
+        when(tournamentService.getTournamentById(tournamentId)).thenReturn(Optional.empty());
 
-        TournamentsNotFoundException exception = assertThrows(TournamentsNotFoundException.class, () -> {
+        Exception exception = assertThrows(RuntimeException.class, () -> {
             tournamentController.getTournamentById(tournamentId);
         });
 
@@ -84,12 +94,11 @@ public class TournamentControllerTest {
     @Test
     public void testDeleteTournament() {
         Long tournamentId = 1L;
-        Long requestingAdminId = 100L;
 
-        ResponseEntity<String> response = tournamentController.deleteTournament(tournamentId, requestingAdminId);
+        ResponseEntity<Void> response = tournamentController.deleteTournament(tournamentId);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(tournamentService, times(1)).deleteTournament(tournamentId, requestingAdminId);
+        verify(tournamentService, times(1)).deleteTournament(tournamentId);
     }
 
     @Test
@@ -98,40 +107,12 @@ public class TournamentControllerTest {
         Tournament tournament = new Tournament(); // Set properties as needed
         when(tournamentService.updateTournament(tournamentId, tournament)).thenReturn(tournament);
 
-        ResponseEntity<String> response = tournamentController.updateTournament(tournamentId, tournament);
+        ResponseEntity<Tournament> response = tournamentController.updateTournament(tournamentId, tournament);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Tournament updated successfully! ID: " + tournament.getTournament_id(), response.getBody());
+        assertEquals(tournament, response.getBody());
         verify(tournamentService, times(1)).updateTournament(tournamentId, tournament);
     }
 
-    @Test
-    public void testJoinTournament() {
-        Long tournamentId = 1L;
-        Long playerId = 10L;
-        String expectedResponse = "Player joined tournament successfully";
-        
-        when(tournamentService.joinTournament(tournamentId, playerId)).thenReturn(expectedResponse);
-
-        ResponseEntity<String> response = tournamentController.joinTournament(tournamentId, playerId);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(expectedResponse, response.getBody());
-        verify(tournamentService, times(1)).joinTournament(tournamentId, playerId);
-    }
-
-    @Test
-    public void testLeaveTournament() {
-        Long tournamentId = 1L;
-        Long playerId = 10L;
-        String expectedResponse = "Player left tournament successfully";
-        
-        when(tournamentService.leaveTournament(tournamentId, playerId)).thenReturn(expectedResponse);
-
-        ResponseEntity<String> response = tournamentController.leaveTournament(tournamentId, playerId);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(expectedResponse, response.getBody());
-        verify(tournamentService, times(1)).leaveTournament(tournamentId, playerId);
-    }
+    // Add more tests as needed for joinTournament and leaveTournament
 }
