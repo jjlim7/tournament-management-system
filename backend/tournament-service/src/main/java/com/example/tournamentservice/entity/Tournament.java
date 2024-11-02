@@ -1,25 +1,17 @@
 package com.example.tournamentservice.entity;
 
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+
 @Entity
 @Table(name = "tournaments")
 @Data
@@ -29,15 +21,16 @@ import lombok.NoArgsConstructor;
 public class Tournament {
 
 	public enum GameMode {
-		BATTLE_ROYALE,
-		CLANWAR
+		Royale,
+		ClanWar,
 	}
 
 	public enum Status {
-		INACTIVE,
-		ACTIVE,
-		CANCELLED,
-		COMPLETED
+		Inactive,
+		Rescheduled,
+		Cancelled,
+		Active,
+		Ended,
 	}
 
 	@Id
@@ -68,14 +61,13 @@ public class Tournament {
 	@Enumerated(EnumType.STRING)
 	private Status status;
 
-	@Column(name = "game_mode", nullable = false, unique = false)
+	@Column(name = "game_mode", nullable = false, unique = true)
 	@Enumerated(EnumType.STRING)
 	private GameMode gameMode;
 
-	@ElementCollection
-	@CollectionTable(name = "tournament_games", joinColumns = @JoinColumn(name = "tournament_id"))
-	@Column(name = "game_id")
-	private List<Long> gameList = new ArrayList<>();
+    //@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    //@JoinColumn(name = "tournament_id")
+    //private List<Game> gameList;
 
 	@Column(name = "admin_id", nullable = false)
     private Long adminId;
@@ -83,8 +75,7 @@ public class Tournament {
 	@ElementCollection
     @CollectionTable(name = "tournament_players", joinColumns = @JoinColumn(name = "tournament_id"))
     @Column(name = "player_id")
-    private List<Long> playerIds = new ArrayList<>();
-
+    private List<Long> playerIds;
 
 }
 
