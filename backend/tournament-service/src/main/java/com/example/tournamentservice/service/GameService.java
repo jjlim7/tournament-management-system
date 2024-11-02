@@ -1,11 +1,12 @@
 package com.example.tournamentservice.service;
 
-import com.example.tournamentservice.entity.Game;
-import com.example.tournamentservice.repository.GameRepository;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.example.tournamentservice.entity.Game;
+import com.example.tournamentservice.repository.GameRepository;
 
 @Service
 public class GameService {

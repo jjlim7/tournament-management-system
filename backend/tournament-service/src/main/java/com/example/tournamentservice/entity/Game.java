@@ -35,4 +35,3 @@ public class Game {
     @JoinColumn(name = "tournament_id", nullable = false) // Foreign key to tournament
     private Tournament tournament;
 }
-
