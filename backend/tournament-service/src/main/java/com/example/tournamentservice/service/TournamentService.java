@@ -2,8 +2,8 @@ package com.example.tournamentservice.service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -75,27 +75,18 @@ public class TournamentService {
     public Tournament updateTournament(Long id, Tournament tournament) {
         Tournament existingTournament = tournamentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
-    
-        // Validate ID and Admin ID remain unchanged
-        if (!existingTournament.getTournament_id().equals(tournament.getTournament_id())) {
-            throw new IllegalArgumentException("Tournament ID cannot be modified.");
-        }
-        if (!existingTournament.getAdminId().equals(tournament.getAdminId())) {
-            throw new IllegalArgumentException("Admin ID cannot be modified.");
-        }
-    
+
         validateEditableStatus(existingTournament);
-    
+
         // Update fields if provided
         updateFieldIfPresent(existingTournament::setName, tournament.getName());
         updateFieldIfPresent(existingTournament::setDescription, tournament.getDescription());
-    
+
         validateAndUpdateCapacity(existingTournament, tournament.getPlayerCapacity());
         validateAndUpdateDates(existingTournament, tournament.getStartDate(), tournament.getEndDate());
-    
+
         return tournamentRepository.save(existingTournament);
     }
-    
 
     public void deleteTournament(Long id, Long requestingAdminId) {
         Tournament tournament = tournamentRepository.findById(id)
