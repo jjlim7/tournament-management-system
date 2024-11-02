@@ -20,9 +20,10 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode
 @Entity
+@Table(name = "users")  // Use a different name to avoid conflict with the "user" keyword
 public class User implements UserDetails {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id")
+    @Column(name="user_id")
     private Long userId;
     @Column(name="name", nullable = false)
     private String name;

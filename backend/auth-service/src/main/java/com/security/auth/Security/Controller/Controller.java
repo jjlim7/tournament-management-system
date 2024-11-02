@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3210")
+@CrossOrigin(origins = "http://gateway:8080")
 public class Controller {
     private final AuthenticationService authService;
     private final CustomLogoutHandler customLogoutHandler;
