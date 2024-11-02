@@ -1,9 +1,9 @@
 package csd.backend.matchmaking.integration;
 
-import csd.backend.matchmaking.dto.ClanEloRank;
-import csd.backend.matchmaking.dto.PlayerEloRank;
-import csd.backend.matchmaking.dto.RankThreshold;
-import csd.backend.matchmaking.dto.Tournament;
+import csd.backend.matchmaking.feigndto.ClanEloRank;
+import csd.backend.matchmaking.feigndto.PlayerEloRank;
+import csd.backend.matchmaking.feigndto.RankThreshold;
+import csd.backend.matchmaking.feigndto.Tournament;
 import csd.backend.matchmaking.entity.ClanAvailability;
 import csd.backend.matchmaking.entity.PlayerAvailability;
 import csd.backend.matchmaking.feignclient.EloRankingClient;

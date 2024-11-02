@@ -1,6 +1,6 @@
 package csd.backend.matchmaking.scheduler;
 
-import csd.backend.matchmaking.dto.Tournament;
+import csd.backend.matchmaking.feigndto.Tournament;
 import csd.backend.matchmaking.feignclient.TournamentClient;
 import csd.backend.matchmaking.services.MatchmakingService;
 import org.springframework.beans.factory.annotation.Autowired;

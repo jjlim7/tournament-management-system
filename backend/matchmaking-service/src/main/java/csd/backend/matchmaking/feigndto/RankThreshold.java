@@ -1,4 +1,4 @@
-package csd.backend.matchmaking.dto;
+package csd.backend.matchmaking.feigndto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

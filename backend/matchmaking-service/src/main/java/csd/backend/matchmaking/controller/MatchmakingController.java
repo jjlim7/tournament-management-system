@@ -1,9 +1,9 @@
 package csd.backend.matchmaking.controller;
 
-import csd.backend.matchmaking.dto.PlayerEloRank;
-import csd.backend.matchmaking.dto.PlayerGameScore;
+import csd.backend.matchmaking.feigndto.PlayerEloRank;
+import csd.backend.matchmaking.feigndto.PlayerGameScore;
 import csd.backend.matchmaking.dto.Request;
-import csd.backend.matchmaking.dto.Tournament;
+import csd.backend.matchmaking.feigndto.Tournament;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import csd.backend.matchmaking.entity.Game;

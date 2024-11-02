@@ -1,6 +1,6 @@
 package csd.backend.matchmaking.integration;
 
-import csd.backend.matchmaking.dto.Tournament;
+import csd.backend.matchmaking.feigndto.Tournament;
 import csd.backend.matchmaking.feignclient.TournamentClient;
 import csd.backend.matchmaking.scheduler.TournamentCronTrigger;
 import org.junit.jupiter.api.Test;

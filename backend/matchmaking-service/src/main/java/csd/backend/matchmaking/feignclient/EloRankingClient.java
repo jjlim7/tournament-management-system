@@ -1,7 +1,7 @@
 package csd.backend.matchmaking.feignclient;
 
-import csd.backend.matchmaking.dto.ClanEloRank;
-import csd.backend.matchmaking.dto.PlayerEloRank;
+import csd.backend.matchmaking.feigndto.ClanEloRank;
+import csd.backend.matchmaking.feigndto.PlayerEloRank;
 import csd.backend.matchmaking.dto.Request;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

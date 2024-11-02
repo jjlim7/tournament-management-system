@@ -1,9 +1,9 @@
 package csd.backend.matchmaking.service;
 
-import csd.backend.matchmaking.dto.ClanEloRank;
-import csd.backend.matchmaking.dto.EloRank;
-import csd.backend.matchmaking.dto.PlayerEloRank;
-import csd.backend.matchmaking.dto.RankThreshold;
+import csd.backend.matchmaking.feigndto.ClanEloRank;
+import csd.backend.matchmaking.feigndto.EloRank;
+import csd.backend.matchmaking.feigndto.PlayerEloRank;
+import csd.backend.matchmaking.feigndto.RankThreshold;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import csd.backend.matchmaking.entity.ClanAvailability;
 import csd.backend.matchmaking.entity.Game;

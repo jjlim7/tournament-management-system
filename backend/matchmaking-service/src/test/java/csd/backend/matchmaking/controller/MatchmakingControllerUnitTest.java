@@ -1,6 +1,6 @@
 package csd.backend.matchmaking.controller;
 
-import csd.backend.matchmaking.dto.Tournament;
+import csd.backend.matchmaking.feigndto.Tournament;
 import csd.backend.matchmaking.feignclient.EloRankingClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import csd.backend.matchmaking.entity.Game;

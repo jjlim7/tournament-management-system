@@ -1,6 +1,6 @@
 package csd.backend.matchmaking.feignclient;
 
-import csd.backend.matchmaking.dto.Tournament;
+import csd.backend.matchmaking.feigndto.Tournament;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
