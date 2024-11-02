@@ -1,6 +1,6 @@
 package csd.backend.matchmaking.integration;
 
-import com.example.tournamentservice.entity.Tournament;
+import csd.backend.matchmaking.dto.Tournament;
 import csd.backend.matchmaking.feignclient.TournamentClient;
 import csd.backend.matchmaking.scheduler.TournamentCronTrigger;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,6 @@ import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest

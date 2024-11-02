@@ -1,6 +1,6 @@
 package csd.backend.matchmaking.scheduler;
 
-import com.example.tournamentservice.entity.Tournament;
+import csd.backend.matchmaking.dto.Tournament;
 import csd.backend.matchmaking.controller.SseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;

@@ -1,7 +1,6 @@
 package csd.backend.matchmaking.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import csd.backend.matchmaking.dto.Request;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.OffsetDateTime;
-import java.util.Objects;
 
 @Setter
 @Getter
