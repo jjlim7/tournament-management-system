@@ -19,8 +19,8 @@ public class TournamentCronTrigger {
     private SseController sseController;
 
     // This method will run every hour and schedule the jobs for upcoming tournaments
-    @Scheduled(cron = "0 */5 * * * ?")  // Run every 5 minutes for testing. TODO: Change to 1-hour
-    //@Scheduled(cron = "0 0 * * * ?")  // Run every hour
+//    @Scheduled(cron = "0 */5 * * * ?")  // Run every 5 minutes for testing. TODO: Change to 1-hour
+    @Scheduled(cron = "0 0 * * * ?")  // Run every hour
     public void checkAndScheduleUpcomingTournaments() {
         List<Tournament> tournamentList = tournamentScheduler.scheduleUpcomingTournaments();
 

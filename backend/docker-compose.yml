@@ -3,7 +3,6 @@ version: "3.8"
 services:
   user-service:
     build: ./user-service
-
     image: vynious/user-service
     env_file: .env
     ports:
@@ -15,7 +14,6 @@ services:
 
   matchmaking-service:
     build: ./matchmaking-service
-
     image: vynious/matchmaking-service
     env_file: .env
     ports:
@@ -27,7 +25,6 @@ services:
 
   auth-service:
     build: ./auth-service
-
     image: vynious/auth-service
     env_file: .env
     ports:

@@ -7,6 +7,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -69,10 +70,10 @@ public class JwtService {
 
     public String generateToken(User user) {
         String roles = user.getAuthorities().stream()
-                .map(authority -> authority.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-        String token = Jwts
+        return Jwts
                 .builder()
                 .subject(user.getUsername())
                 .claim("role", roles)
@@ -80,8 +81,6 @@ public class JwtService {
                 .expiration(new Date(System.currentTimeMillis() + 24*60*60*1000 ))
                 .signWith(getSigninKey())
                 .compact();
-
-        return token;
     }
 
     private SecretKey getSigninKey() {

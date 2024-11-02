@@ -19,7 +19,8 @@ public class SecurityConfig {
                                 "/elo-ranking/api/**",
                                 "/matchmaking/api/**",
                                 "/tournament/api/**",
-                                "/userclan/api/**"  // Allow access without authentication
+                                "/userclan/api/**",  // Allow access without authentication
+                                "/auth/api/**"
                         ).permitAll()
                         .anyExchange().authenticated()  // Authenticate all other paths
                 )

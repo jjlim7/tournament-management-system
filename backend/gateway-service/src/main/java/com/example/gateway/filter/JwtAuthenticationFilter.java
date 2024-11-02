@@ -1,6 +1,8 @@
 package com.example.gateway.filter;
 
 import com.example.gateway.config.GatewayConfig;
+import com.example.gateway.service.JwtService;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -22,6 +24,8 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter implements GatewayFilter, Ordered {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    private final JwtService jwtService;
+
 
 //    @Value("${security.auth.url}")
 //    private String authServiceBase;
@@ -49,15 +53,44 @@ public class JwtAuthenticationFilter implements GatewayFilter, Ordered {
 //                .onErrorResume(
 //                        ex -> onError(exchange, "Failed to authenticate token.", HttpStatus.UNAUTHORIZED));
 //    }
-    @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        // Log the incoming request
-        ServerHttpRequest request = exchange.getRequest();
-        logger.info("Request received: {}", request.getURI());
+//    @Override
+//    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+//        // Log the incoming request
+//        ServerHttpRequest request = exchange.getRequest();
+//        logger.info("Request received: {}", request.getURI());
+//
+//        // Bypass authentication and directly proceed to the next filter or target service
+//        return chain.filter(exchange);
+//    }
+@Override
+public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    // Log the incoming request
+    ServerHttpRequest request = exchange.getRequest();
+    logger.info("Request received: {}", request.getURI());
 
-        // Bypass authentication and directly proceed to the next filter or target service
-        return chain.filter(exchange);
+    // Retrieve token from Authorization header
+    String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        return onError(exchange, "Missing or invalid Authorization header", HttpStatus.UNAUTHORIZED);
     }
+
+    String token = authHeader.substring(7);
+    try {
+        // Decode the token
+        Claims claims = jwtService.extractAllClaims(token);
+        logger.info("Decoded JWT claims: {}", claims);
+
+        // You can also add custom claim validation here if needed
+        // For example: check roles or permissions
+
+        // If token is valid, proceed with the request
+        return chain.filter(exchange);
+
+    } catch (Exception e) {
+        logger.error("Failed to decode JWT: {}", e.getMessage());
+        return onError(exchange, "Invalid token", HttpStatus.UNAUTHORIZED);
+    }
+}
 
     private Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus httpStatus) {
         logger.error("ERROR ON CALL: {}", err);

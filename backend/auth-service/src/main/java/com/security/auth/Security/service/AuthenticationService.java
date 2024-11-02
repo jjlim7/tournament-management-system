@@ -7,6 +7,7 @@ import com.security.auth.Security.repository.TokenRepository;
 import com.security.auth.User.User;
 import com.security.auth.User.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -52,27 +53,29 @@ public class AuthenticationService {
         return new AuthenticationResponse(jwt, "User registration was successful",newUser);
     }
 
-    public AuthenticationResponse authenticate(Map<String,String> request) {
-        //authenticate the user
+    public AuthenticationResponse authenticate(Map<String, String> request) {
         String email = request.get("email");
         String password = request.get("password");
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken( email, password ));
 
-        User user = userRepository.findByEmail(email).orElseThrow(
-                ()-> new BadAuthenticationException("User not found"));
-        String jwt = jwtService.generateToken(user);
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+            User user = userRepository.findByEmail(email).orElseThrow(() -> new BadAuthenticationException("User not found"));
+            String jwt = jwtService.generateToken(user);
 
-        //set all previous token to invalid
-        revokeAllTokenByUser(user);
+            // Revoke old tokens and save the new token
+            revokeAllTokenByUser(user);
+            saveUserToken(jwt, user);
 
-        //save new token, user log in successfully
-        saveUserToken(jwt, user);
-        AuthenticationResponse response = new AuthenticationResponse();
-        response.setToken(jwt);
-        response.setMessage("User login was successful");
-        response.setUser(user); // Set the User object here
-
-        return response;
+            return new AuthenticationResponse(jwt, "User login was successful", user);
+        } catch (
+                BadCredentialsException e) {
+            System.out.println("Bad credentials for user: " + email);
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Authentication failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private void revokeAllTokenByUser(User user) {

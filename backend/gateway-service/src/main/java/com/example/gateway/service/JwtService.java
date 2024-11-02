@@ -15,8 +15,7 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    // Secret key (in production, use environment variables)
-    private final String SECRET_KEY = "your-secret-key";
+    private final String SECRET_KEY = "4bb6d1dfbafb64a681139d1586b6f1160d18159afd57c8c79136d7490630407c";
 
     // Generate a JWT token
     public String generateToken(String subject) {
@@ -65,7 +64,7 @@ public class JwtService {
     }
 
     // Extract all claims from the token
-    private Claims extractAllClaims(String token) {
+    public Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)

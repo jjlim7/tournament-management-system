@@ -42,6 +42,8 @@ ms:
     root: http://tournament-service:8080
   user-service:
     root: http://user-service:8080
+  auth-service:
+    root: http://auth-service:8080
 
 logging:
   level:

@@ -49,36 +49,10 @@ public class SecurityConfig {
                         req->req //customer
                                 .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/**")).permitAll()
                                 .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/hello")).hasAuthority("ROLE_PLAYER")
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/customer/createTicket")).hasAuthority("ROLE_PLAYER")
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/api/customer/viewAccount/**")).permitAll()
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.PUT, "/api/customer/cancelTicket")).hasAuthority("ROLE_CUSTOMER")
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/api/customer/getTicketHistoryByEmail/*")).hasAuthority("ROLE_CUSTOMER")
-
-                                //account
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/api/account/**")).hasAuthority("ROLE_CUSTOMER")
-
-                                //TicketOffice
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/ticketOfficer/**")).hasAuthority("ROLE_TICKETOFFICER")
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/api/ticketOfficer/**")).hasAuthority("ROLE_TICKETOFFICER")
-
-                                //event
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/api/event/getAllEvents")).permitAll()
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/api/event/getEventById/*")).permitAll()
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/api/event/generateSalesSatistics/**")).hasAuthority("ROLE_EVENTMANAGER")
-
-                                //event manager
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/event/createEvent/*")).hasAuthority("ROLE_EVENTMANAGER")
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.PUT, "/api/event/updateEvent/*")).hasAuthority("ROLE_EVENTMANAGER")
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.PUT, "/api/event/cancelEvent/*")).hasAuthority("ROLE_EVENTMANAGER")
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/user/addTicketingOfficer/*")).hasAuthority("ROLE_EVENTMANAGER")
-
                                 //auth
                                 .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/register")).permitAll()
                                 .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/login")).permitAll()
                                 .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/logout")).permitAll()
-                                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.PUT, "/api/person/updatePerson/*")).hasAnyAuthority("ROLE_EVENTMANAGER","ROLE_CUSTOMER","ROLE_TICKETOFFICER")
-
-
                                 .anyRequest()
                                 .authenticated()
                 ).userDetailsService(userDetailsServiceImp)

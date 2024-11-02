@@ -18,4 +18,6 @@ public interface ConfigurationConstants {
     String U_SERVICE_ID = "user-service";
 
     String U_SERVICE_ROOT = "/";
+
+    String AUTH_SERVICE_ID = "auth-service";
 }
