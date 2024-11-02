@@ -33,7 +33,7 @@ public class TournamentService {
     public Tournament createTournament(Tournament tournament) {
         validateDates(tournament.getStartDate(), tournament.getEndDate());
         validateCapacity(tournament.getPlayerCapacity());
-        
+
         // Set default values if missing
         if (tournament.getStatus() == null) {
             tournament.setStatus(Status.INACTIVE);
@@ -58,7 +58,7 @@ public class TournamentService {
         return tournamentRepository.findById(id)
                 .orElseThrow(() -> new TournamentsNotFoundException("Tournament with ID " + id + " not found."));
     }
-    
+
     public Tournament getTournamentByName(String name) {
         return tournamentRepository.findByName(name)
                 .orElseThrow(() -> new TournamentsNotFoundException("Tournament with name '" + name + "' not found."));
@@ -91,7 +91,7 @@ public class TournamentService {
     public void deleteTournament(Long id, Long requestingAdminId) {
         Tournament tournament = tournamentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Tournament not found with ID: " + id));
-    
+
         if (!tournament.getAdminId().equals(requestingAdminId)) {
             throw new SecurityException("Only the tournament creator can delete this tournament.");
         }
@@ -101,7 +101,7 @@ public class TournamentService {
 
     public String joinTournament(Long tournamentId, Long playerId) {
         Tournament tournament = validateAndRetrieveTournament(tournamentId);
-        
+
         if (tournament.getPlayerIds().contains(playerId)) {
             throw new IllegalArgumentException("Player is already registered in this tournament.");
         }
@@ -112,13 +112,13 @@ public class TournamentService {
 
         tournament.getPlayerIds().add(playerId);
         tournamentRepository.save(tournament);
-    
+
         return "Player joined the tournament successfully.";
     }
-    
+
     public String leaveTournament(long tournamentId, Long playerId) {
         Tournament tournament = validateAndRetrieveTournament(tournamentId);
-        
+
         if (!tournament.getPlayerIds().remove(playerId)) {
             throw new IllegalArgumentException("Player with ID " + playerId + " is not registered in this tournament.");
         }
@@ -213,5 +213,23 @@ public class TournamentService {
         return eloRankingFeignClient.getClanEloRanksByRatingRange(tournamentId, minRating, maxRating);
     }
 
+    public List<Tournament> findUpcomingTournaments() {
+        return tournamentRepository.findUpcomingTournaments();
+    }
 
+    public boolean updateTournamentStatus(Long tournamentId, Tournament.Status newStatus) {
+        OffsetDateTime now = OffsetDateTime.now();
+        return tournamentRepository.findById(tournamentId)
+                .map(tournament -> {
+                    // Add transition validation logic here
+                    if (tournament.getStartDate().isBefore(now)) {
+                        tournament.setStatus(newStatus);
+                        tournamentRepository.save(tournament);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                })
+                .orElse(false);
+    }
 }
