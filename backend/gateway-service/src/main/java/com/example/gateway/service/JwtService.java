@@ -18,9 +18,10 @@ public class JwtService {
     private final String SECRET_KEY = "4bb6d1dfbafb64a681139d1586b6f1160d18159afd57c8c79136d7490630407c";
 
     // Generate a JWT token
-    public String generateToken(String subject) {
+    public String generateToken(String subject, String role) {
         return Jwts.builder()
                 .setSubject(subject)
+                .claim("role", role) // Add role claim to the token
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))  // 10 hours
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
@@ -32,9 +33,9 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // Extract roles from the token
-    public List<String> extractRoles(String token) {
-        return extractClaim(token, claims -> claims.get("roles", List.class));
+    // Extract role from the token (single role as a String)
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
     // Extract any claim from the token
@@ -75,12 +76,12 @@ public class JwtService {
     public UsernamePasswordAuthenticationToken getAuthentication(String token) {
         Claims claims = extractAllClaims(token);
         String username = claims.getSubject();
-        List<String> roles = claims.get("roles", List.class);
+        String role = claims.get("role", String.class);
 
         return new UsernamePasswordAuthenticationToken(
                 username,
                 null,
-                roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList()
+                List.of(new SimpleGrantedAuthority(role))
         );
     }
 }

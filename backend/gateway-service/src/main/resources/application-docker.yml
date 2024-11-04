@@ -45,6 +45,26 @@ ms:
   auth-service:
     root: http://auth-service:8080
 
+
+
+
+# todo: to update the endpoints specifically based on RBAC
+route-roles:
+  routes:
+    "elo-ranking.api.rank.ranks.GET":
+      - ROLE_ADMIN
+      - ROLE_PLAYER
+    "elo-ranking.api.rank.ranks.POST":
+      - ROLE_ADMIN
+    "matchmaking.api.start.GET":
+      - ROLE_ADMIN
+      - ROLE_PLAYER
+    "matchmaking.api.start.POST":
+      - ROLE_ADMIN
+    "tournament.api.details.GET":
+      - ROLE_ADMIN
+
+
 logging:
   level:
     root: INFO
