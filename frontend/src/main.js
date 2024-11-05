@@ -36,6 +36,10 @@ import { fas } from '@fortawesome/free-solid-svg-icons'; // Use solid icons
 
 library.add(fas);
 
+import { setAuthToken } from './utils/axiosInstance'
+setAuthToken("eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ1c2VyMEB1c2VyLmNvbSIsInJvbGUiOiJST0xFX1BMQVlFUiIsImlhdCI6MTczMDcyNzE4OSwiZXhwIjoxNzMwODEzNTg5fQ.9rIIcTjmZ5Jbo6P5IKNpjQOJynM5NW2Bk1z8H3Xp-uRpVy__qD--BhiqMtGC4yDg");
+
+
 //initialise app
 const app = createApp(App)
 AOS.init()

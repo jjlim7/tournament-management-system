@@ -37,14 +37,14 @@
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                {{ selectedTournament.gameMode || "Select Game Mode" }}
+                {{ formattedTournamentMode || "Select Game Mode" }}
               </button>
               <ul class="dropdown-menu">
                 <li>
-                  <a class="dropdown-item" href="#" @click="selectedTournament.gameMode = 'Royale'">Battle Royale</a>
+                  <a class="dropdown-item" href="#" @click="selectedTournament.gameMode = 'BATTLE_ROYALE'">Battle Royale</a>
                 </li>
                 <li>
-                  <a class="dropdown-item" href="#" @click="selectedTournament.gameMode = 'ClanWar'">Clan War</a>
+                  <a class="dropdown-item" href="#" @click="selectedTournament.gameMode = 'CLANWAR'">Clan War</a>
                 </li>
               </ul>
             </div>
@@ -125,8 +125,18 @@ export default {
       activeTournaments:[],
       upcomingTournaments:[],
       isLargeScreen: window.innerWidth >= 992,
-      minDate: new Date(),
+      minDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
     };
+  },
+  computed:{
+    formattedTournamentMode(){
+      if (this.selectedTournament.gameMode == "BATTLE_ROYALE"){
+        return "Battle Royale";
+      }
+      if (this.selectedTournament.gameMode == "CLANWAR"){
+        return "Clan War";
+      }
+    }
   },
   methods: {
     async createTournament() {
@@ -143,7 +153,7 @@ export default {
         const response = await axios.post('/tournament/api/tournaments/create', {
           ...this.selectedTournament,
           "adminId": this.userStore.user.id,
-          "status": "Inactive"
+          "status": "INACTIVE"
         });
         
         this.hideAdminModal();
@@ -168,7 +178,6 @@ export default {
       
       try {
         const response = await axios.put(`/tournament/api/tournaments/${this.selectedTournament.tournament_id}`, this.selectedTournament);
-        console()
         this.hideAdminModal();
         this.bookSuccess("Tournament Updated Successfully", "Tournament Updated!");
       } catch (error) {
@@ -190,7 +199,11 @@ export default {
 
       if (result.isConfirmed) {
         try {
-          const response = await axios.delete(`/tournament/api/tournaments/${this.selectedTournament.tournament_id}`);
+          const response = await axios.delete(`/tournament/api/tournaments/${this.selectedTournament.tournament_id}`,{
+            params: {
+              "requestingAdminId" : this.selectedTournament.adminId
+            }
+          });
 
           Swal.fire({
             title: "Deleted!",
@@ -288,6 +301,7 @@ export default {
     async fetchTournament() {
       try {
         const response = await axios.get('/tournament/api/tournaments');
+        console.log(response.data);
         
         if (response.status === 404) {
           this.activeTournaments = [];
