@@ -59,6 +59,13 @@ public class ClanUserServiceImpl implements ClanUserService {
 
     @Override
     @Transactional
+    public ClanUser getClanUserByUserId(Long userId) {
+        return clanUserDB.findFirstByUserUserId(userId).orElse(null);
+    }
+
+
+    @Override
+    @Transactional
     public ClanUser updateClanUser(Long clanUserId, ClanUser newClanUser) {
         // Check for Clan and User first
         // User newUser = newClanUser.getUser();

@@ -9,6 +9,7 @@ public interface ClanUserService {
     List<ClanUser> listAllClanUsers();
     ClanUser addClanUser(ClanUser clanUser);
     ClanUser getClanUser(Long clanUserId);
+    ClanUser getClanUserByUserId(Long clanUserId);
     ClanUser updateClanUser(Long clanUserId, ClanUser newClanUser);
     void deleteClanUser(Long clanUserId);
 
