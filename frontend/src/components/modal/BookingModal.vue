@@ -136,8 +136,8 @@ methods: {
                 console.log("update successfully")
             }
             else{ // if user is making a new booking
-                if(this.tournament.gameMode === 'ClanWar' && this.userStore.user.clanRole==='member'){
-                    this.showErrorAlert("Only the Clan Admin can book Clan War");
+                if(this.tournament.gameMode === 'CLANWAR' && this.userStore.user.clanRole==='ROLE_PLAYER'){
+                    this.showErrorAlert("Only the Clan Admin can book Clan War", "Access denied");
                     return;
                 }
                 // add player availability to backend
@@ -161,7 +161,6 @@ methods: {
 
                         // Send formattedBooking to backend
                         const response = await axios.post(`/matchmaking/api/playersAvailability`, formattedBooking);
-                        console.log(response)
                     }
                     this.bookSuccess('You have succesfully made the bookings');
                     
@@ -248,7 +247,7 @@ methods: {
 
         // ensure that the end time is after the start time
         if (startIndex >= endIndex) {
-            this.showErrorAlert("End time must be after start time!");
+            this.showErrorAlert("End time must be after start time!", "Invalid Input");
             booking.startTime = null; // reset
             booking.endTime = null; // reset
             return false;
@@ -276,7 +275,7 @@ methods: {
 
                 // Check if time slots overlap
                 if (currentStartTime<otherEndTime && otherStartTime<currentEndTime) {
-                    this.showErrorAlert("Overlapping bookings detected!");
+                    this.showErrorAlert("Overlapping bookings detected!","Invalid Input");
                     currentBooking.startTime = null;
                     currentBooking.endTime = null;
                     return false;
@@ -290,7 +289,7 @@ methods: {
         for (let index=0 ; index < this.bookings.length; index++) {
             let booking = this.bookings[index];
             if (!booking.date || !booking.startTime || !booking.endTime) {
-                this.showErrorAlert("Please fill in all booking fields.");
+                this.showErrorAlert("Please fill in all booking fields.", "Invalid Input");
                 return false;
             }
             if(!this.validateTime(index)){
@@ -319,12 +318,12 @@ methods: {
 
         return label;
     },
-    showErrorAlert(errorMessage){
+    showErrorAlert(errorMessage, title){
         Swal.fire({
             toast: true,
             position: "top-end",
             icon: "error",
-            title: "Invalid Input",
+            title: title,
             text: errorMessage,
             showConfirmButton: false,
             timer: 1500

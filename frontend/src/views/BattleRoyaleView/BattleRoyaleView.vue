@@ -40,7 +40,9 @@
         <!-- other tournament carousel -->
          <div>
           <span class="fw-semibold py-1">Upcoming Battle Royale Tournament</span>
-          <BlurredBGCard class="mt-1">
+          <BlurredBGCard v-if='upcomingTournaments.length==0'> <div class="text-center">No Upcoming Tournament</div> </BlurredBGCard>
+          
+          <BlurredBGCard v-if='upcomingTournaments.length!=0' class="mt-1">
             <div id="battleRoyalupcomingTournament" class="carousel slide" data-bs-ride="carousel"
             data-bs-pause="hover">
               <!-- indicator for each slide -->
@@ -270,9 +272,10 @@ export default {
             this.upcomingTournaments.push(formattedTournament);
           }
         }
+        //UNCOMMENT THIS AFTER I GET THE API. THIS IS FOR CURRENT TOURNAMENT
         this.fetchEloRank();
         if(this.currentTournament!=null){
-          this.fetchRank();
+          this.fetchEloRank();
         }
       } catch (error) {
         console.error('Error fetching tournaments:', error);

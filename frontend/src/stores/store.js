@@ -14,7 +14,7 @@ export const useUserStore = defineStore('user', {
       totalWins: 123,
       winRatio: 3.14,
       clan: "Code with shawn club",
-      clanRole: "ROLE_ADMIN",
+      clanRole: "ROLE_PLAYER",
       role: "ROLE_PLAYER"
     },
     isAuthenticated: true,
@@ -68,6 +68,7 @@ export const useUserStore = defineStore('user', {
 
 export const useClanStore = defineStore('clan', {
   state: () => ({
+    id: 1,
     name: "Code with shawn club",
     image: "https://media.licdn.com/dms/image/v2/D5603AQFEDuzr1KwCcA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1689824025160?e=1732147200&v=beta&t=r0CQe7SV-NFKCpTkDBcyxKv_6bhmiPmDmeIs4Aom_i8",
     rank: "Diamond",
