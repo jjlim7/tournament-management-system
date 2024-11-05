@@ -13,7 +13,8 @@
         <!-- current tournament -->
          <div>
           <span class="fw-semibold py-1">Current Tournament</span>
-          <BlurredBGCard :style="{ 
+          <BlurredBGCard v-if="currentTournament==null"> <div class="text-center">No Active Tournament</div> </BlurredBGCard>
+          <BlurredBGCard v-if="currentTournament" :style="{ 
             'background-image': 'url(' + currentTournament.image + ')'}"
             class="imageProperties text-center mb-2 mt-1">
             <div class=" rounded-4 p-2" style="background-color: rgba(0, 0, 0, 0.4);">
@@ -146,7 +147,8 @@ import { useUserStore } from '@/stores/store';
 import Modal from '@/components/modal/Modal.vue'; 
 import { Modal as bsModal } from 'bootstrap';
 import BookingModal from '@/components/modal/BookingModal.vue';
-import axios from 'axios';
+import { tournamentImage } from '@/utils/tournamentImage';
+import axios from '@/utils/axiosInstance';
 
 export default {
   name: "BattleRoyaleView",
@@ -165,62 +167,8 @@ export default {
         name: "Game #1",
         date: "20 Sept 2024 20:00:00",
       },
-      currentTournament:{
-          id:"789",
-          name: "Tournament #345",
-          description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-          image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
-          startDate: "start date",
-          endDate: "end date",
-          gameMode:"Battle Royale"
-      },
-      upcomingTournaments:[
-        {
-          id: "123",
-          name: "Tournament #1",
-          description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-          image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
-          startDate: "start date",
-          endDate: "end date",
-          gameMode:"Battle Royale"
-        },
-        {
-          id: "124",
-          name: "Tournament #2",
-          description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-          image: "https://rukminim2.flixcart.com/image/850/1000/xif0q/poster/7/n/j/medium-black-myth-wukong-trending-hd-poster-12x18-inch-wukong1-original-imah236anfngbxaf.jpeg",
-          startDate: "start date",
-          endDate: "end date",
-          gameMode:"Battle Royale"
-        },
-        {
-          id: "125",
-          name: "Tournament #3",
-          description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-          image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
-          startDate: "start date",
-          endDate: "end date",
-          gameMode:"Battle Royale"
-        },
-        {
-          id: "126",
-          name: "Tournament #4",
-          description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-          image: "https://rukminim2.flixcart.com/image/850/1000/xif0q/poster/7/n/j/medium-black-myth-wukong-trending-hd-poster-12x18-inch-wukong1-original-imah236anfngbxaf.jpeg",
-          startDate: "start date",
-          endDate: "end date",
-          gameMode:"Battle Royale"
-        },
-        {
-          id: "127",
-          name: "Tournament #5",
-          description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-          image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
-          startDate: "start date",
-          endDate: "end date",
-          gameMode:"Battle Royale"
-        }
-      ],
+      currentTournament:null,
+      upcomingTournaments:[],
       selectedUpcomingTournament: ''
     };
   },
@@ -262,6 +210,62 @@ export default {
       const tournamentModal = new bsModal(document.getElementById(modalID));
       tournamentModal.show();
     },
+    async fetchTournament() {
+      try {
+        const response = await axios.get('/tournament/api/tournaments');
+        // console.log(response);
+
+        this.upcomingTournaments = [];
+        
+        if (response.status === 404) {
+          return;
+        }
+        
+        const allTournaments = response.data;
+        const currentDateTime = new Date();
+        
+        const n = tournamentImage.length;
+
+        for (let i = 0 ; i< allTournaments.length ; i++) {
+          const tournament = allTournaments[i];
+          if(tournament.gameMode != "BATTLE_ROYALE"){
+            continue;
+          }
+          
+          const startDate = new Date(tournament.startDate);
+          const endDate = new Date(tournament.endDate);
+          
+          let formattedTournament = { ...tournament, "startDate":startDate, "endDate": endDate, "image":tournamentImage[i%n]}
+
+          if (startDate <= currentDateTime && endDate >= currentDateTime) {
+            // Tournament is currently active
+            this.currentTournament = formattedTournament;
+          } else if (startDate > currentDateTime) {
+            // Tournament is upcoming
+            this.upcomingTournaments.push(formattedTournament);
+          }
+        }
+        this.fetchRank();
+        if(this.currentTournament!=null){
+          this.fetchRank();
+        }
+      } catch (error) {
+        console.error('Error fetching tournaments:', error);
+        throw error;
+      }
+    },
+    async fetchRank(){
+      try {
+        const response = await axios.get(`/api/elo-ranking/player/${this.userStore.user.id}/tournament/1001`);
+        //uncomment this when there are correct data
+        //const response = await axios.get(`/api/elo-ranking/player/${this.userStore.user.id}/tournament/${this.currentTournament.tournament_id}`);
+        console.log(response);
+        
+      } catch (error) {
+        console.error('Error fetching player\'s elo rank :', error);
+        throw error;
+      }
+    }
 
   },
   setup() {
@@ -270,12 +274,13 @@ export default {
   },
   async created() {
       window.addEventListener("resize", this.checkScreenSize);
-      axios.get("http://localhost:8083/tournaments");
   },
   beforeUnmount() {
     clearInterval(this.intervalId); // Clear the interval when the component is destroyed
   },
   mounted() {
+    this.fetchTournament();
+    // count down if there is a upcoming game
     this.startCountdown();
   },
   destroyed() {

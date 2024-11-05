@@ -54,8 +54,8 @@ export default {
         return this.isLargeScreen ? `${day}/${month}/${year}` : `${day}/${month}`;
     },
     formmattedMode(mode){
-      if(mode == "Royale") return "Battle Royale";
-      if(mode == "ClanWar") return "Clan War";
+      if(mode == "BATTLE_ROYALE") return "Battle Royale";
+      if(mode == "CLANWAR") return "Clan War";
     },
   },
   computed:{

@@ -58,7 +58,7 @@ export default {
       password: '',
       confirmPassword: '',
       isError: false,
-      errMessage: ["error 1", "error2 "]
+      errMessage: []
     }
   },
   computed:{
@@ -100,6 +100,7 @@ export default {
     },
     login() {
       console.log("Logging in with", this.username, this.password);
+      
       this.userStore.setIsAuth();
       this.$router.push('/');
     }

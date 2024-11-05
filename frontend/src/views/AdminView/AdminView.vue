@@ -6,8 +6,12 @@
 - People limit (only for BR)  -->
 <template>
   <div class="w-75 m-5 mx-auto min-vh-75">
-    <div class="d-flex justify-content-end">
-        <button class="btn btn-primary fw-semibold text-white" @click="showAdminModal">Create Tournament</button>
+    <div class="d-flex justify-content-between">
+        <h4 class="fw-semibold">Welcome Admin, {{ this.userStore.user.name }}</h4>
+        <div>
+          <button class="btn btn-secondary fw-semibold text-dark mx-2" @click="showCreateAdminModal">Create Admin</button>
+          <button class="btn btn-primary fw-semibold text-white mx-2" @click="showAdminModal">Create Tournament</button>
+        </div>
     </div>
 
     <TournamentTable 
@@ -92,6 +96,36 @@
     
         </div>
     </Modal>
+    <!-- modal to create another admin -->
+    <Modal
+        :header="'Create Admin'"
+        modalID="createAdminModal"
+        :showFooter="true"
+        :action="createAdmin"
+        :actionName="'Create'">
+    
+        <div class="row">
+          <!-- Email -->
+          <div class="mb-3 col-md-6">
+            <label for="adminEmail" class="form-label">Email</label>
+            <input type="text" class="form-control" id="adminEmail" v-model="createAdminField.email" />
+          </div>
+
+          <!-- Name -->
+          <div class="mb-3 col-md-6">
+            <label for="adminName" class="form-label">Name</label>
+            <input type="text" class="form-control" id="adminName" v-model="createAdminField.name" />
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3 col-md-6">
+            <label for="adminPassword" class="form-label">Password</label>
+            <input type="password" class="form-control" id="adminPassword" v-model="createAdminField.password" />
+          </div>
+
+        </div>
+    </Modal>
+
   </div>
 </template>
 
@@ -126,6 +160,12 @@ export default {
       upcomingTournaments:[],
       isLargeScreen: window.innerWidth >= 992,
       minDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      createAdminField:{
+        name : "",
+        email : "",
+        password : "",
+        role : "ROLE_ADMIN"
+      }
     };
   },
   computed:{
@@ -156,7 +196,7 @@ export default {
           "status": "INACTIVE"
         });
         
-        this.hideAdminModal();
+        this.hideAdminModal('adminModal');
         this.bookSuccess("Tournament Created Successfully", "Tournament Created!");
       } catch (error) {
         console.error('Error creating tournament:', error);
@@ -178,7 +218,7 @@ export default {
       
       try {
         const response = await axios.put(`/tournament/api/tournaments/${this.selectedTournament.tournament_id}`, this.selectedTournament);
-        this.hideAdminModal();
+        this.hideAdminModal('adminModal');
         this.bookSuccess("Tournament Updated Successfully", "Tournament Updated!");
       } catch (error) {
         console.error('Error creating tournament:', error);
@@ -213,7 +253,7 @@ export default {
             showConfirmButton: false
           });
 
-          this.hideAdminModal();
+          this.hideAdminModal('adminModal');
           this.fetchTournament();
         } catch (error) {
           console.error('Error deleting tournament:', error);
@@ -273,8 +313,34 @@ export default {
         const tournamentModal = new bsModal(document.getElementById(modalID));
         tournamentModal.show();
     },
-    hideAdminModal(){
-        const existingModal = bsModal.getInstance(document.getElementById('adminModal'));
+    showCreateAdminModal(){
+        const modalID = 'createAdminModal';
+        const tournamentModal = new bsModal(document.getElementById(modalID));
+        tournamentModal.show();
+    },
+    async createAdmin(){
+      try {
+        const response = await axios.post('/userclan/api/users', this.createAdminField);
+        console.log(response.data);
+        Swal.fire({
+            title: "Created!",
+            text: "Admin created successfully!",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false
+          });
+
+          this.hideAdminModal("createAdminModal");
+        
+      } catch (error) {
+        console.error('Error creating admin:', error);
+        const errorMessage = error.response?.data?.message || 'An error occurred while creating admin.';
+        this.showErrorAlert(errorMessage);
+        throw error;
+      }
+    },
+    hideAdminModal(modalName){
+        const existingModal = bsModal.getInstance(document.getElementById(modalName));
         existingModal.hide();
     },
     showErrorAlert(errorMessage){

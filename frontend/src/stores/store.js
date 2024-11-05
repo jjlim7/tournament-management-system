@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 
-// role is either "Admin" or "Member"
+// role is either "ROLE_ADMIN" or "ROLE_PLAYER"
 export const useUserStore = defineStore('user', {
   state: () => ({
     user:{
@@ -14,8 +14,8 @@ export const useUserStore = defineStore('user', {
       totalWins: 123,
       winRatio: 3.14,
       clan: "Code with shawn club",
-      clanRole: "Admin",
-      role: "Admin"
+      clanRole: "ROLE_ADMIN",
+      role: "ROLE_PLAYER"
     },
     isAuthenticated: true,
   }),
@@ -59,8 +59,8 @@ export const useUserStore = defineStore('user', {
   },
   getters: {
     isLoggedIn: (state) => !!state.user,
-    isAdmin: (state) => state.user.role === 'Admin',
-    isClanAdmin: (state) => state.user.clanRole === 'Admin',
+    isAdmin: (state) => state.user.role === 'ROLE_ADMIN',
+    isClanAdmin: (state) => state.user.clanRole === 'ROLE_ADMIN',
     hasClan: (state) => state.user.clan !== '',
   }
 });
