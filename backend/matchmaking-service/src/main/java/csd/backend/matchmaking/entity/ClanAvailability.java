@@ -14,7 +14,7 @@ import java.time.OffsetDateTime;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "clan_availability", uniqueConstraints = {@UniqueConstraint(columnNames={"clan_id", "tournament_id", "start_time"})})
+@Table(name = "clan_availability", schema = "matchmaking", uniqueConstraints = {@UniqueConstraint(columnNames={"clan_id", "tournament_id", "start_time"})})
 public class ClanAvailability {
 
   @Id
