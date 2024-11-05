@@ -3,7 +3,7 @@ version: "3.8"
 services:
   user-service:
     build: ./user-service
-    image: vynious/user-service
+    image: jjlim159/user-service:latest
     env_file: .env
     ports:
       - 8084:8080
@@ -14,7 +14,7 @@ services:
 
   matchmaking-service:
     build: ./matchmaking-service
-    image: vynious/matchmaking-service
+    image: jjlim159/matchmaking-service:latest
     env_file: .env
     ports:
       - 8081:8080
@@ -23,9 +23,20 @@ services:
     networks:
       - internal-network
 
+  auth-service:
+    build: ./auth-service
+    image: jjlim159/auth-service:latest
+    env_file: .env
+    ports:
+      - 8085:8080
+    depends_on:
+      - postgresdb
+    networks:
+      - internal-network
+
   elo-ranking-service:
     build: ./elo-ranking-service
-    image: vynious/elo-ranking-service
+    image: jjlim159/elo-ranking-service:latest
     env_file: .env
     ports:
       - 8082:8080
@@ -36,7 +47,7 @@ services:
 
   tournament-service:
     build: ./tournament-service
-    image: vynious/tournament-service
+    image: jjlim159/tournament-service:latest
     env_file: .env
     ports:
       - 8083:8080
@@ -47,17 +58,18 @@ services:
 
   gateway:
     build: ./gateway-service
-    image: vynious/gateway-service
+    image: jjlim159/gateway-service:latest
     env_file: .env
     environment:
-      SPRING_PROFILES_ACTIVE: docker  # Activate docker profile
+      SPRING_PROFILES_ACTIVE: docker # Activate docker profile
     ports:
       - 8080:8080
     depends_on:
-      - user-service
-#      - matchmaking-service
-      - elo-ranking-service
-      - tournament-service
+      - auth-service
+      # - user-service
+      # - matchmaking-service
+      # - elo-ranking-service
+      # - tournament-service
     networks:
       - internal-network
 
@@ -67,7 +79,7 @@ services:
     environment:
       - POSTGRES_USER=$POSTGRES_USER
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-      - POSTGRES_MULTIPLE_DATABASES=user-service, tournament-service, matchmaking-service, elo-ranking-service
+      - POSTGRES_MULTIPLE_DATABASES=$POSTGRES_MULTIPLE_DATABASES
     ports:
       - 5432:5432
     healthcheck:
