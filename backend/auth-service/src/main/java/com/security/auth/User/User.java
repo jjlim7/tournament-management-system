@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode
 @Entity
-@Table(name = "users")  // Use a different name to avoid conflict with the "user" keyword
+@Table(name = "users", schema = "users")  // Use a different name to avoid conflict with the "user" keyword
 public class User implements UserDetails {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="user_id")

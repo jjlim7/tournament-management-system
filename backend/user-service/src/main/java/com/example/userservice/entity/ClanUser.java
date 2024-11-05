@@ -12,6 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
+@Table(schema = "users")
 public class ClanUser {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

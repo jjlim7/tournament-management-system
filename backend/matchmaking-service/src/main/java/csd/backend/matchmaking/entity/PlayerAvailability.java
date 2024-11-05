@@ -14,7 +14,7 @@ import java.time.OffsetDateTime;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "player_availability", uniqueConstraints={@UniqueConstraint(columnNames={"player_id", "tournament_id", "start_time"})})
+@Table(name = "player_availability", schema = "matchmaking", uniqueConstraints={@UniqueConstraint(columnNames={"player_id", "tournament_id", "start_time"})})
 public class PlayerAvailability {
 
     public PlayerAvailability(long playerId, long tournamentId, OffsetDateTime startTime, OffsetDateTime endTime, boolean isAvailable) {

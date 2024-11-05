@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 //@Table(name = "game", uniqueConstraints={@UniqueConstraint(columnNames={"tournament_id", "start_time"})})
-@Table(name = "game")
+@Table(name = "game", schema = "matchmaking")
 public class Game {
 
   @Id
@@ -37,13 +37,13 @@ public class Game {
   private OffsetDateTime endTime;
 
   @ElementCollection
-  @CollectionTable(name = "game_players", joinColumns = @JoinColumn(name = "game_id"))
+  @CollectionTable(name = "game_players", schema = "matchmaking", joinColumns = @JoinColumn(name = "game_id"))
   @Cascade(value={CascadeType.ALL})
   @Column(name = "player_id")
   private List<Long> playerIds;
 
   @ElementCollection
-  @CollectionTable(name = "game_clans", joinColumns = @JoinColumn(name = "game_id"))
+  @CollectionTable(name = "game_clans", schema = "matchmaking", joinColumns = @JoinColumn(name = "game_id"))
   @Cascade(value={CascadeType.ALL})
   @Column(name = "clan_id")
   private List<Long> clanIds;

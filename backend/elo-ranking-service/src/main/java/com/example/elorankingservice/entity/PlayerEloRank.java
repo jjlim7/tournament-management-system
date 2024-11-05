@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "player_elo_rank", uniqueConstraints = {
+@Table(name = "player_elo_rank", schema = "elo-ranking", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"player_id", "tournament_id"})
 })
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
