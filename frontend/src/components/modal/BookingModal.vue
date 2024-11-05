@@ -33,7 +33,7 @@ this is what is needed to pass in for booking modal component
     >
         <div class="mb-3 d-flex justify-content-between">
             <div class="fw-semibold">Booking for {{ tournament.name }}</div>
-            <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{tournament.gameMode}}</div>
+            <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{formmattedMode}}</div>
         </div>
         <div v-for="(booking,index) in bookings" :key="index" class="mb-3 w-100 h-100 row container d-flex align-items-end">
             <div class="col-12 col-sm-5">
@@ -70,6 +70,7 @@ import Modal from './Modal.vue';
 import DatePicker from 'primevue/datepicker';
 import Swal from 'sweetalert2'
 import { Modal as bsModal } from 'bootstrap';
+import axios from '@/utils/axiosInstance';
 
   
 export default {
@@ -95,6 +96,13 @@ data() {
         ],
     };
 },
+computed:{
+    formmattedMode(){
+        if(this.tournament.gameMode == "BATTLE_ROYALE") return "Battle Royale";
+        if(this.tournament.gameMode == "CLANWAR") return "Clan War";
+    },
+},
+
 setup() {
     const userStore = useUserStore();
     return {userStore}
@@ -120,19 +128,48 @@ mounted() {
     })
 },
 methods: {
-    confirmBooking() {
-        // console.log(this.bookings);
+    async confirmBooking() {
+        
         if(this.validateBookings()){
             //if user is making an edit
             if(this.isEditing){
                 console.log("update successfully")
             }
             else{ // if user is making a new booking
-                if(this.tournament.gameMode === 'Clan War' && this.userStore.user.clanRole==='member'){
+                if(this.tournament.gameMode === 'ClanWar' && this.userStore.user.clanRole==='member'){
                     this.showErrorAlert("Only the Clan Admin can book Clan War");
                     return;
                 }
-                this.bookSuccess('You have succesfully made the bookings');
+                // add player availability to backend
+                try{
+                    for (let booking of this.bookings) {
+                        // Create formatted start and end times as ISO strings
+                        const startDateTime = new Date(booking.date);
+                        const endDateTime = new Date(booking.date);
+
+                        // Convert selected times to 24-hour format and set to booking date
+                        startDateTime.setHours(this.hours.indexOf(booking.startTime));
+                        endDateTime.setHours(this.hours.indexOf(booking.endTime));
+
+                        let formattedBooking = {
+                            playerId: this.userStore.user.id,
+                            tournamentId: this.tournament.tournament_id,
+                            startTime: startDateTime.toISOString(),
+                            endTime: endDateTime.toISOString(),
+                            available: true
+                        };
+
+                        // Send formattedBooking to backend
+                        const response = await axios.post(`/matchmaking/api/playersAvailability`, formattedBooking);
+                        console.log(response)
+                    }
+                    this.bookSuccess('You have succesfully made the bookings');
+                    
+                } catch (error) {
+                    console.error('Error adding player\'s availability:', error);
+                    throw error;
+                }
+                
                 const existingModal = bsModal.getInstance(document.getElementById(this.modalID));
                 existingModal.hide();
             }
@@ -284,6 +321,7 @@ methods: {
     },
     showErrorAlert(errorMessage){
         Swal.fire({
+            toast: true,
             position: "top-end",
             icon: "error",
             title: "Invalid Input",
@@ -294,6 +332,7 @@ methods: {
     },
     bookSuccess(successMessage){
         Swal.fire({
+            toast: true,
             position: "top-end",
             icon: "success",
             title: "Booked!",

@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- countdown  at header-->
-    <div class="mx-auto p-4 text-center backgroundColour rounded-bottom-5 align-content-center" style="max-width: 700px; max-height: 80px;">
+    <div v-if="upcomingGames.length!=0" class="mx-auto p-4 text-center backgroundColour rounded-bottom-5 align-content-center" style="max-width: 700px; max-height: 80px;">
       <div class="fw-semibold" >Next Match: {{ nextMatch.date }}</div>
       <div class="fw-semibold">Countdown: {{ countdown.days }}d {{ countdown.hours }}h {{ countdown.minutes }}m {{ countdown.seconds }}s</div>
     </div>
@@ -29,9 +29,9 @@
           <span class="fw-semibold py-1">Rank Progress</span>
           <BlurredBGCard class="mb-2 mt-1">
             <RankProgress 
-              :rank="userStore.user.rank" 
-              :currentElo="userStore.user.currentElo" 
-              :upperLimit="userStore.user.eloUpperlimit" 
+              :rank="rank" 
+              :currentElo="currentElo" 
+              :upperLimit="eloUpperLimit" 
               gameMode="Battle Royale"
               class="p-2" />
           </BlurredBGCard>
@@ -85,17 +85,17 @@
       <div 
         class="bg-light rounded-4 position-relative col-md-12 col-lg-6 p-0 d-flex flex-column"
         v-if="selectedUpcomingTournament!='' && isLargeScreen"> 
-        <img :src="selectedUpcomingTournament.image" class="w-100 img-fluid rounded-top-4" alt="...">
+        <img :src="selectedUpcomingTournament.image" class="w-100 img-fluid rounded-top-4 imgStyle" alt="...">
         <button class="btn btn-close position-absolute top-0 end-0 m-2 btnStyle" @click="selectedUpcomingTournament=''"></button>
         <div class="text-black bg-light p-3 pb-0" >
           <div class="mb-3 d-flex justify-content-between">
             <div class="fw-semibold fs-5"> {{ selectedUpcomingTournament.name }}</div>
-            <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{selectedUpcomingTournament.gameMode}}</div>
+            <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{formmattedMode(selectedUpcomingTournament.gameMode)}}</div>
           </div>
           <p class="overflow-y-scroll m-0 shadow-sm" style="max-height: 180px;">{{ selectedUpcomingTournament.description }}</p>
           <div class="text-black fw-semibold">
-            <div class="fw-semibold">Start Date: {{ selectedUpcomingTournament.startDate }}</div>
-            <div class="fw-semibold">End Date: {{ selectedUpcomingTournament.endDate }}</div>
+            <div class="fw-semibold">Start Date: {{ formattedSelectedTournamentStartTime }}</div>
+            <div class="fw-semibold">End Date: {{ formattedSelectedTournamentEndTime }}</div>
           </div>
         </div>
         <div class="rounded-bottom-4 bg-light p-2 d-flex mt-auto">
@@ -116,12 +116,12 @@
       <div class="text-black bg-light p-3 pb-0" >
         <div class="mb-3 d-flex justify-content-between">
             <div class="fw-semibold fs-5"> {{ selectedUpcomingTournament.name }}</div>
-            <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{selectedUpcomingTournament.gameMode}}</div>
+            <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{formmattedMode(selectedUpcomingTournament.gameMode)}}</div>
         </div>
         <p class="overflow-y-scroll m-0" style="max-height: 180px;">{{ selectedUpcomingTournament.description }}</p>
         <div class="text-black">
-          <p>Start Date: {{ selectedUpcomingTournament.startDate }}</p>
-          <p>End Date: {{ selectedUpcomingTournament.endDate }}</p>
+          <p class="fw-semibold">Start Date: {{ formattedSelectedTournamentStartTime }}</p>
+          <p class="fw-semibold">End Date: {{ formattedSelectedTournamentEndTime }}</p>
         </div>
         </div>
         <div class="rounded-bottom-4 bg-light p-2 d-flex mt-auto">
@@ -169,10 +169,35 @@ export default {
       },
       currentTournament:null,
       upcomingTournaments:[],
-      selectedUpcomingTournament: ''
+      selectedUpcomingTournament: '',
+      currentElo: 0,
+      eloUpperLimit: 0,
+      rank: "Unranked",
+      upcomingGames: []
     };
   },
+  computed:{
+    formattedSelectedTournamentStartTime() {
+      if (!this.selectedUpcomingTournament.startDate) return '';
+      return this.formatDate(new Date(this.selectedUpcomingTournament.startDate));
+    },
+    formattedSelectedTournamentEndTime() {
+      if (!this.selectedUpcomingTournament.endDate) return '';
+      return this.formatDate(new Date(this.selectedUpcomingTournament.endDate));
+    }
+  },
   methods: {
+    formatDate(date) {
+      if (!date) return ''; // Handle null or undefined dates
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-based
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    },
+    formmattedMode(mode){
+      if(mode == "BATTLE_ROYALE") return "Battle Royale";
+      if(mode == "CLANWAR") return "Clan War";
+    },
     startCountdown() {
       const targetTime = new Date(this.nextMatch.date).getTime();
 
@@ -245,7 +270,7 @@ export default {
             this.upcomingTournaments.push(formattedTournament);
           }
         }
-        this.fetchRank();
+        this.fetchEloRank();
         if(this.currentTournament!=null){
           this.fetchRank();
         }
@@ -254,12 +279,16 @@ export default {
         throw error;
       }
     },
-    async fetchRank(){
+    async fetchEloRank(){
       try {
-        const response = await axios.get(`/api/elo-ranking/player/${this.userStore.user.id}/tournament/1001`);
+        const response = await axios.get(`/elo-ranking/api/elo-ranking/player/${this.userStore.user.id}/tournament/1`);
+        const data  = response.data.data;
+        // this.rank = data.rankThreshold.
+
+
         //uncomment this when there are correct data
         //const response = await axios.get(`/api/elo-ranking/player/${this.userStore.user.id}/tournament/${this.currentTournament.tournament_id}`);
-        console.log(response);
+        console.log(data);
         
       } catch (error) {
         console.error('Error fetching player\'s elo rank :', error);
@@ -307,7 +336,13 @@ export default {
 
 .carousel-item img {
   width:100%;
-  max-height: 300px;
+  height: 300px;
+  object-fit:cover;
+}
+
+.imgStyle{
+  widows: 100%;
+  max-height: 350px;
   object-fit: content;
 }
 </style>
