@@ -14,5 +14,4 @@ public class ClanNotFoundException extends RuntimeException {
     public ClanNotFoundException () {
         super("Could not find Clan");
     }
-    
 }

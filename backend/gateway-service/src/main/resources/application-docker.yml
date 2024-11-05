@@ -59,10 +59,24 @@ route-roles:
     "matchmaking.api.start.GET":
       - ROLE_ADMIN
       - ROLE_PLAYER
+    "matchmaking.api.scheduleGames.POST":
+      - ROLE_ADMIN
+    "matchmaking.api.clanAvailability.bulk.POST":
+      - ROLE_ADMIN
+      - ROLE_CLAN_LEADER
+    "matchmaking.api.clanAvailability.GET":
+      - ROLE_ADMIN
+      - ROLE_CLAN_LEADER
+    "matchmaking.api.clanAvailability.PUT":
+      - ROLE_ADMIN
+      - ROLE_CLAN_LEADER
+    "matchmaking.api.getSelectedPlayerEloRanks.POST":
+      - ROLE_ADMIN
     "matchmaking.api.start.POST":
       - ROLE_ADMIN
     "tournament.api.details.GET":
       - ROLE_ADMIN
+      -
 
 
 logging:

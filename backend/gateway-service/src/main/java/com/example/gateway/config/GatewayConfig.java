@@ -85,7 +85,7 @@ public class GatewayConfig {
 
                 // User Service Route
                 .route(ConfigurationConstants.U_SERVICE_ID, r -> r
-                        .path("/userclan/api/**")
+                        .path("/clanusers/api/**")
                         .filters(f -> f
                                 .filter(jwtAuthenticationFilter)
                                 .rewritePath("/userclan/api/(?<segment>.*)", "/${segment}")
