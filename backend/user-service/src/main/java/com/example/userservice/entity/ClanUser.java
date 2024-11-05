@@ -43,8 +43,4 @@ public class ClanUser {
         this.isClanLeader = isClanLeader;
         this.position = position;
     }
-
-    
-
-    
 }

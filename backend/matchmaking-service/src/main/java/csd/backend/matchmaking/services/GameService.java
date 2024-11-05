@@ -72,4 +72,8 @@ public class GameService {
             default -> throw new IllegalArgumentException("Unsupported game mode: " + game.getGameMode());
         };
     }
+
+    public List<Game> findUpcomingGamesByPlayerId(long playerId) {
+        return gameRepository.findUpcomingGamesByPlayerId(playerId, OffsetDateTime.now());
+    }
 }

@@ -66,4 +66,10 @@ public class GameController {
         Response.EntityIdResponse response = gameService.getGamePlayerOrClanIds(gameId);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<Game>> getUpcomingGamesByPlayerId(@RequestParam long playerId) {
+        List<Game> upcomingGames = gameService.findUpcomingGamesByPlayerId(playerId);
+        return new ResponseEntity<>(upcomingGames, HttpStatus.OK);
+    }
 }

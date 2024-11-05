@@ -1,7 +1,9 @@
 package com.example.tournamentservice.controller;
 
+import com.example.tournamentservice.DTO.GameDTO;
 import com.example.tournamentservice.entity.Game;
 import com.example.tournamentservice.service.GameService;
+import com.example.tournamentservice.service.MatchMakingFeignClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,9 @@ public class GameController {
 
     @Autowired
     private GameService gameService;
+
+    @Autowired
+    private MatchMakingFeignClient matchMakingFeignClient;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -35,6 +40,12 @@ public class GameController {
             return ResponseEntity.ok(game);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<GameDTO>> getUpcomingGamesByPlayerId(@RequestParam Long playerId) {
+        List<GameDTO> upcomingGames = matchMakingFeignClient.getUpcomingGamesByPlayerId(playerId);
+        return ResponseEntity.ok(upcomingGames);
     }
 
     @PutMapping("/{id}")
