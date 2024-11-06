@@ -14,7 +14,7 @@ export const useUserStore = defineStore('user', {
       totalWins: 123,
       winRatio: 3.14,
       clan: "Code with shawn club",
-      clanRole: "ROLE_PLAYER",
+      clanRole: "ROLE_ADMIN",
       role: "ROLE_PLAYER"
     },
     isAuthenticated: true,

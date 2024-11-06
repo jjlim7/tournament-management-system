@@ -192,10 +192,10 @@ export default {
   methods: {
     formatDate(date) {
       if (!date) return ''; // Handle null or undefined dates
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-based
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
+      const day = String(date.getUTCDate()).padStart(2, '0');
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Month is zero-based
+      const year = date.getUTCFullYear();
+      return `${day}/${month}/${year}`;
     },
     formmattedMode(mode){
       if(mode == "BATTLE_ROYALE") return "Battle Royale";
