@@ -219,6 +219,7 @@ methods: {
             Swal.fire({
                 title: "Confirm Delete?",
                 icon: "warning",
+                reverseButtons: true, // Swaps the position of confirm and cancel buttons
                 showCancelButton: true,
                 cancelButtonColor: "#DDDDDD",
                 confirmButtonColor: "#FA9021",

@@ -52,7 +52,9 @@
           data-aos-duration="700"
         >
           <span class="fw-semibold py-1">Upcoming Clan War Tournament</span>
-          <BlurredBGCard v-if='upcomingTournaments.length==0'> <div class="text-center">No Upcoming Tournament</div> </BlurredBGCard>
+          <BlurredBGCard v-if="upcomingTournaments.length==0">
+            <div class="text-center">No Upcoming Tournament</div> 
+          </BlurredBGCard>
 
           <BlurredBGCard v-if='upcomingTournaments.length!=0' class="mt-1">
             <div id="clanwarupcomingTournament" class="carousel slide" data-bs-ride="carousel"
@@ -226,6 +228,8 @@ export default {
         if (timeLeft < 0) {
           clearInterval(this.intervalId);
           this.countdown = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+          // start game
+          
         } else {
           this.countdown.days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
           this.countdown.hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -233,6 +237,9 @@ export default {
           this.countdown.seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
         }
       }, 1000);
+    },
+    async simulateGame(){
+      const response = await axios.post(`/elo-ranking/api/simulate/clan-war`);
     },
     checkScreenSize() {
         this.isLargeScreen = window.innerWidth >= 992;
