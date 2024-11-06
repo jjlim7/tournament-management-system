@@ -16,4 +16,5 @@ public interface UserService {
     User updateUser(Long userId, User newUser); // 2 parameters - id to fetch existing user, user - to make updates eg change email, password etc
     void deleteUser(Long userId);
     PlayerEloRank getLatestPlayerRank(Long playerId);
+    PlayerOverallStats getPlayerOverallForLatestTournament(Long playerId);
 } 

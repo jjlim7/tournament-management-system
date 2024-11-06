@@ -5,7 +5,9 @@ import java.util.*;
 import com.example.userservice.controller.UserController;
 import com.example.userservice.feignclient.EloRankingClient;
 import com.example.userservice.feigndto.ClanEloRank;
+import com.example.userservice.feigndto.GameMode;
 import com.example.userservice.feigndto.PlayerEloRank;
+import com.example.userservice.feigndto.PlayerStats;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,4 +117,40 @@ public class UserServiceImpl implements UserService {
         Map<String, Object> data = (Map<String, Object>) resp.getBody().get("data");
         return objectMapper.convertValue(data, PlayerEloRank.class);
     }
+
+    @Override
+    @Transactional
+    public PlayerOverallStats getPlayerOverallForLatestTournament(Long playerId){
+        Optional<User> optionalUser = userDB.findById(playerId);
+        if(optionalUser.isEmpty()) {
+            return null;
+        }
+        ResponseEntity<Map<String, Object>> resp1 = eloRankingClient.getPlayerLatestRank(playerId);
+        log.info("getLatestPlayerRank response: {}", resp1.getBody());
+        if (!resp1.getStatusCode().is2xxSuccessful()) {
+            return null;
+        }
+        Map<String, Object> data = (Map<String, Object>) resp1.getBody().get("data");
+        // rank struct
+        PlayerEloRank rank = objectMapper.convertValue(data, PlayerEloRank.class);
+
+        // playerStats struct
+        ResponseEntity<Map<String, Object>> resp2 = eloRankingClient.getPlayerStatistics(playerId, rank.getTournamentId(), GameMode.BATTLE_ROYALE);
+        log.info("getPlayerOverallForLatestTournament response: {}", resp2.getBody());
+        if (!resp2.getStatusCode().is2xxSuccessful()) {
+            return null;
+        }
+        Map<String, Object> data1= (Map<String, Object>) resp2.getBody().get("playerStats");
+
+        // player stats struct
+        PlayerStats stats = objectMapper.convertValue(data1, PlayerStats.class);
+
+        // clan user
+        PlayerOverallStats res = new PlayerOverallStats();
+        res.setEloRank(rank);
+        res.setStats(stats);
+
+        return res;
+    }
+
  }

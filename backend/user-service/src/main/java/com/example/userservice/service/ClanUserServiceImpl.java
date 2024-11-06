@@ -60,7 +60,7 @@ public class ClanUserServiceImpl implements ClanUserService {
     @Override
     @Transactional
     public ClanUser getClanUserByUserId(Long userId) {
-        return clanUserDB.findFirstByUserUserId(userId).orElse(null);
+        return clanUserDB.findFirstByUserUserIdWithClan(userId).orElse(null);
     }
 
 
@@ -72,12 +72,12 @@ public class ClanUserServiceImpl implements ClanUserService {
         // if(newUser == null ) {
         //     throw new UserNotFoundException();
         // }
-        
+
         // Clan newClan = newClanUser.getClan();
         // if(newClan == null) {
-        //     throw new ClanNotFoundException();   
+        //     throw new ClanNotFoundException();
         // }
-        
+
         Optional<ClanUser> optionalClanUser = clanUserDB.findById(clanUserId);
         
 

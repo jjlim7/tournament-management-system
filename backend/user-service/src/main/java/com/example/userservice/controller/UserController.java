@@ -1,6 +1,9 @@
 package com.example.userservice.controller;
 
+import com.example.userservice.feignclient.EloRankingClient;
+import com.example.userservice.feigndto.GameMode;
 import com.example.userservice.feigndto.PlayerEloRank;
+import com.example.userservice.feigndto.PlayerStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +35,15 @@ import io.swagger.v3.oas.annotations.Operation;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private ClanUserService clanUserService;
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, ClanUserService clanUserService) {
         this.userService = userService;
+        this.clanUserService = clanUserService;
     }
 
     // Read
@@ -107,11 +113,23 @@ public class UserController {
             PlayerEloRank rank = userService.getLatestPlayerRank(userId);
             return ResponseEntity.ok(rank);
         } catch (Exception e) {
-// Log the exception for debugging
             log.error("Failed to retrieve Elo rank for user: {}", userId, e);
-
-            // Return a meaningful error message
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not retrieve Elo rank at this time.");
+        }
+    }
+
+    @Operation(summary = "get full user details", description = "")
+    @GetMapping("/users/{userId}/overall")
+    public ResponseEntity<?> getUserOverall(@PathVariable Long userId) {
+        try {
+            ClanUser associatedClanDetails = clanUserService.getClanUserByUserId(userId);
+            PlayerOverallStats partialStatsNoClanData = userService.getPlayerOverallForLatestTournament(userId);
+
+            partialStatsNoClanData.setClanUser(associatedClanDetails);
+            return ResponseEntity.ok(partialStatsNoClanData);
+        } catch (Exception e) {
+            log.error("Failed to retrieve player details for player: {}", userId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not retrieve user details for player.");
         }
     }
 }

@@ -31,7 +31,7 @@ spring:
         - id: user-service
           uri: http://user-service:8080  # Use Docker service name
           predicates:
-            - Path=/userclan/api/**
+            - Path=/clanuser/api/**
 
 ms:
   elo-ranking-service:
@@ -56,6 +56,12 @@ route-roles:
       - ROLE_PLAYER
     "elo-ranking.api.rank.ranks.POST":
       - ROLE_ADMIN
+    "elo-ranking.api.game-score.player.{playerId}.tournament.{tournamentId}.stats.GET":
+      - ROLE_PLAYER
+      - ROLE_ADMIN
+    "clanuser.api.users.{userId}.overall.GET":
+      - ROLE_PLAYER
+      - ROLE_ADMIN
     "matchmaking.api.start.GET":
       - ROLE_ADMIN
       - ROLE_PLAYER
@@ -76,7 +82,6 @@ route-roles:
       - ROLE_ADMIN
     "tournament.api.details.GET":
       - ROLE_ADMIN
-      -
 
 
 logging:

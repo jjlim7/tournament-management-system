@@ -85,10 +85,10 @@ public class GatewayConfig {
 
                 // User Service Route
                 .route(ConfigurationConstants.U_SERVICE_ID, r -> r
-                        .path("/clanusers/api/**")
+                        .path("/clanuser/api/**")
                         .filters(f -> f
                                 .filter(jwtAuthenticationFilter)
-                                .rewritePath("/userclan/api/(?<segment>.*)", "/${segment}")
+                                .rewritePath("/clanuser/api/(?<segment>.*)", "/${segment}") // Rewrite path
                         )
                         .uri(msUserRoot)
                 )
