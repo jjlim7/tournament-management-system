@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import { useUserStore } from '@/stores/store';
+
 export default {
   data() {
     return {
@@ -33,17 +35,30 @@ export default {
     };
   },
   computed: {
+    hasNoClan() {
+      // Checks if the user has no clan; if true, 'Clan War' should be excluded
+      return this.userStore.user.clan == null;
+    },
     buttonGroups() {
-      const entries = Object.entries(this.pages);
-      // Split entries into groups of 2 buttons per div
+      // Convert pages object into an array of entries, filtering out 'Clan War' if the user has no clan
+      const entries = Object.entries(this.pages).filter(([name, path]) => {
+        // Exclude 'Clan War' path if hasNoClan is true
+        return !(path === "/clanwar" && this.hasNoClan);
+      });
+
+      // Split the remaining entries into groups of 2
       const groups = [];
       for (let i = 0; i < entries.length; i += 2) {
         groups.push(Object.fromEntries(entries.slice(i, i + 2)));
       }
       return groups;
     }
+  },
+  setup(){
+      const userStore = useUserStore();
+      return {userStore}
   }
-};
+}
 </script>
 
 <style scoped>

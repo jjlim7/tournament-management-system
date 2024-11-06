@@ -91,8 +91,6 @@ export default {
               "role": "ROLE_PLAYER"
             })
         
-        console.log(response)
-        
         if(response.data.token){
           // get all the user info here!!
           setAuthToken(response.data.token);
@@ -113,7 +111,6 @@ export default {
       }
       try{
         const response = await axios.post(`auth/api/login`, {"email": this.email, "password": this.password})
-        console.log(response)
         
         if(response.data.token){
           // get all the user info here!!

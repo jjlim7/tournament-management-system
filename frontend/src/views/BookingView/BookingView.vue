@@ -58,7 +58,7 @@
               </tr>
             </tbody>
           </table>
-          <div v-else class="p-3"> You do not have any upcoming game :( Book a game below!</div>
+          <div v-else class="p-3"> You do not have any availabilities :( Book a game below!</div>
         </BlurredBGCard>
       </div>
 
@@ -130,9 +130,8 @@
         modalID= "scheduledGames"
         :showFooter="false" 
         header="My Scheduled Games" 
-        v-if="games.length>0"
         >
-        <table class="table">
+        <table class="table" v-if="games.length>0">
           <thead>
             <tr>
               <th
@@ -152,6 +151,7 @@
             </tr>
           </tbody>
         </table>
+        <div v-else> You do not have any upcoming game :( Book a game below!</div>
       </Modal>
 
       <!-- modal to view all availabilities -->
@@ -159,9 +159,8 @@
         modalID= "allMyAvailabilities"
         :showFooter="false" 
         header="My Availabilities" 
-        v-if="myAvailabilites.length>0"
         >
-        <table class="table">
+        <table class="table" v-if="myAvailabilites.length>0">
           <thead>
             <tr>
               <th class="fw-semibold">Name</th>
@@ -181,6 +180,7 @@
             </tr>
           </tbody>
         </table>
+        <div v-else> You do not have any availabilities :( Book a game below!</div>
       </Modal>
       <!-- modal to book a tournament -->
       <BookingModal 
@@ -217,13 +217,7 @@ export default {
     return{
       tournaments:[],
       myAvailabilites:[],
-      games:[{
-          name: 'Game #1',
-          date: "21 sept 2024",
-          time: "12:00 PM",
-          role: "-",
-          gameMode: "Battle Royale",
-        },],
+      games:[],
       activeTournamentIndex: 0,
       selectedTournament: '',
       isLargeScreen: window.innerWidth >= 992,
@@ -295,30 +289,34 @@ export default {
       }
     },
     async fetchPlayerAvail(){
-      const response = await axios.get(`/matchmaking/api/playersAvailability?playerId=${this.userStore.user.id}`);
-      const playerAvail = response.data;
-      
-      if(playerAvail.length == 0 ){
-        return
-      }
-
-      const n = tournamentImage.length;
-      for(let i = 0; i < playerAvail.length; i++){
-        let booking = playerAvail[i]
-        let tournamentId = booking.tournamentId;
-        if (!this.tournamentCache[tournamentId]) {
-          try{
-            let getTournament = await axios.get(`/tournament/api/tournaments/${tournamentId}`)
-            const startDate = new Date(getTournament.data.startDate);
-            const endDate = new Date(getTournament.data.endDate);
-            this.tournamentCache[tournamentId] = {...getTournament.data, "startDate":startDate, "endDate": endDate, "image":tournamentImage[i%n]};
-          }catch(error){
-            console.error('Error fetching tournament info:', error);
-          }
+      try{
+        const response = await axios.get(`/matchmaking/api/playersAvailability?playerId=${this.userStore.user.id}`);
+        const playerAvail = response.data;
+        if(playerAvail.length == 0 ){
+            return
         }
-        let bookingStartTime = new Date(booking.startTime);
-        let bookingEndTime = new Date(booking.endTime);
-        this.myAvailabilites.push({...booking,"tournament": this.tournamentCache[tournamentId], "startTime": bookingStartTime, "endTime":bookingEndTime});
+        const n = tournamentImage.length;
+        for(let i = 0; i < playerAvail.length; i++){
+          let booking = playerAvail[i]
+          let tournamentId = booking.tournamentId;
+          if (!this.tournamentCache[tournamentId]) {
+            try{
+              let getTournament = await axios.get(`/tournament/api/tournaments/${tournamentId}`)
+              const startDate = new Date(getTournament.data.startDate);
+              const endDate = new Date(getTournament.data.endDate);
+              this.tournamentCache[tournamentId] = {...getTournament.data, "startDate":startDate, "endDate": endDate, "image":tournamentImage[i%n]};
+            }catch(error){
+              console.error('Error fetching tournament info:', error);
+              return
+            }
+          }
+          let bookingStartTime = new Date(booking.startTime);
+          let bookingEndTime = new Date(booking.endTime);
+          this.myAvailabilites.push({...booking,"tournament": this.tournamentCache[tournamentId], "startTime": bookingStartTime, "endTime":bookingEndTime});
+        }
+      }catch(error){
+        console.log("error fetching player's availabilities. Erorr message: ", error.message)
+        return
       }
       // console.log(this.myBookings)
     },

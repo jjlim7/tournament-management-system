@@ -6,7 +6,7 @@ import axios from '@/utils/axiosInstance';
 export const useUserStore = defineStore('user', {
   state: () => ({
     user:{
-      id: 1,
+      id: 104,
       name: "Shawn Thiah",
       image: "https://media.licdn.com/dms/image/v2/D5603AQFEDuzr1KwCcA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1689824025160?e=1732147200&v=beta&t=r0CQe7SV-NFKCpTkDBcyxKv_6bhmiPmDmeIs4Aom_i8",
       rank: "Challenger",
@@ -14,11 +14,11 @@ export const useUserStore = defineStore('user', {
       eloUpperlimit: "100",
       totalWins: 123,
       winRatio: 3.14,
-      clan: "Code with shawn club",
+      clan: null,
       clanRole: "ROLE_ADMIN",
       role: "ROLE_PLAYER"
     },
-    isAuthenticated: true,
+    isAuthenticated: false,
   }),
   actions: {
     setUser(userData) {
