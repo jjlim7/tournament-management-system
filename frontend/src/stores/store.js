@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import axios from '@/utils/axiosInstance';
 
 // role is either "ROLE_ADMIN" or "ROLE_PLAYER"
 export const useUserStore = defineStore('user', {
@@ -27,7 +28,7 @@ export const useUserStore = defineStore('user', {
       localStorage.setItem('user', JSON.stringify(this.user));
       localStorage.setItem('isAuthenticated', 'true');
     },
-    logout() {
+    async logout() {
       this.user = { 
         id: null,
         name: "",
@@ -44,6 +45,7 @@ export const useUserStore = defineStore('user', {
       this.isAuthenticated = false;
       localStorage.removeItem('user');
       localStorage.removeItem('isAuthenticated');
+      const response = await axios.post(`/auth/api/logout`)
     },
     initializeUser() {
       const user = localStorage.getItem('user');

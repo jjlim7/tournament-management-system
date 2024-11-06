@@ -63,7 +63,6 @@
                 <th class="fw-semibold">Game</th>
                 <th class="fw-semibold">Date</th>
                 <th class="fw-semibold" v-if="isLargeScreen">KDA</th>
-                <th class="fw-semibold" v-if="isLargeScreen">Role</th>
                 <th class="fw-semibold">Mode</th>
                 <th class="fw-semibold">Result</th>
               </tr>
@@ -73,7 +72,6 @@
                 <th>{{ matchHistory[0].tournament }}</th>
                 <th>{{ matchHistory[0].date }}</th>
                 <th v-if="isLargeScreen" >{{ matchHistory[0].KDA }}</th>
-                <th v-if="isLargeScreen" >{{ matchHistory[0].role }}</th>
                 <th>{{ matchHistory[0].gameMode }}</th>
                 <th>{{ matchHistory[0].result }}</th>
               </tr>
