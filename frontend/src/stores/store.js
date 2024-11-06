@@ -14,11 +14,11 @@ export const useUserStore = defineStore('user', {
       eloUpperlimit: "100",
       totalWins: 123,
       winRatio: 3.14,
-      clan: null,
-      clanRole: "ROLE_ADMIN",
+      clan: "CLAN",
+      clanRole: "ROLE_PLAYER",
       role: "ROLE_PLAYER"
     },
-    isAuthenticated: false,
+    isAuthenticated: true,
   }),
   actions: {
     setUser(userData) {

@@ -1,7 +1,11 @@
 <template>
   <div class="d-flex row w-75 mx-auto m-5">
     <!-- left side show user and clan details  -->
-     <div class="col-lg-4 col-12 mb-5  mb-lg-0">
+     <div 
+      data-aos="fade-right"
+      data-aos-offset="500"
+      data-aos-duration="500"
+      class="col-lg-4 col-12 mb-5  mb-lg-0">
       <div class="d-flex justify-content-between aliign-items-center">
         <div class="fs-5 fw-semibold">My Profile</div>
         <!-- log out button -->        
@@ -33,7 +37,11 @@
 
     <!-- right side show statistic and match history and rank progress details  -->
     <div class="col d-flex flex-column justify-content-between mx-3">
-      <div>
+      <div
+        data-aos="fade-up"
+        data-aos-offset="500"
+        data-aos-duration="500"
+      >
         <div class="fs-5 fw-semibold">My Statistic</div>
         <BlurredBGCard class="p-4 d-flex justify-content-between align-items-center">
           <!-- show BR rank -->
@@ -54,7 +62,11 @@
           </div>
         </BlurredBGCard>
       </div>
-      <div>
+      <div
+        data-aos="fade-up"
+        data-aos-offset="500"
+        data-aos-duration="600"
+      >
         <div class="fs-5 fw-semibold">Match History</div>
         <BlurredBGCard class="mt-1">
           <table class="table align-middle scrollable-table" v-if="matchHistory.length>0">
@@ -80,7 +92,11 @@
           <div v-else class="p-3"> You do not have a match history</div>
         </BlurredBGCard>
       </div>
-      <div>
+      <div
+        data-aos="fade-up"
+        data-aos-offset="500"
+        data-aos-duration="700"
+      >
         <div class="fs-5 fw-semibold">My Tournament Rank</div>
         <BlurredBGCard>
           <RankProgress 

@@ -1,7 +1,11 @@
 <template>
     <div class="w-75 mx-auto">
       <!-- my schedule games -->
-      <div class="w-75 mx-auto mb-2">
+      <div 
+        data-aos="fade-up"
+        data-aos-offset="500"
+        data-aos-duration="500"
+        class="w-75 mx-auto mb-2" >
         <div class="d-flex justify-content-between align-items-center">
           <div class="fw-semibold px-2 py-1 rounded-4" style="background-color: rgba(0, 0, 0, 0.4);">My Schedule Games</div>
           <div class="fw-semibold" data-bs-target="#scheduledGames" data-bs-toggle="modal" style="cursor: pointer;">Show all -></div>
@@ -32,7 +36,11 @@
       </div>
 
       <!-- my availabilities -->
-      <div class="w-75 mx-auto">
+      <div 
+        data-aos="fade-up"
+        data-aos-offset="500"
+        data-aos-duration="600"
+        class="w-75 mx-auto">
         <div class="d-flex justify-content-between align-items-center">
           <div class="fw-semibold px-2 py-1 rounded-4" style="background-color: rgba(0, 0, 0, 0.4);">My Availabilities</div>
           <div class="fw-semibold" data-bs-target="#allMyAvailabilities" data-bs-toggle="modal" style="cursor: pointer;">Show all -></div>
@@ -64,10 +72,14 @@
 
 
       <!-- all tournament carousel -->
-      <div class="tournamentsCarousel mb-5" >
+      <div 
+      data-aos="fade-up"
+      data-aos-offset="500"
+      data-aos-duration="700"
+      class="tournamentsCarousel mb-5" >
         <span class="fw-semibold px-2 py-1 rounded-4" style="background-color: rgba(0, 0, 0, 0.4);">All Tournaments</span>
-        <BlurredBGCard class="carouselBG mt-1">
-          <div 
+        <BlurredBGCard class="carouselBG mt-1" v-if="tournaments.length > 0" >
+          <div
             id="alltournaments" 
             class="carousel slide" 
             data-bs-ride="carousel" 
@@ -118,6 +130,7 @@
             </button>
           </div>
         </BlurredBGCard>
+        <BlurredBGCard class="p-3" v-else> There is no upcoming tournaments :(</BlurredBGCard>
         
         <div class="d-flex justify-content-center mt-3">
           <button class="btn btn-primary w-50 text-white fw-bold" @click="bookCurrentTournament"> Book</button>

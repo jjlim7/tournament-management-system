@@ -1,6 +1,10 @@
 <template>
   <div class="d-flex justify-content-around align-items-center min-vh-100">
-    <div>
+    <div
+    data-aos="fade-up"
+    data-aos-offset="500"
+    data-aos-duration="500"
+    >
       <div v-for="(group, index) in buttonGroups" :key="index" class="d-flex justify-content-between">
         <div v-for="(route, page) in group" :key="page">
           <button 

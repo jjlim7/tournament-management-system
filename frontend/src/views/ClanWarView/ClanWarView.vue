@@ -11,7 +11,11 @@
       <div class="d-flex flex-column justify-content-around ml-5 col-md-12 col-lg-6">
 
         <!-- current tournament -->
-        <div>
+        <div
+          data-aos="fade-right"
+          data-aos-offset="500"
+          data-aos-duration="500"
+        >
           <span class="fw-semibold py-1">Current Tournament</span>
           <BlurredBGCard v-if="currentTournament==null"> <div class="text-center">No Active Tournament</div> </BlurredBGCard>
           <BlurredBGCard  v-if="currentTournament" :style="{ 
@@ -25,7 +29,11 @@
         </div>
   
         <!-- rank progress tournament -->
-         <div>
+         <div
+          data-aos="fade-right"
+          data-aos-offset="500"
+          data-aos-duration="600"
+         >
             <span class="fw-semibold py-1">Rank Progress</span>
             <BlurredBGCard class="mb-2 mt-1">
               <RankProgress 
@@ -38,7 +46,11 @@
          </div>
   
         <!-- other tournament carousel -->
-        <div>
+        <div
+          data-aos="fade-right"
+          data-aos-offset="500"
+          data-aos-duration="700"
+        >
           <span class="fw-semibold py-1">Upcoming Clan War Tournament</span>
           <BlurredBGCard v-if='upcomingTournaments.length==0'> <div class="text-center">No Upcoming Tournament</div> </BlurredBGCard>
 
@@ -85,6 +97,9 @@
       <!-- right side -->
       <!-- other tournament details -->
       <div 
+        data-aos="fade-left"
+        data-aos-offset="500"
+        data-aos-duration="500"
         class="bg-light rounded-4 position-relative col-md-12 col-lg-6 p-0 d-flex flex-column"
         v-if="selectedUpcomingTournament!='' && isLargeScreen"> 
         <img :src="selectedUpcomingTournament.image" class="w-100 img-fluid rounded-top-4 imgStyle" alt="...">

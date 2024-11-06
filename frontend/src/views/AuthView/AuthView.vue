@@ -1,7 +1,13 @@
 <template>
   <div class="d-flex justify-content-center align-items-center defineHeight">
     <!-- register/login box -->
-    <BlurredBGCard class="m-auto p-2 pb-4" style="min-width:400px;">
+    <BlurredBGCard 
+        :key="isRegister"
+        class="m-auto p-2 pb-4" 
+        style="min-width:400px;" 
+        data-aos="fade-up"
+        data-aos-offset="500"
+        data-aos-duration="500">
       
         <div class="d-flex justify-content-around">
           <div :class="{'text-primary': isRegister}" style="font-weight: bold; cursor: pointer;" @click="switchTab(true)">Register</div>
@@ -53,6 +59,8 @@ import { useUserStore } from '@/stores/store';
 import axios from '@/utils/axiosInstance'
 import { setAuthToken } from '@/utils/axiosInstance'
 import Swal from 'sweetalert2';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 export default {
   name: "AuthView",
@@ -71,10 +79,16 @@ export default {
       return this.isRegister ? "Register" : "Login";
     }
   },
-  //use cookie for auth
+  mounted() {
+    // Initialize AOS
+    AOS.init();
+  },
   methods: {
     switchTab(isRegister) {
       this.isRegister = isRegister;
+      
+      // Refresh AOS to trigger animations on new content
+      AOS.refresh();
     },
     async register() {
       console.log("Registering with", this.email,this.name, this.password, this.confirmPassword);

@@ -17,13 +17,19 @@
     <TournamentTable 
         :TournamentList="activeTournaments" 
         :isActive="true" 
-        :isLargeScreen="isLargeScreen"/>
+        :isLargeScreen="isLargeScreen"
+        data-aos="fade-up"
+        data-aos-offset="500"
+        data-aos-duration="500"/>
 
     <TournamentTable 
+        data-aos="fade-up"
         :TournamentList="upcomingTournaments" 
         :isActive="false" 
         @action="editTournament" 
-        :isLargeScreen="isLargeScreen"/>
+        :isLargeScreen="isLargeScreen"
+        data-aos-offset="500"
+        data-aos-duration="700"/>
 
     <!-- admin modal to create or update -->
     <Modal

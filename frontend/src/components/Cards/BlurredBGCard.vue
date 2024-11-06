@@ -13,7 +13,7 @@ export default {
 <style scoped>
 .blurred-bg-card {
   border: 1px solid rgb(250, 144, 33, 0.4); /* Orange border */
-  background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+  background: rgba(137, 137, 137, 0.5); /* Semi-transparent background */
   backdrop-filter: blur(10px); /* Blurring effect */
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); /* shadow effect */
 }
