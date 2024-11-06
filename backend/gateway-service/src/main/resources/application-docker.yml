@@ -46,9 +46,6 @@ ms:
     root: http://auth-service:8080
 
 
-
-
-# todo: to update the endpoints specifically based on RBAC
 route-roles:
   routes:
     "elo-ranking.api.rank.ranks.GET":
@@ -69,20 +66,48 @@ route-roles:
       - ROLE_ADMIN
     "matchmaking.api.clanAvailability.bulk.POST":
       - ROLE_ADMIN
+      - ROLE_PLAYER
       - ROLE_CLAN_LEADER
     "matchmaking.api.clanAvailability.GET":
       - ROLE_ADMIN
+      - ROLE_PLAYER
       - ROLE_CLAN_LEADER
     "matchmaking.api.clanAvailability.PUT":
       - ROLE_ADMIN
+      - ROLE_PLAYER
       - ROLE_CLAN_LEADER
     "matchmaking.api.getSelectedPlayerEloRanks.POST":
       - ROLE_ADMIN
-    "matchmaking.api.start.POST":
+    "tournament.api.tournaments.create.POST":
       - ROLE_ADMIN
-    "tournament.api.details.GET":
+    "tournament.api.tournaments.{tournamentID}.PUT":
       - ROLE_ADMIN
-
+    "tournament.api.tournaments.{tournamentID}.DELETE":
+      - ROLE_ADMIN
+    "clanuser.api.users.POST":
+      - ROLE_ADMIN
+    "matchmaking.api.playersAvailability.POST":
+      - ROLE_PLAYER
+    "auth.api.register.POST":
+      - ROLE_PLAYER
+    "elo-ranking.api.simulate.battle-royale.POST":
+      - ROLE_PLAYER
+    "elo-ranking.api.simulate.clan-war.POST":
+      - ROLE_PLAYER
+    "elo-ranking.api.elo-ranking.player.{userID}.tournament.{tournamentID}.GET":
+      - ROLE_PLAYER
+    "matchmaking.api.playersAvailability.GET":
+      - ROLE_PLAYER
+    "tournament.api.tournaments.{tournamentId}.GET":
+      - ROLE_PLAYER
+    "elo-ranking.api.elo-ranking.clan.{clanID}.tournament.1.GET":
+      - ROLE_PLAYER
+    "auth.api.login.POST":
+      - ROLE_ADMIN
+      - ROLE_PLAYER
+    "tournament.api.tournaments.GET":
+      - ROLE_ADMIN
+      - ROLE_PLAYER
 
 logging:
   level:
