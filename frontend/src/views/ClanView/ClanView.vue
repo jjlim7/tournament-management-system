@@ -270,6 +270,7 @@
         console.log(`Booked tournament for position: ${this.selectedPosition}`);
         Swal.fire({
             title: "Confirm Booking?",
+            reverseButtons: true, // Swaps the position of confirm and cancel buttons
             icon: "warning",
             showCancelButton: true,
             cancelButtonColor: "#DDDDDD",

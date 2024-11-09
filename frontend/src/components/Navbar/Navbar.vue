@@ -12,14 +12,22 @@
       <div
         class="collapse navbar-collapse justify-content-center"
         id="navbarSupportedContent"
-        v-if="isLargeScreen"
+        v-if="isLargeScreen && this.userStore.user.role == 'ROLE_PLAYER'"
         >
-        <NavbarLinkSection />
+        <NavbarLinkSection/>
       </div>
 
       <div class="d-flex align-items-center">
         <!-- show profile pic -->
-        <ProfileLink />
+        <ProfileLink v-if="this.userStore.user.role == 'ROLE_PLAYER'"/>
+        <!-- log out button for admin -->
+        <button 
+          v-if="this.userStore.user.role == 'ROLE_ADMIN'"
+          class="btn btn-secondary d-flex justify-content-end align-items-center py-0 px-1 m-0"
+          @click="logout">
+          <font-awesome-icon :icon="['fas', 'right-from-bracket']" />
+          <div class="px-2">Log Out</div>
+        </button>
       </div>
       
     </div>
@@ -39,6 +47,7 @@ import NavbarLinkSection from './NavbarLinks/NavbarLinkSection.vue';
 import ProfileLink from './NavbarLinks/ProfileLink.vue';
 import NavbarHamburger from './NavbarLogoAndHumburger/NavbarHamburger.vue';
 import NavbarLogo from './NavbarLogoAndHumburger/NavbarLogo.vue';
+import { useUserStore } from '@/stores/store';
 
 
 export default {
@@ -55,7 +64,12 @@ export default {
   methods:{
     checkScreenSize() {
         this.isLargeScreen = window.innerWidth >= 992;
-      },
+    },
+    logout(){
+      console.log("you have logged out")
+      this.userStore.logout();
+      this.$router.push('/auth');
+    }
   },
   async created() {
       window.addEventListener("resize", this.checkScreenSize);
@@ -63,7 +77,10 @@ export default {
   destroyed() {
     window.removeEventListener("resize", this.checkScreenSize);
   },
-
+  setup(){
+    const userStore = useUserStore();
+    return {userStore}
+  }
 };
 </script>
 

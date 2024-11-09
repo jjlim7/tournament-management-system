@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- countdown  at header-->
-    <div class="mx-auto p-4 text-center backgroundColour rounded-bottom-5 align-content-center" style="max-width: 700px; max-height: 80px;">
+    <div v-if="upcomingGames.length!=0" class="mx-auto p-4 text-center backgroundColour rounded-bottom-5 align-content-center" style="max-width: 700px; max-height: 80px;">
       <div class="fw-semibold" >Next Match: {{ nextMatch.date }}</div>
       <div class="fw-semibold">Countdown: {{ countdown.days }}d {{ countdown.hours }}h {{ countdown.minutes }}m {{ countdown.seconds }}s</div>
     </div>
@@ -11,9 +11,14 @@
       <div class="d-flex flex-column justify-content-around ml-5 col-md-12 col-lg-6">
 
         <!-- current tournament -->
-        <div>
+        <div
+          data-aos="fade-right"
+          data-aos-offset="500"
+          data-aos-duration="500"
+        >
           <span class="fw-semibold py-1">Current Tournament</span>
-          <BlurredBGCard :style="{ 
+          <BlurredBGCard v-if="currentTournament==null"> <div class="text-center">No Active Tournament</div> </BlurredBGCard>
+          <BlurredBGCard  v-if="currentTournament" :style="{ 
             'background-image': 'url(' + currentTournament.image + ')'}"
             class="imageProperties text-center mb-2 mt-1">
             <div class=" rounded-4 p-2" style="background-color: rgba(0, 0, 0, 0.4);">
@@ -24,22 +29,34 @@
         </div>
   
         <!-- rank progress tournament -->
-         <div>
+         <div
+          data-aos="fade-right"
+          data-aos-offset="500"
+          data-aos-duration="600"
+         >
             <span class="fw-semibold py-1">Rank Progress</span>
             <BlurredBGCard class="mb-2 mt-1">
               <RankProgress 
-                :rank="clanStore.rank" 
-                :currentElo="clanStore.currentElo" 
-                :upperLimit="clanStore.eloUpperlimit" 
+                :rank="rank" 
+                :currentElo="currentElo" 
+                :upperLimit="eloUpperLimit" 
                 gameMode="Clan War"
                 class="p-2" />
             </BlurredBGCard>
          </div>
   
         <!-- other tournament carousel -->
-        <div>
+        <div
+          data-aos="fade-right"
+          data-aos-offset="500"
+          data-aos-duration="700"
+        >
           <span class="fw-semibold py-1">Upcoming Clan War Tournament</span>
-          <BlurredBGCard class="mt-1">
+          <BlurredBGCard v-if="upcomingTournaments.length==0">
+            <div class="text-center">No Upcoming Tournament</div> 
+          </BlurredBGCard>
+
+          <BlurredBGCard v-if='upcomingTournaments.length!=0' class="mt-1">
             <div id="clanwarupcomingTournament" class="carousel slide" data-bs-ride="carousel"
             data-bs-pause="hover">
               <!-- indicator for each slide -->
@@ -82,19 +99,22 @@
       <!-- right side -->
       <!-- other tournament details -->
       <div 
+        data-aos="fade-left"
+        data-aos-offset="500"
+        data-aos-duration="500"
         class="bg-light rounded-4 position-relative col-md-12 col-lg-6 p-0 d-flex flex-column"
         v-if="selectedUpcomingTournament!='' && isLargeScreen"> 
-        <img :src="selectedUpcomingTournament.image" class="w-100 img-fluid rounded-top-4" alt="...">
+        <img :src="selectedUpcomingTournament.image" class="w-100 img-fluid rounded-top-4 imgStyle" alt="...">
         <button class="btn btn-close position-absolute top-0 end-0 m-2 btnStyle" @click="selectedUpcomingTournament=''"></button>
         <div class="text-black bg-light p-3 pb-0" >
           <div class="mb-3 d-flex justify-content-between">
             <div class="fw-semibold fs-5"> {{ selectedUpcomingTournament.name }}</div>
-            <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{selectedUpcomingTournament.gameMode}}</div>
+            <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{formmattedMode(selectedUpcomingTournament.gameMode)}}</div>
           </div>
           <p class="overflow-y-scroll m-0 shadow-sm" style="max-height: 180px;">{{ selectedUpcomingTournament.description }}</p>
           <div class="text-black fw-semibold">
-            <div class="fw-semibold">Start Date: {{ selectedUpcomingTournament.startDate }}</div>
-            <div class="fw-semibold">End Date: {{ selectedUpcomingTournament.endDate }}</div>
+            <div class="fw-semibold">Start Date: {{ formattedSelectedTournamentStartTime }}</div>
+            <div class="fw-semibold">End Date: {{ formattedSelectedTournamentEndTime }}</div>
           </div>
         </div>
         <div class="rounded-bottom-4 bg-light p-2 d-flex mt-auto">
@@ -118,7 +138,11 @@
             <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{selectedUpcomingTournament.gameMode}}</div>
         </div>
         <p class="overflow-y-scroll m-0" style="max-height: 180px;">{{ selectedUpcomingTournament.description }}</p>
+        <div class="text-black">
+          <p class="fw-semibold">Start Date: {{ formattedSelectedTournamentStartTime }}</p>
+          <p class="fw-semibold">End Date: {{ formattedSelectedTournamentEndTime }}</p>
         </div>
+      </div>
         <div class="rounded-bottom-4 bg-light p-2 d-flex mt-auto">
           <button class="fw-semibold mx-auto text-white btn btn-primary w-50" data-bs-target="#booking" data-bs-toggle="modal" >Book</button>
         </div>
@@ -143,6 +167,8 @@ import Modal from '@/components/modal/Modal.vue';
 import { Modal as bsModal } from 'bootstrap';
 import BookingModal from '@/components/modal/BookingModal.vue';
 import Swal from 'sweetalert2'
+import axios from '@/utils/axiosInstance';
+import { tournamentImage } from '@/utils/tournamentImage';
 
 export default {
   name: "BattleRoyaleView",
@@ -161,66 +187,37 @@ export default {
         name: "Game #1",
         date: "20 Sept 2024 20:00:00",
       },
-      currentTournament:{
-          id:"789",
-          name: "Tournament #345",
-          description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-          image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
-          startDate: "start date",
-          endDate: "end date",
-          gameMode:"Clan War"
-      },
-      upcomingTournaments:[
-        {
-          id: "123",
-          name: "Tournament #1",
-          description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-          image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
-          startDate: "start date",
-          endDate: "end date",
-          gameMode:"Clan War"
-        },
-        {
-          id: "124",
-          name: "Tournament #2",
-          description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-          image: "https://rukminim2.flixcart.com/image/850/1000/xif0q/poster/7/n/j/medium-black-myth-wukong-trending-hd-poster-12x18-inch-wukong1-original-imah236anfngbxaf.jpeg",
-          startDate: "start date",
-          endDate: "end date",
-          gameMode:"Clan War"
-        },
-        {
-          id: "125",
-          name: "Tournament #3",
-          description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-          image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
-          startDate: "start date",
-          endDate: "end date",
-          gameMode:"Clan War"
-        },
-        {
-          id: "126",
-          name: "Tournament #4",
-          description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-          image: "https://rukminim2.flixcart.com/image/850/1000/xif0q/poster/7/n/j/medium-black-myth-wukong-trending-hd-poster-12x18-inch-wukong1-original-imah236anfngbxaf.jpeg",
-          startDate: "start date",
-          endDate: "end date",
-          gameMode:"Clan War"
-        },
-        {
-          id: "127",
-          name: "Tournament #5",
-          description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-          image: "https://cdn.mos.cms.futurecdn.net/cRFFW6JNXqEtkBA3P2U68m.jpg",
-          startDate: "start date",
-          endDate: "end date",
-          gameMode:"Clan War"
-        }
-      ],
-      selectedUpcomingTournament: ''
+      currentTournament: null,
+      upcomingTournaments:[],
+      selectedUpcomingTournament: '',
+      currentElo: 0,
+      eloUpperLimit: 0,
+      rank: "Unranked",
+      upcomingGames: []
     };
   },
+  computed:{
+    formattedSelectedTournamentStartTime() {
+      if (!this.selectedUpcomingTournament.startDate) return '';
+      return this.formatDate(new Date(this.selectedUpcomingTournament.startDate));
+    },
+    formattedSelectedTournamentEndTime() {
+      if (!this.selectedUpcomingTournament.endDate) return '';
+      return this.formatDate(new Date(this.selectedUpcomingTournament.endDate));
+    }
+  },
   methods: {
+    formatDate(date) {
+      if (!date) return ''; // Handle null or undefined dates
+      const day = String(date.getUTCDate()).padStart(2, '0');
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Month is zero-based
+      const year = date.getUTCFullYear();
+      return `${day}/${month}/${year}`;
+    },
+    formmattedMode(mode){
+      if(mode == "BATTLE_ROYALE") return "Battle Royale";
+      if(mode == "CLANWAR") return "Clan War";
+    },
     startCountdown() {
       const targetTime = new Date(this.nextMatch.date).getTime();
 
@@ -231,6 +228,8 @@ export default {
         if (timeLeft < 0) {
           clearInterval(this.intervalId);
           this.countdown = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+          // start game
+          
         } else {
           this.countdown.days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
           this.countdown.hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -238,6 +237,9 @@ export default {
           this.countdown.seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
         }
       }, 1000);
+    },
+    async simulateGame(){
+      const response = await axios.post(`/elo-ranking/api/simulate/clan-war`);
     },
     checkScreenSize() {
         this.isLargeScreen = window.innerWidth >= 992;
@@ -253,21 +255,82 @@ export default {
         }
       });
     },
-    checkClanRole(){
-      if(this.userStore.user.clanRole=='member'){
-        this.showErrorAlert("Only clan admin can book Clan War")
+    async fetchTournament() {
+      try {
+        const response = await axios.get('/tournament/api/tournaments');
+        // console.log(response);
+
+        this.upcomingTournaments = [];
+        
+        if (response.status === 404) {
+          return;
+        }
+        
+        const allTournaments = response.data;
+        const currentDateTime = new Date();
+        
+        const n = tournamentImage.length;
+
+        for (let i = 0 ; i < allTournaments.length ; i++) {
+          const tournament = allTournaments[i];
+          if(tournament.gameMode != "CLANWAR"){
+            continue;
+          }
+          
+          const startDate = new Date(tournament.startDate);
+          const endDate = new Date(tournament.endDate);
+          
+          let formattedTournament = { ...tournament, "startDate":startDate, "endDate": endDate, "image":tournamentImage[i%n]}
+
+          if (startDate <= currentDateTime && endDate >= currentDateTime) {
+            // Tournament is currently active
+            this.currentTournament = formattedTournament;
+          } else if (startDate > currentDateTime) {
+            // Tournament is upcoming
+            this.upcomingTournaments.push(formattedTournament);
+          }
+        }
+        //UNCOMMENT THIS AFTER I GET THE API. THIS IS FOR CURRENT TOURNAMENT
+        this.fetchEloRank();
+        if(this.currentTournament!=null){
+          this.fetchEloRank();
+        }
+      } catch (error) {
+        console.error('Error fetching tournaments:', error);
+        throw error;
+      }
+    },
+    async fetchEloRank(){
+      try {
+        const response = await axios.get(`/elo-ranking/api/elo-ranking/clan/${this.clanStore.id}/tournament/1`);
+        const data  = response.data.data;
+        // this.rank = data.rankThreshold.
+
+
+        //uncomment this when there are correct data
+        //const response = await axios.get(`/api/elo-ranking/player/${this.userStore.user.id}/tournament/${this.currentTournament.tournament_id}`);
+        console.log(data);
+        
+      } catch (error) {
+        console.error('Error fetching player\'s elo rank :', error);
+        throw error;
       }
     },
     showModal(){
+      if(this.userStore.user.clanRole=='ROLE_PLAYER'){
+        this.showErrorAlert("Only clan admin can book Clan War", "Access denied")
+        return;
+      }
       const modalID = 'booking';
       const tournamentModal = new bsModal(document.getElementById(modalID));
       tournamentModal.show();
     },
-    showErrorAlert(errorMessage){
+    showErrorAlert(errorMessage, errorTitle){
         Swal.fire({
+            toast: true,
             position: "top-end",
             icon: "error",
-            title: "Invalid Input",
+            title: errorTitle,
             text: errorMessage,
             showConfirmButton: false,
             timer: 1500
@@ -275,6 +338,7 @@ export default {
     },
     bookSuccess(successMessage){
         Swal.fire({
+            toast: true,
             position: "top-end",
             icon: "success",
             title: "Booked!",
@@ -297,6 +361,8 @@ export default {
     clearInterval(this.intervalId); // Clear the interval when the component is destroyed
   },
   mounted() {
+    this.fetchTournament();
+    // count down if there is a upcoming game
     this.startCountdown();
   },
   destroyed() {
@@ -322,7 +388,13 @@ export default {
 }
 .carousel-item img {
   width:100%;
-  max-height: 300px;
+  height: 300px;
+  object-fit: cover;
+}
+
+.imgStyle{
+  widows: 100%;
+  max-height: 350px;
   object-fit: content;
 }
 
