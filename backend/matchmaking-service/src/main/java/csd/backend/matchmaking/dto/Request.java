@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public class Request {
@@ -19,6 +20,18 @@ public class Request {
     String startTime;
     String endTime;
     boolean isAvailable;
+  }
+
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class BulkCreatePlayerAvailabilityByTimeRangeDto {
+
+    long playerId;
+    long tournamentId;
+    OffsetDateTime startTime;
+    OffsetDateTime endTime;
+    int interval;
   }
 
   @Getter

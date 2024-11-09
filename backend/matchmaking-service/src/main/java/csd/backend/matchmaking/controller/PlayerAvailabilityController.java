@@ -1,8 +1,13 @@
 package csd.backend.matchmaking.controller;
 
+import csd.backend.matchmaking.dto.Request;
 import csd.backend.matchmaking.entity.PlayerAvailability;
 import csd.backend.matchmaking.services.PlayerAvailabilityService;
 
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.validation.Valid;
@@ -32,6 +37,35 @@ public class PlayerAvailabilityController {
   ) {
     List<PlayerAvailability> availabilities = playerAvailabilityService.bulkCreateAvailabilities(playerAvailabilities);
     return new ResponseEntity<>(availabilities, HttpStatus.CREATED);
+  }
+
+  @PostMapping("/bulkCreateByTimeRange")
+  public ResponseEntity<List<PlayerAvailability>> bulkCreateAvailabilitiesByTimeRange(
+          @Valid @RequestBody Request.BulkCreatePlayerAvailabilityByTimeRangeDto bulkRequest
+          ) {
+    OffsetDateTime start = bulkRequest.getStartTime();
+    OffsetDateTime end = bulkRequest.getEndTime();
+    long intervalInHours = bulkRequest.getInterval();
+
+    List<PlayerAvailability> availabilities = new ArrayList<>();
+    while (start.isBefore(end)) {
+      OffsetDateTime intervalEnd = start.plusHours(intervalInHours);
+      if (intervalEnd.isAfter(end)) {
+        intervalEnd = end;
+      }
+      PlayerAvailability availability = new PlayerAvailability(
+              bulkRequest.getPlayerId(),
+              bulkRequest.getTournamentId(),
+              start,
+              intervalEnd,
+              true  // Set availability to true; adjust as needed
+      );
+      availabilities.add(availability);
+      start = intervalEnd;
+    }
+
+    List<PlayerAvailability> createdAvailabilities = playerAvailabilityService.bulkCreateAvailabilities(availabilities);
+    return new ResponseEntity<>(createdAvailabilities, HttpStatus.CREATED);
   }
 
   @GetMapping(params = "playerId")
