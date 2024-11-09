@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RankThreshold {
+    Long id;
     double minRating;
     double maxRating;
     Rank rank;
@@ -21,6 +22,14 @@ public class RankThreshold {
     }
 
     public enum Rank {
-        GOLD, SILVER, PLATINUM
+        IRON,
+        BRONZE,
+        SILVER,
+        GOLD,
+        PLATINUM,
+        DIAMOND,
+        MASTER,
+        GRANDMASTER,
+        CHALLENGER,
     }
 }

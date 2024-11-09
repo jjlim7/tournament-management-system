@@ -79,4 +79,12 @@ public class ClanAvailabilityService {
                 endTime,
                 availabilityDto.isAvailable());
     }
+
+    public void deleteAvailability(long id) {
+        repository.deleteById(id);
+    }
+
+    public boolean existsByClanIdAndTournamentIdAndTimeRange(long playerId, long tournamentId, OffsetDateTime start, OffsetDateTime end) {
+        return repository.existsByClanIdAndTournamentIdAndTimeRange(playerId, tournamentId, start, end);
+    }
 }

@@ -65,7 +65,7 @@ public class TournamentDataLoader implements CommandLineRunner{
             tournament.setAdminId(Long.parseLong(fields[6]));
 
             tournament.setPlayerIds(null);
-            tournament.setGameList(null);
+//            tournament.setGameList(null);
 
             // Save the tournament to the database
             tournamentRepository.save(tournament);

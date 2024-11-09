@@ -37,6 +37,18 @@ public class Request {
   @Getter
   @NoArgsConstructor
   @AllArgsConstructor
+  public static class BulkCreateClanAvailabilityByTimeRangeDto {
+
+    long clanId;
+    long tournamentId;
+    OffsetDateTime startTime;
+    OffsetDateTime endTime;
+    int interval;
+  }
+
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
   public static class CreateClanAvailabilityDto {
 
     long clanId;

@@ -1,6 +1,8 @@
 package csd.backend.matchmaking.controller;
 
+import csd.backend.matchmaking.dto.Request;
 import csd.backend.matchmaking.entity.ClanAvailability;
+import csd.backend.matchmaking.entity.PlayerAvailability;
 import csd.backend.matchmaking.services.ClanAvailabilityService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -31,6 +35,79 @@ public class ClanAvailabilityController {
             @Valid @RequestBody List<ClanAvailability> clanAvailabilities) {
         List<ClanAvailability> createdAvailabilities = clanAvailabilityService.bulkCreateClanAvailabilities(clanAvailabilities);
         return new ResponseEntity<>(createdAvailabilities, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{clanId}")
+    public ResponseEntity<String> deleteClanAvailability(@PathVariable long clanId) {
+        clanAvailabilityService.deleteAvailability(clanId);
+        return new ResponseEntity<>("Clan availability with ID " + clanId + " deleted successfully.", HttpStatus.OK);
+    }
+
+    @PostMapping("/bulkCreateByTimeRange")
+    public ResponseEntity<List<ClanAvailability>> bulkCreateAvailabilitiesByTimeRange(
+            @Valid @RequestBody Request.BulkCreateClanAvailabilityByTimeRangeDto bulkRequest
+    ) {
+        OffsetDateTime start = bulkRequest.getStartTime();
+        OffsetDateTime end = bulkRequest.getEndTime();
+        long intervalInHours = bulkRequest.getInterval();
+
+        List<ClanAvailability> availabilities = new ArrayList<>();
+        while (start.isBefore(end)) {
+            OffsetDateTime intervalEnd = start.plusHours(intervalInHours);
+            if (intervalEnd.isAfter(end)) {
+                intervalEnd = end;
+            }
+            ClanAvailability availability = new ClanAvailability(
+                    bulkRequest.getClanId(),
+                    bulkRequest.getTournamentId(),
+                    start,
+                    intervalEnd,
+                    true  // Set availability to true; adjust as needed
+            );
+            availabilities.add(availability);
+            start = intervalEnd;
+        }
+
+        List<ClanAvailability> createdAvailabilities = clanAvailabilityService.bulkCreateClanAvailabilities(availabilities);
+        return new ResponseEntity<>(createdAvailabilities, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/bulkUpdateByTimeRange")
+    public ResponseEntity<List<ClanAvailability>> bulkUpdateAvailabilities(
+            @Valid @RequestBody Request.BulkCreateClanAvailabilityByTimeRangeDto bulkRequest) {
+        OffsetDateTime start = bulkRequest.getStartTime();
+        OffsetDateTime end = bulkRequest.getEndTime();
+        long intervalInHours = bulkRequest.getInterval();
+
+        List<ClanAvailability> availabilities = new ArrayList<>();
+
+        while (start.isBefore(end)) {
+            OffsetDateTime intervalEnd = start.plusHours(intervalInHours);
+            if (intervalEnd.isAfter(end)) {
+                intervalEnd = end;
+            }
+
+            // Check if availability for this interval already exists
+            boolean exists = clanAvailabilityService.existsByClanIdAndTournamentIdAndTimeRange(
+                    bulkRequest.getClanId(), bulkRequest.getTournamentId(), start, intervalEnd);
+
+            if (!exists) {
+                // Create new availability if it doesn't exist
+                ClanAvailability availability = new ClanAvailability(
+                        bulkRequest.getClanId(),
+                        bulkRequest.getTournamentId(),
+                        start,
+                        intervalEnd,
+                        true  // Set availability to true; adjust as needed
+                );
+                availabilities.add(availability);
+            }
+
+            start = intervalEnd;
+        }
+
+        List<ClanAvailability> updatedAvailabilities = clanAvailabilityService.bulkCreateClanAvailabilities(availabilities);
+        return new ResponseEntity<>(updatedAvailabilities, HttpStatus.CREATED);
     }
 
     // Get Clan Availabilities by Clan ID
@@ -69,12 +146,5 @@ public class ClanAvailabilityController {
     public ResponseEntity<ClanAvailability> updateClanAvailability(@PathVariable Long id, @Valid @RequestBody ClanAvailability clanAvailability) {
         ClanAvailability updatedAvailability = clanAvailabilityService.updateClanAvailability(id, clanAvailability);
         return ResponseEntity.ok(updatedAvailability);
-    }
-
-    // Delete Clan Availability
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteClanAvailability(@PathVariable Long id) {
-        clanAvailabilityService.deleteClanAvailability(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

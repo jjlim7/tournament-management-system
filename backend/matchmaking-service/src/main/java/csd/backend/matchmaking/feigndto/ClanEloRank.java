@@ -10,15 +10,16 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClanEloRank {
+    private Long id;
     private Long clanId;
     private Long tournamentId;
-    private String rankThreshold;  // Adjust type based on actual implementation
+    private RankThreshold rankThreshold;  // Adjust type based on actual implementation
     private double meanSkillEstimate;
     private double uncertainty;
 
     public ClanEloRank(long clanId, RankThreshold rankThreshold, double v, double meanSkillEstimate, long uncertainty) {
         this.clanId = clanId;
-        this.rankThreshold = rankThreshold.rank.toString();
+        this.rankThreshold = rankThreshold;
         this.meanSkillEstimate = meanSkillEstimate;
         this.uncertainty = uncertainty;
     }

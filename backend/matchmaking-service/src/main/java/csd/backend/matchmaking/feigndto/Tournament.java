@@ -16,12 +16,14 @@ public class Tournament {
 
     public enum Status {
         ACTIVE,
-        INACTIVE
+        INACTIVE,
+        CANCELLED,
+        COMPLETED
     }
 
     public enum GameMode {
         BATTLE_ROYALE,
-        CLAN_WAR
+        CLANWAR
     }
 
     private long tournament_id;
@@ -42,4 +44,6 @@ public class Tournament {
 
     // You can include playerIds if needed, or exclude it based on your requirements
     private List<Long> playerIds;
+
+//    private List<Long> gameList;
 }
