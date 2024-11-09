@@ -67,7 +67,7 @@ public class SimulationController {
             System.out.println("Process results");
 
             return ResponseEntity.status(HttpStatus.CREATED).body(
-                    Map.of("status", "success", "message", "Simulated Battle Royale successfully"));
+                    Map.of("status", "success", "message", "Simulated Battle Royale successfully", "result", gameScores));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
@@ -104,7 +104,7 @@ public class SimulationController {
             elorankingService.processUpdateClanWarResults(result.getWinnerRawPlayerGameScores(), result.getLoserRawPlayerGameScores());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(
-                    Map.of("status", "success", "message", "Simulated Clan War successfully"));
+                    Map.of("status", "success", "message", "Simulated Clan War successfully", "result", result));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(

@@ -100,7 +100,7 @@ route-roles:
       - ROLE_PLAYER
     "tournament.api.tournaments.{tournamentId}.GET":
       - ROLE_PLAYER
-    "elo-ranking.api.elo-ranking.clan.{clanID}.tournament.1.GET":
+    "elo-ranking.api.elo-ranking.clan.{clanID}.tournament.{tournamentID}.GET":
       - ROLE_PLAYER
     "auth.api.login.POST":
       - ROLE_ADMIN

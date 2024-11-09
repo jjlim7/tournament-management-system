@@ -1,9 +1,6 @@
 package com.example.userservice.controller;
 
-import com.example.userservice.feignclient.EloRankingClient;
-import com.example.userservice.feigndto.GameMode;
 import com.example.userservice.feigndto.PlayerEloRank;
-import com.example.userservice.feigndto.PlayerStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

@@ -95,6 +95,7 @@ public class JwtAuthenticationFilter implements GatewayFilter, Ordered {
                     .replace("tournamentId", "\\d+")   // Match literal "tournamentId" with digits
                     .replace("userId", "\\d+")   // Match literal "tournamentId" with digits
                     .replace("clanId", "\\d+")   // Match literal "tournamentId" with digits
+                    .replace("clanUserId", "\\d+")
                     .replaceAll("\\{[^}]+\\}", "\\d+"); // Match {placeholder} syntax with digits
 
             log.debug("Comparing path '{}' with pattern '{}'", pathWithMethod, regexPattern);
@@ -114,7 +115,6 @@ public class JwtAuthenticationFilter implements GatewayFilter, Ordered {
             } catch (PatternSyntaxException e) {
                 log.error("Invalid regex pattern for route: {} - Error: {}",
                         routePattern, e.getMessage());
-                continue;
             }
         }
 
