@@ -2,7 +2,8 @@ version: "3.8"
 
 services:
   user-service:
-    build: ./userservice
+    build: ./user-service
+    image: jjlim159/user-service
     env_file: .env
     ports:
       - 8084:8080
@@ -12,7 +13,8 @@ services:
       - internal-network
 
   matchmaking-service:
-    build: ./matchmaking
+    build: ./matchmaking-service
+    image: jjlim159/matchmaking-service
     env_file: .env
     ports:
       - 8081:8080
@@ -21,8 +23,20 @@ services:
     networks:
       - internal-network
 
+  auth-service:
+    build: ./auth-service
+    image: jjlim159/auth-service
+    env_file: .env
+    ports:
+      - 8085:8080
+    depends_on:
+      - postgresdb
+    networks:
+      - internal-network
+
   elo-ranking-service:
     build: ./elo-ranking-service
+    image: jjlim159/elo-ranking-service
     env_file: .env
     ports:
       - 8082:8080
@@ -32,7 +46,8 @@ services:
       - internal-network
 
   tournament-service:
-    build: ./tournamentservice
+    build: ./tournament-service
+    image: jjlim159/tournament-service
     env_file: .env
     ports:
       - 8083:8080
@@ -42,17 +57,19 @@ services:
       - internal-network
 
   gateway:
-    build: ./gateway
+    build: ./gateway-service
+    image: jjlim159/gateway-service
     env_file: .env
     environment:
       SPRING_PROFILES_ACTIVE: docker  # Activate docker profile
     ports:
       - 8080:8080
     depends_on:
+      - auth-service
       - user-service
-#      - matchmaking-service
-      - elo-ranking-service
-      - tournament-service
+      #- matchmaking-service
+      #- elo-ranking-service
+      #- tournament-service
     networks:
       - internal-network
 
@@ -62,7 +79,7 @@ services:
     environment:
       - POSTGRES_USER=$POSTGRES_USER
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-      - POSTGRES_MULTIPLE_DATABASES=user-service, tournament-service, matchmaking-service, elo-ranking-service
+      - POSTGRES_MULTIPLE_DATABASES=$POSTGRES_MULTIPLE_DATABASES
     ports:
       - 5432:5432
     healthcheck:
