@@ -47,4 +47,8 @@ public class PlayerAvailabilityService {
                 endTime,
                 availabilityDto.isAvailable());
     }
+
+    public void deleteAvailability(long id) {
+        repository.deleteById(id);
+    }
 }

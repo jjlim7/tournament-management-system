@@ -5,8 +5,6 @@ import csd.backend.matchmaking.entity.PlayerAvailability;
 import csd.backend.matchmaking.services.PlayerAvailabilityService;
 
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +27,12 @@ public class PlayerAvailabilityController {
   ) {
     PlayerAvailability availability = playerAvailabilityService.createAvailability(playerAvailability);
     return new ResponseEntity<>(availability, HttpStatus.CREATED);
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<String> deletePlayerAvailability(@PathVariable long id) {
+    playerAvailabilityService.deleteAvailability(id);
+    return new ResponseEntity<>("Player availability with ID " + id + " deleted successfully.", HttpStatus.OK);
   }
 
   @PostMapping("/bulk")
