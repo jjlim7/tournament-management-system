@@ -50,10 +50,11 @@ public class JwtAuthenticationFilter implements GatewayFilter, Ordered {
             String normalizedPath = normalizePath(requestPath, requestMethod);
             log.debug("Normalized path: {}", normalizedPath);
 
-            if (!isAccessAllowed(normalizedPath, userRole, routesRoleConfig.getRoutes())) {
-                log.warn("Access denied for role {} on path {}", userRole, normalizedPath);
-                return onError(exchange, "Access denied", HttpStatus.FORBIDDEN);
-            }
+            // TODO: Add RBAC Access accordingly
+//            if (!isAccessAllowed(normalizedPath, userRole, routesRoleConfig.getRoutes())) {
+//                log.warn("Access denied for role {} on path {}", userRole, normalizedPath);
+//                return onError(exchange, "Access denied", HttpStatus.FORBIDDEN);
+//            }
 
             return chain.filter(exchange);
 
