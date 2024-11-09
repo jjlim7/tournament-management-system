@@ -5,6 +5,7 @@ import csd.backend.matchmaking.entity.PlayerAvailability;
 import csd.backend.matchmaking.services.PlayerAvailabilityService;
 
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,6 +71,44 @@ public class PlayerAvailabilityController {
 
     List<PlayerAvailability> createdAvailabilities = playerAvailabilityService.bulkCreateAvailabilities(availabilities);
     return new ResponseEntity<>(createdAvailabilities, HttpStatus.CREATED);
+  }
+
+  @PutMapping("/bulkUpdateByTimeRange")
+  public ResponseEntity<List<PlayerAvailability>> bulkUpdateAvailabilities(
+          @Valid @RequestBody Request.BulkCreatePlayerAvailabilityByTimeRangeDto bulkRequest) {
+    OffsetDateTime start = bulkRequest.getStartTime();
+    OffsetDateTime end = bulkRequest.getEndTime();
+    long intervalInHours = bulkRequest.getInterval();
+
+    List<PlayerAvailability> availabilities = new ArrayList<>();
+
+    while (start.isBefore(end)) {
+      OffsetDateTime intervalEnd = start.plusHours(intervalInHours);
+      if (intervalEnd.isAfter(end)) {
+        intervalEnd = end;
+      }
+
+      // Check if availability for this interval already exists
+      boolean exists = playerAvailabilityService.existsByPlayerIdAndTournamentIdAndTimeRange(
+              bulkRequest.getPlayerId(), bulkRequest.getTournamentId(), start, intervalEnd);
+
+      if (!exists) {
+        // Create new availability if it doesn't exist
+        PlayerAvailability availability = new PlayerAvailability(
+                bulkRequest.getPlayerId(),
+                bulkRequest.getTournamentId(),
+                start,
+                intervalEnd,
+                true  // Set availability to true; adjust as needed
+        );
+        availabilities.add(availability);
+      }
+
+      start = intervalEnd;
+    }
+
+    List<PlayerAvailability> updatedAvailabilities = playerAvailabilityService.bulkCreateAvailabilities(availabilities);
+    return new ResponseEntity<>(updatedAvailabilities, HttpStatus.CREATED);
   }
 
   @GetMapping(params = "playerId")

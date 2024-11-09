@@ -51,4 +51,8 @@ public class PlayerAvailabilityService {
     public void deleteAvailability(long id) {
         repository.deleteById(id);
     }
+
+    public boolean existsByPlayerIdAndTournamentIdAndTimeRange(long playerId, long tournamentId, OffsetDateTime start, OffsetDateTime end) {
+        return repository.existsByPlayerIdAndTournamentIdAndTimeRange(playerId, tournamentId, start, end);
+    }
 }
