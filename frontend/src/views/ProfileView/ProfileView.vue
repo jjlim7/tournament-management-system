@@ -29,8 +29,8 @@
         <div class="text-center p-4">
           <img :src="clanStore.image" alt="" class="rounded-circle border border-primary border-2" style="width: 120px; height: 120px; object-fit: cover;">
   
-          <div class="fw-semibold">{{ clanStore.name }}</div>
-          <div>Clan Role: <span class="fw-semibold">{{ userStore.user.clanRole }}</span></div>
+          <div class="fw-semibold">{{ userStore.user.clan.clanName }}</div>
+          <div>Clan Role: <span class="fw-semibold">{{ userStore.user.clanRole}}</span></div>
         </div>
       </BlurredBGCard>
      </div>
@@ -51,14 +51,14 @@
           </div>
           <!-- show total win -->
           <div class="fs-2 fw-bold text-center">
-              {{ userStore.user.totalWins }}
+              {{ userStore.user.stats.avgKillDeathRatio.toFixed(2) }}
               <br>
-              <span>Wins</span>
+              <span>Average KDA</span>
           </div>
           <div class="fs-2 fw-bold text-center">
-              {{ userStore.user.winRatio }}
+              {{ userStore.user.stats.avgAccuracy.toFixed(2) }}
               <br>
-              <span>Win Ratio</span>
+              <span>Average Accuracy</span>
           </div>
         </BlurredBGCard>
       </div>
@@ -101,12 +101,14 @@
         <BlurredBGCard>
           <RankProgress 
             :rank="userStore.user.rank" 
-              :currentElo="userStore.user.currentElo" 
-              :upperLimit="userStore.user.eloUpperlimit" 
-              gameMode="Battle Royale"
-              class="px-2" />
+            :currentElo="userStore.user.currentElo"
+            :lowerLimit="userStore.user.eloLowerlimit"
+            :upperLimit="userStore.user.eloUpperlimit" 
+            gameMode="Battle Royale"
+            class="px-2" />
           <RankProgress 
             :rank="clanStore.rank" 
+            :lowerLimit="userStore.user.eloLowerlimit"
             :currentElo="clanStore.currentElo" 
             :upperLimit="clanStore.eloUpperlimit" 
             gameMode="Clan War"

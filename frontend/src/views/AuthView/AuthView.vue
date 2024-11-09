@@ -128,10 +128,26 @@ export default {
         
         if(response.data.token){
           // get all the user info here!!
-
           setAuthToken(response.data.token);
-          this.userStore.setIsAuth();
-          this.$router.push('/');
+          axios.get(`clanuser/api/users/${response.data.user.userId}/overall`).then((response)=>{
+            if(response.status == 200){
+              const data = response.data;
+              let userInfo = data.clanUser.user;
+              userInfo['id'] = userInfo.userId;
+              userInfo['clan'] = data.clanUser.clan;
+              userInfo['clanRole'] = data.clanUser.isClanLeader ? 'ROLE_ADMIN' : 'ROLE_PLAYER';
+              userInfo['eloRank'] = data.eloRank;
+              userInfo['stats'] = data.stats;
+              userInfo['rank'] = data.eloRank.rankThreshold.rank;
+              userInfo['eloLowerlimit'] = data.eloRank.rankThreshold.minRating;
+              userInfo['currentElo'] = data.eloRank.meanSkillEstimate;
+              userInfo['eloUpperlimit'] = data.eloRank.rankThreshold.maxRating;
+              console.log(userInfo);
+              this.userStore.setUser(userInfo);
+              this.userStore.setIsAuth();
+              this.$router.push('/');
+            }
+          })
         }else{
           this.showErrorAlert("Incorrect Credential", "username / password incorrect")
         }
