@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/matchmaking")
@@ -35,7 +36,7 @@ public class MatchmakingController {
     private ObjectMapper objectMapper;
 
     @PostMapping("/scheduleGames")
-    public ResponseEntity<String> scheduleGames(@RequestParam long tournamentId, @RequestParam String gameMode) {
+    public ResponseEntity<String> scheduleGames(@RequestParam long tournamentId) {
         if (matchmakingService.isTournamentAlreadyScheduled(tournamentId)) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("The tournament has already been scheduled.");
@@ -48,14 +49,14 @@ public class MatchmakingController {
 
         List<Game> scheduledGames = null;
         try {
-            scheduledGames = matchmakingService.scheduleGames(tournamentId, gameMode);
+            scheduledGames = matchmakingService.scheduleGames(tournamentId, Objects.requireNonNull(res.getBody()).getGameMode().toString());
             if (scheduledGames.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("Failed to schedule games for tournament " + tournamentId);
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Internal Server Error. Failed to schedule games for tournament " + tournamentId);
+                    .body("Internal Server Error. Failed to schedule games for tournament " + tournamentId + "\n" + e.getMessage());
         }
 
         return new ResponseEntity<>("Games scheduled for tournament " + tournamentId, HttpStatus.OK);

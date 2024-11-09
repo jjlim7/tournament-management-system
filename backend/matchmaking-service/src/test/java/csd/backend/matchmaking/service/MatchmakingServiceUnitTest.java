@@ -146,13 +146,28 @@ public class MatchmakingServiceUnitTest {
         PlayerEloRank rank2 = new PlayerEloRank(101L, new RankThreshold(RankThreshold.Rank.GOLD, 0, 0), 1400, 100, tournamentId);
         PlayerEloRank rank3 = new PlayerEloRank(102L, new RankThreshold(RankThreshold.Rank.GOLD, 0, 0), 1000, 100, tournamentId);
 
+        Map<String, Object> playerEloRankMap1 = Map.of(
+                "status", "success",
+                "data", rank1
+        );
+
+        Map<String, Object> playerEloRankMap2 = Map.of(
+                "status", "success",
+                "data", rank2
+        );
+
+        Map<String, Object> playerEloRankMap3 = Map.of(
+                "status", "success",
+                "data", rank3
+        );
+
         // Mock the Feign Client to return Elo ranks for each player
         when(eloRankingClient.getPlayerEloRank(100L, tournamentId))
-                .thenReturn(rank1);
+                .thenReturn(playerEloRankMap1);
         when(eloRankingClient.getPlayerEloRank(101L, tournamentId))
-                .thenReturn(rank2);
+                .thenReturn(playerEloRankMap2);
         when(eloRankingClient.getPlayerEloRank(102L, tournamentId))
-                .thenReturn(rank3);
+                .thenReturn(playerEloRankMap3);
 
         // Mock GameService to create games
         Game game = new Game();
@@ -213,8 +228,19 @@ public class MatchmakingServiceUnitTest {
         // Mock Feign Client to return ELO ranks for each clan
         ClanEloRank clanEloRank1 = new ClanEloRank(100L, new RankThreshold(RankThreshold.Rank.GOLD, 0, 0), 1500.0, 100.0, tournamentId);
         ClanEloRank clanEloRank2 = new ClanEloRank(101L, new RankThreshold(RankThreshold.Rank.GOLD, 0, 0), 1450.0, 100.0, tournamentId);
-        when(eloRankingClient.getClanEloRank(100L, tournamentId)).thenReturn(clanEloRank1);
-        when(eloRankingClient.getClanEloRank(101L, tournamentId)).thenReturn(clanEloRank2);
+
+        Map<String, Object> clanEloRankMap1 = Map.of(
+                "status", "success",
+                "data", clanEloRank1
+        );
+
+        Map<String, Object> clanEloRankMap2 = Map.of(
+                "status", "success",
+                "data", clanEloRank2
+        );
+
+        when(eloRankingClient.getClanEloRank(100L, tournamentId)).thenReturn(clanEloRankMap1);
+        when(eloRankingClient.getClanEloRank(101L, tournamentId)).thenReturn(clanEloRankMap2);
 
 
         // Mock GameService
@@ -271,8 +297,17 @@ public class MatchmakingServiceUnitTest {
         // Mock Feign Client to return ELO ranks for each clan
         ClanEloRank clanEloRank1 = new ClanEloRank(200L, new RankThreshold(RankThreshold.Rank.SILVER, 0, 0), 1500.0, 100.0, tournamentId);
         ClanEloRank clanEloRank2 = new ClanEloRank(201L, new RankThreshold(RankThreshold.Rank.SILVER, 0, 0), 1450.0, 100.0, tournamentId);
-        when(eloRankingClient.getClanEloRank(200L, tournamentId)).thenReturn(clanEloRank1);
-        when(eloRankingClient.getClanEloRank(201L, tournamentId)).thenReturn(clanEloRank2);
+        Map<String, Object> clanEloRankMap1 = Map.of(
+                "status", "success",
+                "data", clanEloRank1
+        );
+        Map<String, Object> clanEloRankMap2 = Map.of(
+                "status", "success",
+                "data", clanEloRank2
+        );
+
+        when(eloRankingClient.getClanEloRank(200L, tournamentId)).thenReturn(clanEloRankMap1);
+        when(eloRankingClient.getClanEloRank(201L, tournamentId)).thenReturn(clanEloRankMap2);
 
         // Execute the matchmaking logic
         List<Game> scheduledGames = matchmakingService.scheduleClanWarGames(tournamentId);
@@ -315,9 +350,22 @@ public class MatchmakingServiceUnitTest {
         ClanEloRank clanEloRank1 = new ClanEloRank(300L, new RankThreshold(RankThreshold.Rank.PLATINUM, 0, 0), 1700.0, 100.0, tournamentId);
         ClanEloRank clanEloRank2 = new ClanEloRank(301L, new RankThreshold(RankThreshold.Rank.PLATINUM, 0, 0), 1650.0, 100.0, tournamentId);
         ClanEloRank clanEloRank3 = new ClanEloRank(302L, new RankThreshold(RankThreshold.Rank.PLATINUM, 0, 0), 1600.0, 100.0, tournamentId);
-        when(eloRankingClient.getClanEloRank(300L, tournamentId)).thenReturn(clanEloRank1);
-        when(eloRankingClient.getClanEloRank(301L, tournamentId)).thenReturn(clanEloRank2);
-        when(eloRankingClient.getClanEloRank(302L, tournamentId)).thenReturn(clanEloRank3);
+        Map<String, Object> clanEloRankMap1 = Map.of(
+                "status", "success",
+                "data", clanEloRank1
+        );
+        Map<String, Object> clanEloRankMap2 = Map.of(
+                "status", "success",
+                "data", clanEloRank2
+        );
+        Map<String, Object> clanEloRankMap3 = Map.of(
+                "status", "success",
+                "data", clanEloRank3
+        );
+
+        when(eloRankingClient.getClanEloRank(300L, tournamentId)).thenReturn(clanEloRankMap1);
+        when(eloRankingClient.getClanEloRank(301L, tournamentId)).thenReturn(clanEloRankMap2);
+        when(eloRankingClient.getClanEloRank(302L, tournamentId)).thenReturn(clanEloRankMap3);
 
         // Mock GameService to create games
         Game game = new Game();

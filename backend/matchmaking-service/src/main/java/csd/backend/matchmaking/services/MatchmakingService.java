@@ -47,6 +47,7 @@ public class MatchmakingService {
         return switch (gameMode) {
             case "BATTLE_ROYALE" -> scheduleBattleRoyaleGames(tournamentId);
             case "CLAN_WAR" -> scheduleClanWarGames(tournamentId);
+            case "CLANWAR" -> scheduleClanWarGames(tournamentId);
             default -> throw new Exception("Invalid gameMode");
         };
     }
@@ -70,8 +71,12 @@ public class MatchmakingService {
         Map<Long, String> clanEloRankMap = new HashMap<>();
         for (Long clanId : clanIds) {
             try {
-                ClanEloRank eloRank = eloRankingClient.getClanEloRank(clanId, tournamentId);
-                clanEloRankMap.put(clanId, eloRank.getRankThreshold());
+                // Get the Elo rank in the specified Map<String, Object> format
+                Map<String, Object> res = eloRankingClient.getClanEloRank(clanId, tournamentId);
+                ClanEloRank eloRank = objectMapper.convertValue(res.get("data"), ClanEloRank.class);
+
+                // Add to the main eloRankMap with playerId as the key
+                clanEloRankMap.put(clanId, eloRank.getRankThreshold().toString());
             } catch (Exception e) {
                 System.out.printf("Failed to retrieve ELO rank for clan %d in tournament %d: %s%n", clanId, tournamentId, e.getMessage());
                 throw new Exception(String.format("Failed to retrieve ELO rank for clan %d in tournament %d: %s", clanId, tournamentId, e.getMessage()));
@@ -205,7 +210,11 @@ public class MatchmakingService {
         // Group players by their rank
         for (PlayerAvailability availability : availablePlayers) {
             Long playerId = availability.getPlayerId();
-            String rank = String.valueOf(eloRankMap.get(playerId).getRankThresholdId()); // Get the player's rank
+            EloRank playerEloRank = eloRankMap.get(playerId);
+            if (playerEloRank == null) {
+                continue;
+            }
+            String rank = String.valueOf(playerEloRank.getRankThresholdId()); // Get the player's rank
 
             rankedPlayersMap.computeIfAbsent(rank, k -> new ArrayList<>()).add(availability);
         }
@@ -255,8 +264,12 @@ public class MatchmakingService {
         // For each player ID, call the Feign client to get the player's EloRank and put it in the map
         for (Long playerId : playerIds) {
             try {
-                PlayerEloRank playerEloRank = eloRankingClient.getPlayerEloRank(playerId, tournamentId);
-                eloRankMap.put(playerId, playerEloRank);  // Add to the map
+                // Get the Elo rank in the specified Map<String, Object> format
+                Map<String, Object> res = eloRankingClient.getPlayerEloRank(playerId, tournamentId);
+                PlayerEloRank eloRank = objectMapper.convertValue(res.get("data"), PlayerEloRank.class);
+
+                // Add to the main eloRankMap with playerId as the key
+                eloRankMap.put(playerId, eloRank);
             } catch (Exception e) {
                 // Handle exception if the player EloRank could not be retrieved (optional logging or rethrow)
                 // For now, we'll skip the player if an exception occurs.
