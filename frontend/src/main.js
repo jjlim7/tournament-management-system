@@ -24,6 +24,10 @@ const SwalOptions = {
 //import cookie
 import VueCookies from 'vue-cookies'
 
+// Initialize the token when the app loads
+import { loadAuthToken } from './utils/axiosInstance'
+loadAuthToken();
+
 //import primevue and configure it
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
