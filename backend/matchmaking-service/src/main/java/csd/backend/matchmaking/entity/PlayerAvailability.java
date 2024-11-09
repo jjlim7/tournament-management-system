@@ -1,7 +1,6 @@
 package csd.backend.matchmaking.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import csd.backend.matchmaking.dto.Request;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,14 +8,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.OffsetDateTime;
-import java.util.Objects;
 
 @Setter
 @Getter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "player_availability", uniqueConstraints={@UniqueConstraint(columnNames={"player_id", "tournament_id", "start_time"})})
+@Table(name = "player_availability", schema = "matchmaking", uniqueConstraints={@UniqueConstraint(columnNames={"player_id", "tournament_id", "start_time"})})
 public class PlayerAvailability {
 
     public PlayerAvailability(long playerId, long tournamentId, OffsetDateTime startTime, OffsetDateTime endTime, boolean isAvailable) {

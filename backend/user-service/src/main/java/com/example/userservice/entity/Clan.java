@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(schema = "users")
 public class Clan {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -15,8 +15,6 @@ spring:
           uri: http://localhost:8082
           predicates:
             - Path=/elo-ranking/api/**  # Prefix path
-
-
         - id: matchmaking-service
           uri: http://localhost:8081
           predicates:
@@ -25,8 +23,7 @@ spring:
         - id: tournament-service
           uri: http://localhost:8083
           predicates:
-            - Path=/tournament/api/** # todo
-
+            - Path=/tournament/api/**
         - id: user-service
           uri: http://localhost:8084
           predicates:
@@ -41,6 +38,7 @@ ms:
     root: http://localhost:8083
   user-service:
     root: http://localhost:8084
+  auth-service:
 
 logging:
   level:

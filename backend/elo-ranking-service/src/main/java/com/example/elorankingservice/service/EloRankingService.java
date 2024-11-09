@@ -35,7 +35,7 @@ public class EloRankingService {
         if (seeded == 0) {
             // Seed the rank thresholds in the repository
             for (int i = 1; i < 51; i++) {
-                createNewPlayerEloRanking(i, 1001);
+                createNewPlayerEloRanking(i, 1);
             }
             System.out.println("Seed Player Elo Rank Ids = 1 ~ 50");
         } else {

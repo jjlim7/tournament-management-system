@@ -3,10 +3,12 @@ package com.security.auth.Security.service;
 
 import com.security.auth.Security.repository.TokenRepository;
 import com.security.auth.User.User;
+import com.security.auth.User.UserJWT;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -66,22 +68,22 @@ public class JwtService {
                 .getPayload();
     }
 
-
-    public String generateToken(User user) {
+    public String generateToken(UserJWT user) {
+        // Collect roles as a comma-separated string
         String roles = user.getAuthorities().stream()
-                .map(authority -> authority.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-        String token = Jwts
+        return Jwts
                 .builder()
-                .subject(user.getUsername())
-                .claim("role", roles)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 24*60*60*1000 ))
-                .signWith(getSigninKey())
+                .setSubject(user.getUsername())  // Subject of the token
+                .claim("role", roles)  // Adding roles
+                .claim("isClanLeader", user.getIsClanLeader())  // Adding isClanLeader status
+                .claim("name", user.getName())  // Adding user's name as a claim if needed
+                .setIssuedAt(new Date(System.currentTimeMillis()))  // Setting issued date
+                .setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))  // Setting expiration (24 hours)
+                .signWith(getSigninKey())  // Signing with secret key
                 .compact();
-
-        return token;
     }
 
     private SecretKey getSigninKey() {

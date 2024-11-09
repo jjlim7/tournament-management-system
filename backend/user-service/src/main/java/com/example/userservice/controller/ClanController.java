@@ -1,5 +1,10 @@
 package com.example.userservice.controller;
 
+import com.example.userservice.feigndto.ClanEloRank;
+import com.example.userservice.feigndto.PlayerEloRank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.userservice.entity.*;
@@ -27,6 +32,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class ClanController {
     @Autowired
     private ClanService clanService;
+
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     public ClanController(ClanService clanService) {
         this.clanService = clanService;
@@ -85,5 +92,19 @@ public class ClanController {
             throw new ClanNotFoundException(clanId);
         }
     }
-        
+
+    // complex ms fn that calls elo-ranking-service
+    @Operation(summary = "Get elo rank for specific clan", description = "Get latest/current elo ranking of clan")
+    @GetMapping("/clans/{clanId}/latest-rank")
+    public ResponseEntity<?> getClanEloRank(@PathVariable Long clanId) {
+        try {
+            ClanEloRank rank = clanService.getLatestClanEloRank(clanId);
+            return ResponseEntity.ok(rank);
+        } catch (Exception e) {
+// Log the exception for debugging
+            log.error("Failed to retrieve Elo rank for clan: {}", clanId, e);
+            // Return a meaningful error message
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not retrieve Elo rank at this time.");
+        }
+    }
 }

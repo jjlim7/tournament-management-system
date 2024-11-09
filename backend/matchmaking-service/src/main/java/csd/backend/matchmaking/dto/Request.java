@@ -1,11 +1,11 @@
 package csd.backend.matchmaking.dto;
 
-import csd.backend.matchmaking.entity.Game;
-import java.time.OffsetDateTime;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
 
 public class Request {
 
@@ -19,5 +19,24 @@ public class Request {
     String startTime;
     String endTime;
     boolean isAvailable;
+  }
+
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class CreateClanAvailabilityDto {
+
+    long clanId;
+    long tournamentId;
+    String startTime;
+    String endTime;
+    boolean isAvailable;
+  }
+
+  @Getter
+  @Setter
+  public static class GetSelectedPlayerEloRanks {
+    List<Long> playerIds;
+    Long tournamentId;
   }
 }

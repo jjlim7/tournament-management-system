@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "games")
+@Table(name = "games", schema = "tournaments")
 public class Game {
 
     @Id

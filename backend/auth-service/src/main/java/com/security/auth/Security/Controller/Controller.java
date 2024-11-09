@@ -22,7 +22,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3210")
 public class Controller {
     private final AuthenticationService authService;
     private final CustomLogoutHandler customLogoutHandler;

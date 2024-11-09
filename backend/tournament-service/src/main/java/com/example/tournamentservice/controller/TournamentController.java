@@ -34,18 +34,17 @@ import com.example.tournamentservice.service.TournamentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
+//@CrossOrigin(origins = "http://your-frontend-domain.com") //adjust accordingly
 @RestController
 @RequestMapping("/api/tournaments")
-//@CrossOrigin(origins = "http://your-frontend-domain.com") //adjust accordingly
-
-
 public class TournamentController {
 
     @Autowired
     private TournamentService tournamentService;
-    
+
     @Autowired
     private EloRankingFeignClient eloRankingFeignClient;
 
@@ -54,7 +53,7 @@ public class TournamentController {
 
     @Autowired
     private TournamentDataLoader tournamentDataLoader;
-    
+
     @Operation(summary = "Creation of Bulk Data", description = "Seeding data",tags = {"Others"})
     @PostMapping("/load-from-csv")
     public String loadTournamentsFromCsv() {
@@ -66,7 +65,7 @@ public class TournamentController {
             return "Failed to load tournament data: " + e.getMessage();
         }
     }
-    
+
     //Operations for Tournaments
     @Operation(summary = "Create a tournament", description = "Create a new tournament",tags = {"Tournament Basic Operations"})
     @ApiResponses(value = {
@@ -431,6 +430,27 @@ public class TournamentController {
         return matchMakingFeignClient.getPlayerAvailabilitiesByTournamentId(tournamentId);
     }
 
-    
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<Tournament>> getUpcomingTournaments() {
+        List<Tournament> upcomingTournaments = tournamentService.findUpcomingTournaments();
+        return new ResponseEntity<>(upcomingTournaments, HttpStatus.OK);
+    }
+
+    @PutMapping("/{tournamentId}/status")
+    public ResponseEntity<Void> updateTournamentStatus(@PathVariable("tournamentId") Long tournamentId, @RequestParam("newStatus") String newStatus) {
+        // Convert the newStatus string to the Tournament.Status enum
+        try {
+            Tournament.Status statusEnum = Tournament.Status.valueOf(newStatus.toUpperCase());
+            boolean updated = tournamentService.updateTournamentStatus(tournamentId, statusEnum);
+            if (updated) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (IllegalArgumentException e) {
+            // Return BAD_REQUEST if the status is not valid
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }

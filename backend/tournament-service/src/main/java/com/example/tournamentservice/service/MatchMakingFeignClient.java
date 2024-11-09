@@ -25,25 +25,28 @@ import com.example.tournamentservice.entity.Tournament.Status;
 public interface MatchMakingFeignClient {
 
 
-    @GetMapping("/games/{gameId}/players")
+    @GetMapping("/api/games/{gameId}/players")
     List<Long> getPlayerIdsByGame(@PathVariable("gameId") Long gameId);
 
-    @GetMapping("/tournaments/{tournamentId}/games")
+    @GetMapping("/api/tournaments/{tournamentId}/games")
     List<GameDTO> getGamesByTournament(@PathVariable("tournamentId") Long tournamentId);
 
-    @GetMapping("/games/{gameId}")
+    @GetMapping("/api/games/{gameId}")
     GameDTO getGameById(@PathVariable("gameId") Long gameId);
 
-    @GetMapping("/games/{gameId}/player-or-clan-ids")
+    @GetMapping("/api/games/upcoming")
+    List<GameDTO> getUpcomingGamesByPlayerId(@RequestParam Long playerId);
+
+    @GetMapping("/api/games/{gameId}/player-or-clan-ids")
     EntityResponseDTO.EntityIdResponse getGamePlayerOrClanIds(@PathVariable("gameId") long gameId);
 
-    @PostMapping("/tournaments/{tournamentId}/games/schedule")
+    @PostMapping("/api/tournaments/{tournamentId}/games/schedule")
     List<GameDTO> scheduleGames(@PathVariable("tournamentId") long tournamentId, @RequestParam("gameMode") Tournament.GameMode gameMode);
 
-    @PostMapping("/availabilities/group-by-start")
+    @PostMapping("/api/availabilities/group-by-start")
     Map<OffsetDateTime, List<PlayerAvailabilityDTO>> groupAvailabilitiesByStartTime(@RequestBody List<PlayerAvailabilityDTO> availabilities);
 
-    @PostMapping("/games/schedule")
+    @PostMapping("/api/games/schedule")
     GameDTO createGame(
         @RequestParam("tournamentId") long tournamentId, 
         @RequestParam("startTime") OffsetDateTime startTime, 
@@ -52,9 +55,9 @@ public interface MatchMakingFeignClient {
         @RequestBody List<PlayerAvailabilityDTO> availablePlayers
     );
 
-    @GetMapping("/players/{playerId}/availabilities")
+    @GetMapping("/api/players/{playerId}/availabilities")
     List<PlayerAvailabilityDTO> getPlayerAvailabilitiesByPlayerId(@PathVariable("playerId") long playerId);
 
-    @GetMapping("/tournaments/{tournamentId}/availabilities")
+    @GetMapping("/api/tournaments/{tournamentId}/availabilities")
     List<PlayerAvailabilityDTO> getPlayerAvailabilitiesByTournamentId(@PathVariable("tournamentId") long tournamentId);
 }

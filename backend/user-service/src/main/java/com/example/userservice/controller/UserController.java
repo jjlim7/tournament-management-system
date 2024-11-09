@@ -1,5 +1,12 @@
 package com.example.userservice.controller;
 
+import com.example.userservice.feignclient.EloRankingClient;
+import com.example.userservice.feigndto.GameMode;
+import com.example.userservice.feigndto.PlayerEloRank;
+import com.example.userservice.feigndto.PlayerStats;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.userservice.entity.*;
@@ -28,9 +35,15 @@ import io.swagger.v3.oas.annotations.Operation;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private ClanUserService clanUserService;
 
-    public UserController(UserService userService) {
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+
+
+    public UserController(UserService userService, ClanUserService clanUserService) {
         this.userService = userService;
+        this.clanUserService = clanUserService;
     }
 
     // Read
@@ -95,7 +108,28 @@ public class UserController {
     // complex ms fn that calls elo-ranking-service
     @Operation(summary = "Get elo rank for specific user", description = "Get latest/current elo ranking of player")
     @GetMapping("/users/{userId}/latest-rank")
-    public Object getUserEloRank(@PathVariable Long userId) {
-        return 0;
+    public ResponseEntity<?> getUserEloRank(@PathVariable Long userId) {
+        try {
+            PlayerEloRank rank = userService.getLatestPlayerRank(userId);
+            return ResponseEntity.ok(rank);
+        } catch (Exception e) {
+            log.error("Failed to retrieve Elo rank for user: {}", userId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not retrieve Elo rank at this time.");
+        }
+    }
+
+    @Operation(summary = "get full user details", description = "")
+    @GetMapping("/users/{userId}/overall")
+    public ResponseEntity<?> getUserOverall(@PathVariable Long userId) {
+        try {
+            ClanUser associatedClanDetails = clanUserService.getClanUserByUserId(userId);
+            PlayerOverallStats partialStatsNoClanData = userService.getPlayerOverallForLatestTournament(userId);
+
+            partialStatsNoClanData.setClanUser(associatedClanDetails);
+            return ResponseEntity.ok(partialStatsNoClanData);
+        } catch (Exception e) {
+            log.error("Failed to retrieve player details for player: {}", userId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not retrieve user details for player.");
+        }
     }
 }

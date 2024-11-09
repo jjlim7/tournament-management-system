@@ -12,6 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
+@Table(schema = "users")
 public class ClanUser {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,12 +21,10 @@ public class ClanUser {
     // Many-to-one relationship with User
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
-    @JsonIgnore
     private User user;
 
     // Many-to-one relationship with Clan
-    @ManyToOne
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "clan_id", nullable = false)
     private Clan clan;
 
@@ -42,8 +41,4 @@ public class ClanUser {
         this.isClanLeader = isClanLeader;
         this.position = position;
     }
-
-    
-
-    
 }

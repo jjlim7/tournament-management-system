@@ -11,6 +11,7 @@ public class ClanUserNotFoundException extends RuntimeException {
         super("Could not find Clan User with ClanUserId: " + clanUserId);
     }
 
+
     public ClanUserNotFoundException() {
         super("Could not find the new Clan User being added");
     }

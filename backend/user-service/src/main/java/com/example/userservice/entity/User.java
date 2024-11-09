@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @NoArgsConstructor
 @EqualsAndHashCode
 @Entity
-@Table(name = "users")
+@Table(name = "users", schema = "users")
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

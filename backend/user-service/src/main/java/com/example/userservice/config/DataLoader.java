@@ -9,6 +9,8 @@ import com.example.userservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,6 +24,7 @@ public class DataLoader implements CommandLineRunner {
     private final ClanService clanService;
     private final ClanUserService clanUserService;
     private final Random random = new Random();
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
     @Autowired
@@ -48,7 +51,7 @@ public class DataLoader implements CommandLineRunner {
             User user = new User();
             user.setName("User_" + i);
             user.setEmail("user" + i + "@user.com");
-            user.setPassword("password" + i);
+            user.setPassword(passwordEncoder.encode("password" + i));
             user.setRole("ROLE_PLAYER");
             return userService.addUser(user);
         }).toList();

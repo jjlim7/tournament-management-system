@@ -3,10 +3,8 @@ package com.example.userservice.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.userservice.service.*;
 import com.example.userservice.dto.Request;
@@ -16,10 +14,6 @@ import com.example.userservice.exceptions.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
 import java.util.*;
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -139,6 +133,17 @@ public class ClanUserController {
             throw new UserNotFoundException(clanUserId);
         }
     }
-    
-    
+
+
+    @Operation(summary = "Get clan users if they exist", description = "")
+    @GetMapping("/clanusers/search")
+    public ResponseEntity<ClanUser> getClanUserIfExists(@RequestParam Long userId) {
+        ClanUser clanUser = clanUserService.getClanUserByUserId(userId);
+        if (clanUser == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(clanUser);
+    }
+
+
 }
