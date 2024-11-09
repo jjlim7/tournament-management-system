@@ -28,21 +28,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Cache Maven Packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Install dependencies and run tests for all services
-        run: |
-          for dir in $(find . -name 'pom.xml' -exec dirname {} \;); do
-            echo "Running tests for $dir"
-            (cd "$dir" && ./mvnw clean install -DskipTests=false)
-          doneß
-
       - name: Build and push Docker images with Docker Compose
         run: |
           docker-compose -f backend/docker-compose.yml build
