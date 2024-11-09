@@ -219,6 +219,7 @@ export default {
       if(mode == "CLANWAR") return "Clan War";
     },
     startCountdown() {
+      if(this.nextMatch == null) return
       const targetTime = new Date(this.nextMatch.date).getTime();
 
       this.intervalId = setInterval(() => {
@@ -263,7 +264,7 @@ export default {
     async fetchTournament() {
       try {
         const response = await axios.get('/tournament/api/tournaments');
-        // console.log(response);
+        console.log(response);
 
         this.upcomingTournaments = [];
         
