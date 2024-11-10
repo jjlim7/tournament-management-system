@@ -22,8 +22,14 @@ const router = createRouter({
       name: 'root',
       redirect: () => {
         const userStore = useUserStore();
+    
+        // If not authenticated, send to auth page
+        if (!userStore.isAuthenticated) {
+          return { name: 'auth' };
+        }
+    
+        // Redirect based on role if authenticated
         const userRole = userStore.user?.role;
-
         if (userRole === 'ROLE_ADMIN') {
           return { name: 'admin' };
         } else if (userRole === 'ROLE_PLAYER') {
@@ -105,30 +111,26 @@ const router = createRouter({
   ]
 })
 
-
-// Navigation Guard
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore();
   const requiresAuth = to.meta.requiresAuth;
   const roles = to.meta.roles;
 
-  // Initialize user only if not authenticated
+  // Initialize user from localStorage if needed
   userStore.initializeUser();
 
-  // Check if the user is authenticated
   if (userStore.isAuthenticated) {
+    // Prevent authenticated users from accessing the auth page
     if (to.name === 'auth') {
-      return next({ path: '/' }); 
+      return next({ path: '/' });
     }
-    
-    // If the user is authenticated and accessing a protected route
-    if (requiresAuth) {
-      if (roles && !roles.includes(userStore.user.role)) {
-        return next({ name: 'NotAuthorized' });
-      }
+
+    // Check for role-based access control
+    if (requiresAuth && roles && !roles.includes(userStore.user.role)) {
+      return next({ name: 'NotAuthorized' });
     }
   } else {
-    // If the user is not authenticated and trying to access a protected route
+    // Redirect unauthenticated users to the auth page for protected routes
     if (requiresAuth) {
       return next({ path: '/auth' });
     }

@@ -327,6 +327,7 @@ export default {
           let bookingEndTime = new Date(booking.endTime);
           this.myAvailabilites.push({...booking,"tournament": this.tournamentCache[tournamentId], "startTime": bookingStartTime, "endTime":bookingEndTime});
         }
+        console.log(this.myAvailabilites)
       }catch(error){
         console.log("error fetching player's availabilities. Erorr message: ", error.message)
         return
@@ -335,7 +336,7 @@ export default {
     },
     async fetchGames(){
       try{
-        const response = await axios.get(`/tournaments/api/games/upcoming?playerId={}`);
+        // const response = await axios.get(`/tournaments/api/games/upcoming?playerId={}`);
         const games = response.data;
         
         

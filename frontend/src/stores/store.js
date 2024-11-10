@@ -63,23 +63,24 @@ export const useUserStore = defineStore('user', {
       localStorage.setItem('user', JSON.stringify(this.user));
       localStorage.setItem('isAuthenticated', 'true');
     },
-    async logout() {
-      try {
-        // Call logout endpoint (optional)
-        await axios.post(`/auth/api/logout`);
-      } catch (error) {
-        console.error("Error during logout:", error);
-        // Optionally handle logout errors (e.g., token expired, network issues)
-      } finally {
-        // Reset user state to default
-        this.$reset();
-    
-        // Clear localStorage or any cookies related to the session
-        localStorage.clear();
-    
-        // Redirect to login or home page (if necessary)
-        this.$router.push({ path: '/auth' });
-      }
+    logout() {
+      axios.post(`/auth/api/logout`)
+        .then(() => {
+          console.log("Logout successful.");
+        })
+        .catch((error) => {
+          console.error("Error during logout:", error);
+          // Optionally handle logout errors (e.g., token expired, network issues)
+        })
+        .finally(() => {
+          // Reset user state to default
+          this.$reset();
+          
+          // Clear localStorage or any cookies related to the session
+          localStorage.clear();
+          window.location.href = '/auth';
+        });
+
     },
     initializeUser() {
       const user = localStorage.getItem('user');

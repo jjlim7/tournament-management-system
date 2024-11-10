@@ -161,7 +161,6 @@ export default {
     logout(){
       console.log("you have logged out")
       this.userStore.logout();
-      this.$router.push('/auth');
     },
     fetchTournament() {
       axios
