@@ -3,7 +3,7 @@ import { useUserStore } from "@/stores/store";
 
 export function getUserDetails(){
     const userStore = useUserStore()
-    axios.get(`clanuser/api/users/${userStore.user.id}/overall`).then((response)=>{
+    axios.get(`/clanuser/api/users/${userStore.user.id}/overall`).then((response)=>{
         if(response.status == 200){
           const data = response.data;
           let userInfo = data.clanUser.user;
