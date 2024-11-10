@@ -46,18 +46,62 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
+      # Build and push for elo-ranking-service
+      - name: Build and push elo-ranking-service
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: |
-            jjlim159/elo-ranking-service:latest
-            jjlim159/tournament-service:latest
-            jjlim159/matchmaking-service:latest
-            jjlim159/user-service:latest
-            jjlim159/auth-service:latest
-            jjlim159/gateway-service:latest
-            jjlim159/postgres
-          context: .  # This is the default build context, you can update it if needed for different services
-          file: ./Dockerfile  # Set the Dockerfile location if it's not at the root
+          tags: jjlim159/elo-ranking-service:latest
+          context: ./backend/elo-ranking-service
+          file: ./backend/elo-ranking-service/Dockerfile
+
+      # Build and push for tournament-service
+      - name: Build and push tournament-service
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: jjlim159/tournament-service:latest
+          context: ./backend/tournament-service
+          file: ./backend/tournament-service/Dockerfile
+
+      # Build and push for matchmaking-service
+      - name: Build and push matchmaking-service
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: jjlim159/matchmaking-service:latest
+          context: ./backend/matchmaking-service
+          file: ./backend/matchmaking-service/Dockerfile
+
+      # Build and push for user-service
+      - name: Build and push user-service
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: jjlim159/user-service:latest
+          context: ./backend/user-service
+          file: ./backend/user-service/Dockerfile
+
+      # Build and push for auth-service
+      - name: Build and push auth-service
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: jjlim159/auth-service:latest
+          context: ./backend/auth-service
+          file: ./backend/auth-service/Dockerfile
+
+      # Build and push for gateway-service
+      - name: Build and push gateway-service
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: jjlim159/gateway-service:latest
+          context: ./backend/gateway-service
+          file: ./backend/gateway-service/Dockerfile
