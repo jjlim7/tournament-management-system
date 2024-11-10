@@ -142,9 +142,13 @@ public class UserController {
                 defaultUser.put("eloUpperlimit", 0);
                 defaultUser.put("totalWins", 0);
                 defaultUser.put("winRatio", 0);
-                System.out.println("????");
                 defaultUser.put("clanRole", "ROLE_PLAYER");
                 defaultUser.put("role", "ROLE_PLAYER");
+
+                Map<String, Object> clanUser = new HashMap<>();
+                clanUser.put("user", basicUserDetails);
+                clanUser.put("clan", null);
+                defaultUser.put("clanUser", clanUser);
 
                 Map<String, Object> stats = new HashMap<>();
                 stats.put("playerId", basicUserDetails.getUserId());
