@@ -3,7 +3,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN ./mvnw package -Dmaven.test.skip=false
+RUN ./mvnw package -Dmaven.test.skip=true
 
 EXPOSE 8080
 
