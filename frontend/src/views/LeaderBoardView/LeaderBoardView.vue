@@ -2,9 +2,6 @@
   <div class="d-flex align-items-end w-100 justify-content-between mx-auto m-3 row" style="min-height: 90vh;">
     <!-- showing battle royale ranking -->
     <LeaderBoardTable 
-      data-aos="fade-right"
-      data-aos-offset="500"
-      data-aos-duration="500"
       class="px-3 col-lg-6 col-12"
       v-if="BRranking.length > 0" 
       :allranking="BRranking" 
@@ -12,9 +9,6 @@
       gameMode="Battle Royale" />
 
     <LeaderBoardTable 
-      data-aos="fade-left"
-      data-aos-offset="500"
-      data-aos-duration="500" 
       class="px-3 col-lg-6 col-12"
       v-if="CWranking.length > 0 && userStore.user.clan!=null" 
       :allranking="CWranking" 

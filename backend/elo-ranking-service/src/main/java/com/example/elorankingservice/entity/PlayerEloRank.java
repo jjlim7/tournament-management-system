@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "player_elo_rank", schema = "elo-ranking", uniqueConstraints = {
+@Table(name = "player_elo_rank", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"player_id", "tournament_id"})
 })
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -29,11 +29,11 @@ public class PlayerEloRank extends EloRank {
     public PlayerEloRank(
             Long playerId,
             RankThreshold rankThreshold,
-            double meanSkillEstimate,
+            double skillMeanEstimate,
             double uncertainty,
             Long tournamentId
     ) {
-        super(rankThreshold, meanSkillEstimate, uncertainty, tournamentId);
+        super(rankThreshold, skillMeanEstimate, uncertainty, tournamentId);
         this.playerId = playerId;
     }
 }

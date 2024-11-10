@@ -16,19 +16,18 @@ image can be found here LOL:  https://leagueoflegends.fandom.com/wiki/Rank_(Leag
             <div class="progress" role="progressbar">
                 <div class="progress-bar" :style="{'width': progressPercent}"></div>
             </div>
-            <div class="float-end" style="padding-right: 20px;">{{ ((currentElo -lowerLimit) / (upperLimit-lowerLimit) * 100).toFixed(2) }} / 100 </div>
+            <div class="float-end" style="padding-right: 20px;">{{ currentElo }} / {{ upperLimit }}</div>
         </div>
     </div>
 </template>
 
 <script>
-import axiosInstance from '@/utils/axiosInstance';
 import { ALLRANKS } from '@/utils/rankImages';
 
 export default {
     name:"RankProgress",
     components:{ALLRANKS},
-    props:[ "rank", "currentElo", "upperLimit", "gameMode",'lowerLimit' ],
+    props:[ "rank", "currentElo", "upperLimit", "gameMode" ],
     data(){
         return{
             rankImages: ALLRANKS,
@@ -36,11 +35,11 @@ export default {
     },
     computed: {
         rankImage(){
-            return this.rankImages[this.rank] || this.rankImages.UNRANKED;
+            return this.rankImages[this.rank] || this.rankImages.Unranked;
         },
         progressPercent(){
             // console.log(this.currentElo/this.upperLimit);
-            const percentage = ((this.currentElo -this.lowerLimit) / (this.upperLimit-this.lowerLimit)) * 100;
+            const percentage = (this.currentElo / this.upperLimit) * 100;
             return `${percentage}%`;
         }
     },

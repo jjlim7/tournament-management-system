@@ -3,7 +3,6 @@ package com.example.elorankingservice.controller;
 import com.example.elorankingservice.dto.Request;
 import com.example.elorankingservice.entity.ClanGameScore;
 import com.example.elorankingservice.entity.PlayerGameScore;
-import com.example.elorankingservice.entity.PlayerStats;
 import com.example.elorankingservice.service.GameScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -62,38 +60,10 @@ public class GameScoreController {
         try {
             List<ClanGameScore> clanGameScores = gameScoreService.retrieveClanGameScoresForTournament(tournamentId, clanId);
             return ResponseEntity.status(HttpStatus.OK).body(
-                    Map.of("status", "success", "clanGameScores", clanGameScores)
+                    Map.of("status", "success","clanGameScores", clanGameScores)
             );
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                    "status", "failed",
-                    "message", e.getMessage()
-            ));
-        }
-    }
-
-    @GetMapping("/player/{playerId}/tournament/{tournamentId}/stats")
-    public ResponseEntity<Map<String, Object>> getPlayerStatistics(
-            @PathVariable Long playerId,
-            @PathVariable Long tournamentId,
-            @RequestParam(required = false) PlayerGameScore.GameMode gameMode
-    ) {
-        if (tournamentId == null || playerId == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                    "status", "failed",
-                    "message", "missing params"
-            ));
-        }
-        try {
-            PlayerStats playerStats = gameScoreService.retrievePlayerStatisticsForTournament(tournamentId, playerId, gameMode);
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    Map.of("status", "success", "playerStats", playerStats)
-            );
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                    "status", "failed",
-                    "message", e.getMessage()
-            ));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("status", "failed", "message", e.getMessage()));
         }
     }
 }
