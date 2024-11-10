@@ -169,9 +169,6 @@ public class TournamentService {
     }
 
     private void validateDates(OffsetDateTime startDate, OffsetDateTime endDate) {
-        if (startDate.isBefore(OffsetDateTime.now())) {
-            throw new IllegalArgumentException("Start date must be in the future");
-        }
         if (endDate.isBefore(startDate) || endDate.isEqual(startDate)) {
             throw new IllegalArgumentException("End date cannot be the same as or before the start date");
         }
@@ -182,7 +179,6 @@ public class TournamentService {
             throw new IllegalArgumentException("Player capacity must be greater than zero");
         }
     }
-
 
     //Feign Client for EloRanking
     public Optional<ClanEloRankDTO> getClanEloRank(Long clanId, Long tournamentId) {

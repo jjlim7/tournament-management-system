@@ -30,7 +30,7 @@ public class Tournament {
 
 	public enum GameMode {
 		BATTLE_ROYALE,
-		CLANWAR
+		CLAN_WAR
 	}
 
 	public enum Status {
@@ -57,7 +57,7 @@ public class Tournament {
 	private OffsetDateTime startDate;
 
 	@NotNull(message = "End date is required")
-	@Future(message = "End date must be a future date")
+	//@Future(message = "End date must be a future date")
 	@Column(name = "end_date", nullable = false)
 	private OffsetDateTime endDate;
 

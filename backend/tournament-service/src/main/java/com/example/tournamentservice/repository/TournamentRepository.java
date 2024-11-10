@@ -18,6 +18,8 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
 
     Optional<Tournament> findByName(String name);
 
+    boolean existsByNameIgnoreCase(String name);
+
     List<Tournament> findByStartDateBetween(OffsetDateTime startDate, OffsetDateTime endDate);
 
     List<Tournament> findByEndDateBetween(OffsetDateTime startDate, OffsetDateTime endDate);
