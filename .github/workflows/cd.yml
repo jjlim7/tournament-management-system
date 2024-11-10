@@ -59,3 +59,5 @@ jobs:
             jjlim159/auth-service:latest
             jjlim159/gateway-service:latest
             jjlim159/postgres
+          context: .  # This is the default build context, you can update it if needed for different services
+          file: ./Dockerfile  # Set the Dockerfile location if it's not at the root
