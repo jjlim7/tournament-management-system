@@ -1,8 +1,8 @@
 <template>
   <div>
     <!-- countdown  at header-->
-    <div v-if="upcomingGames.length!=0" class="mx-auto p-4 text-center backgroundColour rounded-bottom-5 align-content-center" style="max-width: 700px; max-height: 80px;">
-      <div class="fw-semibold" >Next Match: {{ nextMatch.date }}</div>
+    <div v-if="nextMatch!=null" class="mx-auto p-4 text-center backgroundColour rounded-bottom-5 align-content-center" style="max-width: 700px; max-height: 80px;">
+      <div class="fw-semibold" >Next Match: {{ formattedGameDate }}</div>
       <div class="fw-semibold">Countdown: {{ countdown.days }}d {{ countdown.hours }}h {{ countdown.minutes }}m {{ countdown.seconds }}s</div>
     </div>
     <!-- content -->
@@ -185,8 +185,19 @@ export default {
       },
       intervalId: null,
       nextMatch: {
-        name: "Game #1",
-        date: "20 Sept 2024 20:00:00",
+        gameId: 1,
+        tournamentId: 1,
+        startTime: "2024-11-07T10:00:00.000Z",
+        endTime: "2024-12-07T11:00:00.000Z",
+        playerIds: [
+            22,
+            11,
+            48
+        ],
+        clanIds: [],
+        winner: null,
+        gameMode: "BATTLE_ROYALE",
+        gameStatus: "SCHEDULED"
       },
       currentTournament:null,
       upcomingTournaments:[],
@@ -202,7 +213,27 @@ export default {
     formattedSelectedTournamentEndTime() {
       if (!this.selectedUpcomingTournament.endDate) return '';
       return this.formatDate(new Date(this.selectedUpcomingTournament.endDate));
-    }
+    },
+    formattedGameDate(){
+      const date = new Date(this.nextMatch.startTime);
+  
+      // Format date as dd/mm/yyyy
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+      const year = date.getFullYear();
+  
+      // Format time as hh:mm AM/PM
+      let hours = date.getHours();
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12; // Convert 24-hour to 12-hour format
+  
+      // Combine date and time
+      const formattedDate = `${day}/${month}/${year}`;
+      const formattedTime = `${hours}:${minutes} ${ampm}`;
+  
+      return `${formattedDate} ${formattedTime}`;
+    },
   },
   methods: {
     formatDate(date) {
@@ -218,7 +249,7 @@ export default {
     },
     startCountdown() {
       if(this.nextMatch == null) return
-      const targetTime = new Date(this.nextMatch.date).getTime();
+      const targetTime = new Date(this.nextMatch.startTime).getTime();
 
       this.intervalId = setInterval(() => {
         const now = new Date().getTime();
@@ -228,6 +259,28 @@ export default {
           clearInterval(this.intervalId);
           this.countdown = { days: 0, hours: 0, minutes: 0, seconds: 0 };
           // start game
+          Swal.fire({
+                title: "Start Game?",
+                reverseButtons: true, // Swaps the position of confirm and cancel buttons
+                showCancelButton: true,
+                cancelButtonColor: "#DDDDDD",
+                confirmButtonColor: "#FA9021",
+                confirmButtonText: "Start!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                      //change this according
+                            Swal.fire({
+                                title: "Started!",
+                                text: "Your game has started.",
+                                icon: "success",
+                                timer: 1500
+                            });
+                    }
+            });
+            //fetch games
+            this.fetchGames();
+            // count down if there is a upcoming game
+            this.startCountdown();
           
         } else {
           this.countdown.days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
@@ -259,68 +312,93 @@ export default {
       const tournamentModal = new bsModal(document.getElementById(modalID));
       tournamentModal.show();
     },
-    async fetchTournament() {
-      try {
-        const response = await axios.get('/tournament/api/tournaments');
-        console.log(response);
+    fetchTournament() {
+      axios.get('/tournament/api/tournaments')
+        .then((response) => {
+          // console.log(response);
 
-        this.upcomingTournaments = [];
-        
-        if (response.status === 404) {
-          return;
-        }
-        
-        const allTournaments = response.data;
-        const currentDateTime = new Date();
-        
-        const n = tournamentImage.length;
+          this.upcomingTournaments = [];
 
-        for (let i = 0 ; i< allTournaments.length ; i++) {
-          const tournament = allTournaments[i];
-          if(tournament.gameMode != "BATTLE_ROYALE"){
-            continue;
+          if (response.status === 404) {
+            return;
           }
-          
-          const startDate = new Date(tournament.startDate);
-          const endDate = new Date(tournament.endDate);
-          
-          let formattedTournament = { ...tournament, "startDate":startDate, "endDate": endDate, "image":tournamentImage[i%n]}
 
-          if (startDate <= currentDateTime && endDate >= currentDateTime) {
-            // Tournament is currently active
-            this.currentTournament = formattedTournament;
-          } else if (startDate > currentDateTime) {
-            // Tournament is upcoming
-            this.upcomingTournaments.push(formattedTournament);
+          const allTournaments = response.data;
+          const currentDateTime = new Date();
+          const n = tournamentImage.length;
+
+          for (let i = 0; i < allTournaments.length; i++) {
+            const tournament = allTournaments[i];
+            if (tournament.gameMode !== "BATTLE_ROYALE") {
+              continue;
+            }
+
+            const startDate = new Date(tournament.startDate);
+            const endDate = new Date(tournament.endDate);
+
+            let formattedTournament = { 
+              ...tournament, 
+              startDate: startDate, 
+              endDate: endDate, 
+              image: tournamentImage[i % n] 
+            };
+
+            if (startDate <= currentDateTime && endDate >= currentDateTime) {
+              // Tournament is currently active
+              this.currentTournament = formattedTournament;
+            } else if (startDate > currentDateTime) {
+              // Tournament is upcoming
+              this.upcomingTournaments.push(formattedTournament);
+            }
           }
-        }
-        //UNCOMMENT THIS AFTER I GET THE API. THIS IS FOR CURRENT TOURNAMENT
-        this.fetchEloRank();
-        if(this.currentTournament!=null){
-          this.fetchEloRank();
-        }
-        console.log(this.upcomingTournaments)
-        console.log(this.currentTournament)
-      } catch (error) {
-        console.error('Error fetching tournaments:', error);
-        throw error;
-      }
+
+          // console.log(this.upcomingTournaments);
+          // console.log(this.currentTournament);
+        })
+        .catch((error) => {
+          console.error('Error fetching tournaments:', error);
+        });
     },
-    async fetchEloRank(){
-      try {
-        const response = await axios.get(`/elo-ranking/api/elo-ranking/player/${this.userStore.user.id}/tournament/1`);
-        const data  = response.data.data;
-        // this.rank = data.rankThreshold.
 
+    fetchEloRank() {
+      if (this.currentTournament == null) return;
 
-        //uncomment this when there are correct data
-        //const response = await axios.get(`/api/elo-ranking/player/${this.userStore.user.id}/tournament/${this.currentTournament.tournament_id}`);
-        console.log(data);
-        
-      } catch (error) {
-        console.error('Error fetching player\'s elo rank :', error);
-        throw error;
-      }
+      axios.get(`/elo-ranking/api/elo-ranking/player/${this.userStore.user.id}/tournament/${this.currentTournament.tournament_id}`)
+        .then((response) => {
+          if (response.status === 200) {
+            const data = response.data.data;
+            this.userStore.setEloLimits(data.rankThreshold.minRating, data.meanSkillEstimate, data.rankThreshold.maxRating);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching player\'s elo rank:', error);
+        });
+    },
+    fetchGames() {
+      this.upcomingGames =[];
+      axios.get(`/matchmaking/api/tournament/games/upcoming/player?playerId=${this.userStore.user.id}`)
+        .then((response) => {
+          // Ensure a successful response
+          if (response.status === 200) {
+            const gamesArr = response.data;
+
+            // Sort the games array by startTime (earliest first)
+            gamesArr.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+            // Assign the sorted games array to upcomingGames
+            this.upcomingGames = gamesArr;
+
+            // Assign the first game as the nextMatch, if games exist
+            if (gamesArr.length > 0) {
+              this.nextMatch = gamesArr[0];
+            } else {
+              this.nextMatch = null; // No games available
+            }
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching upcoming games:', error);
+        });
     }
 
   },
@@ -336,6 +414,8 @@ export default {
   },
   mounted() {
     this.fetchTournament();
+    //fetch games
+    this.fetchGames();
     // count down if there is a upcoming game
     this.startCountdown();
   },

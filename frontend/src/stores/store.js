@@ -64,23 +64,22 @@ export const useUserStore = defineStore('user', {
       localStorage.setItem('isAuthenticated', 'true');
     },
     async logout() {
-      this.user = { 
-        id: null,
-        name: "",
-        image: "",
-        rank: "",
-        currentElo: "",
-        eloUpperlimit: "",
-        totalWins: null,
-        winRatio: null,
-        clan: "",
-        clanRole: "",
-        role: ""
-      };
-      this.isAuthenticated = false;
-      localStorage.removeItem('user');
-      localStorage.removeItem('isAuthenticated');
-      const response = await axios.post(`/auth/api/logout`)
+      try {
+        // Call logout endpoint (optional)
+        await axios.post(`/auth/api/logout`);
+      } catch (error) {
+        console.error("Error during logout:", error);
+        // Optionally handle logout errors (e.g., token expired, network issues)
+      } finally {
+        // Reset user state to default
+        this.$reset();
+    
+        // Clear localStorage or any cookies related to the session
+        localStorage.clear();
+    
+        // Redirect to login or home page (if necessary)
+        this.$router.push({ path: '/auth' });
+      }
     },
     initializeUser() {
       const user = localStorage.getItem('user');
@@ -92,6 +91,14 @@ export const useUserStore = defineStore('user', {
     },
     setIsAuth(){
       this.isAuthenticated = true;
+    },
+    setEloLimits({ eloLowerlimit, currentElo, eloUpperlimit }) {
+      if (eloLowerlimit !== undefined) this.user.eloLowerlimit = eloLowerlimit;
+      if (currentElo !== undefined) this.user.currentElo = currentElo;
+      if (eloUpperlimit !== undefined) this.user.eloUpperlimit = eloUpperlimit;
+
+      // Optionally save to localStorage for persistence
+      localStorage.setItem('user', JSON.stringify(this.user));
     }
   },
   getters: {
