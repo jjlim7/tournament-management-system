@@ -26,7 +26,7 @@
           <div>UserID: #<span class="fw-semibold">{{ userStore.user.id }}</span></div>
         </div>
         <!-- clan info -->
-        <div class="text-center p-4">
+        <div v-if="userStore.user.clan != null" class="text-center p-4">
           <img :src="clanStore.image" alt="" class="rounded-circle border border-primary border-2" style="width: 120px; height: 120px; object-fit: cover;">
   
           <div class="fw-semibold">{{ userStore.user.clan.clanName }}</div>
@@ -106,7 +106,7 @@
             :upperLimit="userStore.user.eloUpperlimit" 
             gameMode="Battle Royale"
             class="px-2" />
-          <RankProgress 
+          <RankProgress v-if="userStore.user.clan != null"  
             :rank="clanRank" 
             :lowerLimit="eloLowerLimit"
             :currentElo="currentElo" 
@@ -153,7 +153,7 @@ export default {
   },
   methods: {
     rankImage(rank){
-        return this.rankImages[rank] || this.rankImages.Unranked;
+        return this.rankImages[rank] || this.rankImages.UNRANKED;
     },
     checkScreenSize() {
         this.isLargeScreen = window.innerWidth >= 768;

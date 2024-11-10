@@ -134,7 +134,7 @@ export default {
               const data = response.data;
               let userInfo = data.clanUser.user;
               userInfo['id'] = userInfo.userId;
-              userInfo['clan'] = data.clanUser.clan.clanId ? data.clanUser.clan : null ;
+              userInfo['clan'] = data.clanUser.clan?.clanId ? data.clanUser?.clan : null ;
               userInfo['clanRole'] = data.clanUser.isClanLeader ? 'ROLE_ADMIN' : 'ROLE_PLAYER';
               userInfo['eloRank'] = data.eloRank;
               userInfo['stats'] = data.stats;
