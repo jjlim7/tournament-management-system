@@ -114,6 +114,10 @@ route-roles:
     "clanuser.api.clans.{clanId}.GET":
       - ROLE_PLAYER
       - ROLE_ADMIN
+    "matchmaking.api.games.upcoming.player.GET":
+      - ROLE_PLAYER
+      - ROLE_ADMIN
+
 
 logging:
   level:

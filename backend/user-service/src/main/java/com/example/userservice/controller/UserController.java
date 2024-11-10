@@ -121,7 +121,8 @@ public class UserController {
         try {
             ClanUser associatedClanDetails = clanUserService.getClanUserByUserId(userId);
             PlayerOverallStats partialStatsNoClanData = userService.getPlayerOverallForLatestTournament(userId);
-
+            associatedClanDetails.setUser(userService.getUser(userId));
+            associatedClanDetails.setClan(null);
             partialStatsNoClanData.setClanUser(associatedClanDetails);
             return ResponseEntity.ok(partialStatsNoClanData);
         } catch (Exception e) {
@@ -149,6 +150,7 @@ public class UserController {
                 clanUser.put("user", basicUserDetails);
                 clanUser.put("clan", null);
                 defaultUser.put("clanUser", clanUser);
+                System.out.println("user " + basicUserDetails);
 
                 Map<String, Object> stats = new HashMap<>();
                 stats.put("playerId", basicUserDetails.getUserId());
