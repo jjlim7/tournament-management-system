@@ -40,6 +40,7 @@ public class Request {
   public static class BulkCreateClanAvailabilityByTimeRangeDto {
 
     long clanId;
+    List<Long> playerIds;
     long tournamentId;
     OffsetDateTime startTime;
     OffsetDateTime endTime;

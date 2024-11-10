@@ -28,4 +28,20 @@ public interface ClanAvailabilityRepository extends JpaRepository<ClanAvailabili
                                                         @Param("tournamentId") long tournamentId,
                                                         @Param("startTime") OffsetDateTime startTime,
                                                         @Param("endTime") OffsetDateTime endTime);
+
+
+    @Query("SELECT CASE WHEN COUNT(ca) > 0 THEN TRUE ELSE FALSE END " +
+            "FROM ClanAvailability ca " +
+            "WHERE ca.clanId = :clanId " +
+            "AND ca.playerId = :playerId " +
+            "AND ca.tournamentId = :tournamentId " +
+            "AND ca.startTime < :end " +
+            "AND ca.endTime > :start")
+    boolean existsByClanIdAndPlayerIdAndTournamentIdAndTimeRange(
+            @Param("clanId") Long clanId,
+            @Param("playerId") Long playerId,
+            @Param("tournamentId") Long tournamentId,
+            @Param("start") OffsetDateTime start,
+            @Param("end") OffsetDateTime end
+    );
 }

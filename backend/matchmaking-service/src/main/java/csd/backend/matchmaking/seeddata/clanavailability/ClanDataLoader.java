@@ -1,11 +1,8 @@
 package csd.backend.matchmaking.seeddata.clanavailability;
 
 import csd.backend.matchmaking.entity.ClanAvailability;
-import csd.backend.matchmaking.entity.PlayerAvailability;
 import csd.backend.matchmaking.repository.ClanAvailabilityRepository;
-import csd.backend.matchmaking.repository.PlayerAvailabilityRepository;
 import csd.backend.matchmaking.services.ClanAvailabilityService;
-import csd.backend.matchmaking.services.PlayerAvailabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.ResourceLoader;
@@ -30,7 +27,7 @@ public class ClanDataLoader implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        loadClanAvailabilities(false);
+        loadClanAvailabilities(true);
     }
 
     private void loadClanAvailabilities(boolean skip) throws Exception {
@@ -50,10 +47,11 @@ public class ClanDataLoader implements CommandLineRunner {
             try {
                 String[] fields = line.split(",");
                 long clanId = Long.parseLong(fields[0]);
-                long tournamentId = Long.parseLong(fields[1]);
-                OffsetDateTime startTime = OffsetDateTime.parse(fields[2], DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-                OffsetDateTime endTime = OffsetDateTime.parse(fields[3], DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-                boolean isAvailable = Boolean.parseBoolean(fields[4]);
+                long playerId = Long.parseLong(fields[1]);  // Parse playerId from the CSV
+                long tournamentId = Long.parseLong(fields[2]);
+                OffsetDateTime startTime = OffsetDateTime.parse(fields[3], DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                OffsetDateTime endTime = OffsetDateTime.parse(fields[4], DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                boolean isAvailable = Boolean.parseBoolean(fields[5]);
 
                 // Create clan availability records based on intervals within the range
                 OffsetDateTime currentStartTime = startTime;
@@ -63,8 +61,9 @@ public class ClanDataLoader implements CommandLineRunner {
                         intervalEndTime = endTime;
                     }
 
+                    // Create ClanAvailability with playerId included
                     ClanAvailability availability = new ClanAvailability(
-                            clanId, tournamentId, currentStartTime, intervalEndTime, isAvailable
+                            clanId, playerId, tournamentId, currentStartTime, intervalEndTime, isAvailable
                     );
                     clanAvailabilityService.createClanAvailability(availability);
 

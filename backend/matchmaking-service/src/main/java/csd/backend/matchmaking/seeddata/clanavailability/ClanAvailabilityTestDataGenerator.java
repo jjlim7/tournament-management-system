@@ -15,9 +15,10 @@ import java.util.Set;
 
 public class ClanAvailabilityTestDataGenerator {
 
-    private static final int NUMBER_OF_CLANS = 100; // Number of unique clans
+    private static final int NUMBER_OF_CLANS = 10; // Number of unique clans
     private static final int NUMBER_OF_TOURNAMENTS = 5; // Number of tournaments
-    private static final int MIN_AVAILABILITIES_PER_CLAN = 10; // Minimum availability records per clan
+    private static final int MIN_AVAILABILITIES_PER_CLAN = 5; // Minimum availability records per clan
+    private static final int MAX_PLAYERS = 10; // Maximum number of unique players per clan
     private static final String CSV_FILE_PATH = "matchmaking-service/src/main/resources/seed_data/clan_availability.csv";
 
     private static final int MIN_START_HOUR = 8; // Minimum start hour (e.g., 8 AM)
@@ -26,7 +27,7 @@ public class ClanAvailabilityTestDataGenerator {
     public static void main(String[] args) {
         try {
             System.out.println("Starting clan data generation...");
-            generateClanTestData(true);
+            generateClanTestData(false);
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Error occurred during clan data generation.");
@@ -47,7 +48,7 @@ public class ClanAvailabilityTestDataGenerator {
             System.out.println("File opened successfully.");
 
             // Write CSV header
-            writer.write("clanId,tournamentId,startTime,endTime,isAvailable\n");
+            writer.write("clanId,playerId,tournamentId,startTime,endTime,isAvailable\n");
             System.out.println("Header written to file.");
 
             Random random = new Random();
@@ -60,7 +61,7 @@ public class ClanAvailabilityTestDataGenerator {
                     Set<Integer> usedHours = new HashSet<>();
                     int availabilityCount = 0;
 
-                    // Ensure a minimum of 5 availability records with random hours
+                    // Ensure a minimum of availability records with random hours
                     while (availabilityCount < MIN_AVAILABILITIES_PER_CLAN) {
                         int randomHour = MIN_START_HOUR + random.nextInt(MAX_END_HOUR - MIN_START_HOUR);
 
@@ -73,9 +74,12 @@ public class ClanAvailabilityTestDataGenerator {
                         OffsetDateTime startTime = baseDate.withHour(randomHour).withMinute(0).withSecond(0).withNano(0);
                         OffsetDateTime endTime = startTime.plusHours(1);
 
-                        // Mark as available and increment count
-                        writer.write(String.format("%d,%d,%s,%s,%b\n",
-                                clanId, tournamentId, startTime.format(formatter), endTime.format(formatter), true));
+                        // Generate a random player ID within a specified range
+                        long playerId = 1 + random.nextInt(MAX_PLAYERS);  // Random playerId between 1 and MAX_PLAYERS
+
+                        // Write the data to the CSV file
+                        writer.write(String.format("%d,%d,%d,%s,%s,%b\n",
+                                clanId, playerId, tournamentId, startTime.format(formatter), endTime.format(formatter), true));
                         availabilityCount++;
                     }
                 }

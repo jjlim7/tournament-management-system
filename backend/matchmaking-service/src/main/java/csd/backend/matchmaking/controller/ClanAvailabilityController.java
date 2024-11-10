@@ -52,25 +52,34 @@ public class ClanAvailabilityController {
         long intervalInHours = bulkRequest.getInterval();
 
         List<ClanAvailability> availabilities = new ArrayList<>();
+        List<Long> playerIds = bulkRequest.getPlayerIds();  // Assume player IDs are provided in the request
+
         while (start.isBefore(end)) {
             OffsetDateTime intervalEnd = start.plusHours(intervalInHours);
             if (intervalEnd.isAfter(end)) {
                 intervalEnd = end;
             }
-            ClanAvailability availability = new ClanAvailability(
-                    bulkRequest.getClanId(),
-                    bulkRequest.getTournamentId(),
-                    start,
-                    intervalEnd,
-                    true  // Set availability to true; adjust as needed
-            );
-            availabilities.add(availability);
+
+            // Create a ClanAvailability entry for each player in the list
+            for (Long playerId : playerIds) {
+                ClanAvailability availability = new ClanAvailability(
+                        bulkRequest.getClanId(),
+                        playerId,
+                        bulkRequest.getTournamentId(),
+                        start,
+                        intervalEnd,
+                        true  // Set availability to true; adjust as needed
+                );
+                availabilities.add(availability);
+            }
+
             start = intervalEnd;
         }
 
         List<ClanAvailability> createdAvailabilities = clanAvailabilityService.bulkCreateClanAvailabilities(availabilities);
         return new ResponseEntity<>(createdAvailabilities, HttpStatus.CREATED);
     }
+
 
     @PutMapping("/bulkUpdateByTimeRange")
     public ResponseEntity<List<ClanAvailability>> bulkUpdateAvailabilities(
@@ -80,6 +89,7 @@ public class ClanAvailabilityController {
         long intervalInHours = bulkRequest.getInterval();
 
         List<ClanAvailability> availabilities = new ArrayList<>();
+        List<Long> playerIds = bulkRequest.getPlayerIds();  // Assume player IDs are provided in the request
 
         while (start.isBefore(end)) {
             OffsetDateTime intervalEnd = start.plusHours(intervalInHours);
@@ -87,20 +97,24 @@ public class ClanAvailabilityController {
                 intervalEnd = end;
             }
 
-            // Check if availability for this interval already exists
-            boolean exists = clanAvailabilityService.existsByClanIdAndTournamentIdAndTimeRange(
-                    bulkRequest.getClanId(), bulkRequest.getTournamentId(), start, intervalEnd);
+            // Iterate over each player to check or create their availability
+            for (Long playerId : playerIds) {
+                // Check if availability for this player and interval already exists
+                boolean exists = clanAvailabilityService.existsByClanIdAndPlayerIdAndTournamentIdAndTimeRange(
+                        bulkRequest.getClanId(), playerId, bulkRequest.getTournamentId(), start, intervalEnd);
 
-            if (!exists) {
-                // Create new availability if it doesn't exist
-                ClanAvailability availability = new ClanAvailability(
-                        bulkRequest.getClanId(),
-                        bulkRequest.getTournamentId(),
-                        start,
-                        intervalEnd,
-                        true  // Set availability to true; adjust as needed
-                );
-                availabilities.add(availability);
+                if (!exists) {
+                    // Create new availability for the player if it doesn't exist
+                    ClanAvailability availability = new ClanAvailability(
+                            bulkRequest.getClanId(),
+                            playerId,
+                            bulkRequest.getTournamentId(),
+                            start,
+                            intervalEnd,
+                            true  // Set availability to true; adjust as needed
+                    );
+                    availabilities.add(availability);
+                }
             }
 
             start = intervalEnd;
