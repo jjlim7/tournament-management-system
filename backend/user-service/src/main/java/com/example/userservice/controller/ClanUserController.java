@@ -15,6 +15,8 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
 import io.swagger.v3.oas.annotations.Operation;
 
 
@@ -60,7 +62,23 @@ public class ClanUserController {
         if(clan == null) {
             throw new ClanNotFoundException();
         }
-        return clanUserService.listAllClanUsersFromClan(clanId);
+        List<ClanUser> clanUsers = clanUserService.listAllClanUsersFromClan(clanId);
+        return clanUsers;
+    }
+
+    @Operation(summary="Get all users from clan", description = "Returns a list of clan users under specific clan")
+    @GetMapping("/clanusers/userIds/{clanId}")
+    public List<Long> getUserIdsByClan(@PathVariable Long clanId) {
+        Clan clan = clanService.getClan(clanId);
+        if(clan == null) {
+            throw new ClanNotFoundException();
+        }
+        List<ClanUser> clanUsers = clanUserService.listAllClanUsersFromClan(clanId);
+        // Map ClanUser objects to their userId and return as a list of Long
+        return clanUsers.stream()
+                .map(ClanUser::getUser)
+                .map(User::getUserId)
+                .collect(Collectors.toList());
     }
 
     @Operation(summary = "Add a new Clan User", description = "Returns a new Clan User with relevant details")

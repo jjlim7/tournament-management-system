@@ -28,7 +28,7 @@ public class DataLoader implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        loadPlayerAvailabilities(true);
+        loadPlayerAvailabilities(false);
     }
 
     private void loadPlayerAvailabilities(boolean skip) throws Exception {

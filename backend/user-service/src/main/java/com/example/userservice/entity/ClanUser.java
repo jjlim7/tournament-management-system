@@ -24,7 +24,7 @@ public class ClanUser {
     private User user;
 
     // Many-to-one relationship with Clan
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "clan_id", nullable = false)
     private Clan clan;
 

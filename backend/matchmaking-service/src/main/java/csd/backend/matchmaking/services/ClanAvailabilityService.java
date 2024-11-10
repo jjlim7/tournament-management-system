@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,8 +19,9 @@ public class ClanAvailabilityService {
 
     // Create Clan Availability
     public ClanAvailability createClanAvailability(ClanAvailability availability) {
-        Optional<ClanAvailability> exists = repository.findByClanIdAndTournamentIdAndStartTime(
+        Optional<ClanAvailability> exists = repository.findByClanIdAndPlayerIdAndTournamentIdAndStartTime(
                 availability.getClanId(),
+                availability.getPlayerId(),
                 availability.getTournamentId(),
                 availability.getStartTime()
         );

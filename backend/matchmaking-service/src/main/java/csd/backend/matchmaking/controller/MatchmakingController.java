@@ -51,8 +51,8 @@ public class MatchmakingController {
         try {
             scheduledGames = matchmakingService.scheduleGames(tournamentId, Objects.requireNonNull(res.getBody()).getGameMode().toString());
             if (scheduledGames.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Failed to schedule games for tournament " + tournamentId);
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body("Failed to schedule games for tournament " + tournamentId + ". No valid matches found");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

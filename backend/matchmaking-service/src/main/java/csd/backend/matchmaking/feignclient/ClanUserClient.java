@@ -11,7 +11,7 @@ import java.util.List;
 @FeignClient(value = "UserClanService", url = "${userclan.service.url}")
 public interface ClanUserClient {
 
-    @GetMapping("/api/clanusers/clan/{clanId}")
-    ResponseEntity<List<ClanUser>> getClanUsersByClan(@PathVariable Long clanId);
+    @GetMapping("/clanusers/userIds/{clanId}")
+    List<Long> getUserIdsByClan(@PathVariable Long clanId);
 
 }

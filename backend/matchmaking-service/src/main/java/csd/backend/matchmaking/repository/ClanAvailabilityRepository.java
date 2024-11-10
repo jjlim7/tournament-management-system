@@ -13,7 +13,7 @@ public interface ClanAvailabilityRepository extends JpaRepository<ClanAvailabili
 
     List<ClanAvailability> findClanAvailabilitiesByTournamentId(long tournamentId);
 
-    Optional<ClanAvailability> findByClanIdAndTournamentIdAndStartTime(Long clanId, Long tournamentId, OffsetDateTime startTime);
+    Optional<ClanAvailability> findByClanIdAndPlayerIdAndTournamentIdAndStartTime(Long clanId, Long playerId, Long tournamentId, OffsetDateTime startTime);
 
     List<ClanAvailability> getClanAvailabilitiesByClanId(long clanId);
 

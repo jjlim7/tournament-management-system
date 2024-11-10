@@ -27,7 +27,7 @@ public class ClanDataLoader implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        loadClanAvailabilities(true);
+        loadClanAvailabilities(false);
     }
 
     private void loadClanAvailabilities(boolean skip) throws Exception {
