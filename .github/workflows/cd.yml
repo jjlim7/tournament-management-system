@@ -1,16 +1,15 @@
 name: CD Pipelines
 
 on:
-  push:
-    branches:
-      - feat/tournamentservicev2
-      - staging
-      - main
+  workflow_run:
+    workflows: ["CI Pipeline"]  # The name of the CI pipeline
+    types:
+      - completed
+
 
 jobs:
   deploy:
-      runs-on: ubuntu-latest
-      needs: test-and-build
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
