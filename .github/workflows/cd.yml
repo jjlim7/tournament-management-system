@@ -1,7 +1,7 @@
 name: CD Pipelines
 
 on:
-  pull_request:
+  push:
     branches:
       - staging
       - main
