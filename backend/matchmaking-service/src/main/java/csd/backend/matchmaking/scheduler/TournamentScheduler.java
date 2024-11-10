@@ -66,7 +66,7 @@ public class TournamentScheduler {
         try {
             if (tournament.getGameMode() == Tournament.GameMode.BATTLE_ROYALE) {
                 matchmakingService.scheduleBattleRoyaleGames(tournament.getTournament_id());
-            } else if (tournament.getGameMode() == Tournament.GameMode.CLAN_WAR) {
+            } else if (tournament.getGameMode() == Tournament.GameMode.CLANWAR) {
                 matchmakingService.scheduleClanWarGames(tournament.getTournament_id());
             }
             System.out.println("Games scheduled for tournament " + tournament.getTournament_id());

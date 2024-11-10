@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -83,7 +84,7 @@ class MatchmakingControllerIntegrationTest {
         tournament2.setEndDate(OffsetDateTime.now().plusDays(10));   // Ends in 10 days
         tournament2.setPlayerCapacity(100);
         tournament2.setStatus(Tournament.Status.ACTIVE);
-        tournament2.setGameMode(Tournament.GameMode.CLAN_WAR);
+        tournament2.setGameMode(Tournament.GameMode.CLANWAR);
         tournament2.setAdminId(123L);  // Example admin ID
         tournament2.setPlayerIds(List.of(1L, 2L, 3L, 4L));
 
@@ -99,13 +100,25 @@ class MatchmakingControllerIntegrationTest {
 
         // Mock the EloRankingClient response for players in BattleRoyale
         PlayerEloRank playerEloRank1 = new PlayerEloRank(100L, new RankThreshold(RankThreshold.Rank.GOLD, 0, 1500), 1450.0, 100.0, 200L);
-        when(eloRankingClient.getPlayerEloRank(eq(100L), eq(200L))).thenReturn(playerEloRank1);
+        Map<String, Object> playerEloRankMap1 = Map.of(
+                "status", "success",
+                "data", playerEloRank1
+        );
+        when(eloRankingClient.getPlayerEloRank(eq(100L), eq(200L))).thenReturn(playerEloRankMap1);
 
         PlayerEloRank playerEloRank2 = new PlayerEloRank(101L, new RankThreshold(RankThreshold.Rank.GOLD, 0, 1500), 1250.0, 200.0, 200L);
-        when(eloRankingClient.getPlayerEloRank(eq(101L), eq(200L))).thenReturn(playerEloRank2);
+        Map<String, Object> playerEloRankMap2 = Map.of(
+                "status", "success",
+                "data", playerEloRank2
+        );
+        when(eloRankingClient.getPlayerEloRank(eq(101L), eq(200L))).thenReturn(playerEloRankMap2);
 
         PlayerEloRank playerEloRank3 = new PlayerEloRank(102L, new RankThreshold(RankThreshold.Rank.GOLD, 0, 1500), 1250.0, 200.0, 200L);
-        when(eloRankingClient.getPlayerEloRank(eq(102L), eq(200L))).thenReturn(playerEloRank3);
+        Map<String, Object> playerEloRankMap3 = Map.of(
+                "status", "success",
+                "data", playerEloRank3
+        );
+        when(eloRankingClient.getPlayerEloRank(eq(102L), eq(200L))).thenReturn(playerEloRankMap3);
 
         // Insert test data for Player Availability
         PlayerAvailability player1 = new PlayerAvailability(
@@ -144,10 +157,19 @@ class MatchmakingControllerIntegrationTest {
     void scheduleClanWarGames_success() throws Exception {
         // Mock the EloRankingClient response for clans
         ClanEloRank clanEloRank = new ClanEloRank(300L, new RankThreshold(RankThreshold.Rank.GOLD, 0, 1500), 1400.0, 200.0, 400L);
-        when(eloRankingClient.getClanEloRank(eq(300L), eq(400L))).thenReturn(clanEloRank);
+        Map<String, Object> clanEloRankMap = Map.of(
+                "status", "success",
+                "data", clanEloRank
+        );
+
+        when(eloRankingClient.getClanEloRank(eq(300L), eq(400L))).thenReturn(clanEloRankMap);
 
         ClanEloRank clanEloRank2 = new ClanEloRank(301L, new RankThreshold(RankThreshold.Rank.GOLD, 0, 1500), 1100.0, 300.0, 400L);
-        when(eloRankingClient.getClanEloRank(eq(301L), eq(400L))).thenReturn(clanEloRank2);
+        Map<String, Object> clanEloRank2Map = Map.of(
+                "status", "success",
+                "data", clanEloRank2
+        );
+        when(eloRankingClient.getClanEloRank(eq(301L), eq(400L))).thenReturn(clanEloRank2Map);
 
         // Insert test data for Clan Availability
         ClanAvailability clan1 = new ClanAvailability(

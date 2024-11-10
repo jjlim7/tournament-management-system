@@ -67,16 +67,15 @@ public class ClanAvailabilityService {
         repository.deleteById(id);
     }
 
-    // Example of a method to convert a DTO (if needed)
-    public ClanAvailability fromCreateClanAvailabilityDto(Request.CreateClanAvailabilityDto availabilityDto) {
-        OffsetDateTime startTime = OffsetDateTime.parse(availabilityDto.getStartTime());
-        OffsetDateTime endTime = OffsetDateTime.parse(availabilityDto.getEndTime());
+    public void deleteAvailability(long id) {
+        repository.deleteById(id);
+    }
 
-        return new ClanAvailability(
-                availabilityDto.getClanId(),
-                availabilityDto.getTournamentId(),
-                startTime,
-                endTime,
-                availabilityDto.isAvailable());
+    public boolean existsByClanIdAndTournamentIdAndTimeRange(long playerId, long tournamentId, OffsetDateTime start, OffsetDateTime end) {
+        return repository.existsByClanIdAndTournamentIdAndTimeRange(playerId, tournamentId, start, end);
+    }
+
+    public boolean existsByClanIdAndPlayerIdAndTournamentIdAndTimeRange(long clanId, Long playerId, long tournamentId, OffsetDateTime start, OffsetDateTime end) {
+        return repository.existsByClanIdAndPlayerIdAndTournamentIdAndTimeRange(clanId, playerId, tournamentId, start, end);
     }
 }

@@ -43,8 +43,6 @@ public class GatewayConfig {
 
     @Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder routeLocatorBuilder) {
-        logger.info("Initializing Gateway Routes with ELO Rank Root: {}", msEloRankRoot);
-
         return routeLocatorBuilder.routes()
                 // Auth Service Route (no JWT filter)
                 .route(ConfigurationConstants.AUTH_SERVICE_ID, r -> r
@@ -102,7 +100,7 @@ public class GatewayConfig {
     public CorsWebFilter corsWebFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:5173", ""));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

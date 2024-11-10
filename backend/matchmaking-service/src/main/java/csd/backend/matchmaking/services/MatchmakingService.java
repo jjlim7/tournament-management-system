@@ -1,6 +1,8 @@
 package csd.backend.matchmaking.services;
 
+import csd.backend.matchmaking.feignclient.ClanUserClient;
 import csd.backend.matchmaking.feigndto.ClanEloRank;
+import csd.backend.matchmaking.feigndto.ClanUser;
 import csd.backend.matchmaking.feigndto.EloRank;
 import csd.backend.matchmaking.feigndto.PlayerEloRank;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +15,7 @@ import csd.backend.matchmaking.repository.GameRepository;
 import csd.backend.matchmaking.repository.PlayerAvailabilityRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -37,6 +40,9 @@ public class MatchmakingService {
     private EloRankingClient eloRankingClient;
 
     @Autowired
+    private ClanUserClient clanUserClient;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     private static final int MIN_PLAYERS_PER_GAME = 3;
@@ -47,6 +53,7 @@ public class MatchmakingService {
         return switch (gameMode) {
             case "BATTLE_ROYALE" -> scheduleBattleRoyaleGames(tournamentId);
             case "CLAN_WAR" -> scheduleClanWarGames(tournamentId);
+            case "CLANWAR" -> scheduleClanWarGames(tournamentId);
             default -> throw new Exception("Invalid gameMode");
         };
     }
@@ -54,6 +61,8 @@ public class MatchmakingService {
     @Transactional
     public List<Game> scheduleClanWarGames(long tournamentId) throws Exception {
         System.out.println("Starting scheduling Clan War games for tournament " + tournamentId);
+
+        List<Game> scheduledGames = new ArrayList<>();
 
         // Step 1: Fetch Clan Availabilities
         List<ClanAvailability> clanAvailabilities = clanAvailabilityRepository.findClanAvailabilitiesByTournamentId(tournamentId);
@@ -68,10 +77,26 @@ public class MatchmakingService {
                 .toList();
 
         Map<Long, String> clanEloRankMap = new HashMap<>();
+        Map<Long, List<Long>> clanUserIdsMap = new HashMap<>();
+
         for (Long clanId : clanIds) {
             try {
-                ClanEloRank eloRank = eloRankingClient.getClanEloRank(clanId, tournamentId);
-                clanEloRankMap.put(clanId, eloRank.getRankThreshold());
+                // Get the ELO rank for the clan
+                Map<String, Object> res = eloRankingClient.getClanEloRank(clanId, tournamentId);
+                ClanEloRank eloRank = objectMapper.convertValue(res.get("data"), ClanEloRank.class);
+                clanEloRankMap.put(clanId, eloRank.getRankThreshold().getRank().toString());
+
+                // Get the players for each clan using Feign client
+                ResponseEntity<List<ClanUser>> response = clanUserClient.getClanUsersByClan(clanId);
+                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                    List<Long> userIds = response.getBody().stream()
+                            .map(ClanUser::getUserId)
+                            .collect(Collectors.toList());
+                    clanUserIdsMap.put(clanId, userIds);
+                    System.out.printf("Fetched %d user IDs for Clan %d%n", userIds.size(), clanId);
+                } else {
+                    System.out.printf("Failed to fetch players for Clan %d: %s%n", clanId, response.getStatusCode());
+                }
             } catch (Exception e) {
                 System.out.printf("Failed to retrieve ELO rank for clan %d in tournament %d: %s%n", clanId, tournamentId, e.getMessage());
                 throw new Exception(String.format("Failed to retrieve ELO rank for clan %d in tournament %d: %s", clanId, tournamentId, e.getMessage()));
@@ -84,74 +109,113 @@ public class MatchmakingService {
                         Map.Entry::getValue,
                         Collectors.mapping(Map.Entry::getKey, Collectors.toList())
                 ));
-
         System.out.printf("Clans grouped by ELO rank: %s%n", objectMapper.writeValueAsString(clansGroupedByElo));
 
-        // Step 4: Pair Clans Within Each ELO Rank Group Based on Overlapping Availability
-        List<Game> scheduledGames = new ArrayList<>();
+        // Step 4: Filter Clan Users Based on Availability
+        Map<Long, List<Long>> availableClanUserIdsMap = new HashMap<>();
+        for (Map.Entry<Long, List<Long>> entry : clanUserIdsMap.entrySet()) {
+            Long clanId = entry.getKey();
+            List<Long> userIds = entry.getValue();
 
-        for (Map.Entry<String, List<Long>> entry : clansGroupedByElo.entrySet()) {
-            String eloRank = entry.getKey();
-            List<Long> clansInRank = entry.getValue();
+            // Retrieve the Clan's availability periods
+            List<ClanAvailability> clanAvailabilitiesByClanId = clanAvailabilities.stream()
+                    .filter(ca -> ca.getClanId().equals(clanId))
+                    .collect(Collectors.toList());
 
-            System.out.println("Processing Clan War scheduling for ELO Rank: " + eloRank);
+            // Filter users based on their availability matching clan availability
+            List<Long> availableUserIds = userIds.stream()
+                    .filter(userId -> {
+                        // Fetch the player availability for this user
+                        List<PlayerAvailability> userAvailabilities = playerAvailabilityRepository.getPlayerAvailabilitiesByPlayerId(userId);
 
-            // Shuffle the list to randomize pairings within the same ELO rank
-            Collections.shuffle(clansInRank);
+                        // Check if there's any overlap between user and clan availabilities
+                        return clanAvailabilitiesByClanId.stream().anyMatch(clanAvailability ->
+                                userAvailabilities.stream().anyMatch(userAvailability ->
+                                        isPlayerClanAvailabilityOverlapping(userAvailability, clanAvailability)
+                                )
+                        );
+                    })
+                    .collect(Collectors.toList());
 
-            // Pair clans sequentially
-            for (int i = 0; i < clansInRank.size() - 1; i += 2) {
-                Long clan1Id = clansInRank.get(i);
-                Long clan2Id = clansInRank.get(i + 1);
+            // Store only the available user IDs for this clan
+            availableClanUserIdsMap.put(clanId, availableUserIds);
+        }
 
-                System.out.printf("Attempting to pair Clan %d with Clan %d%n", clan1Id, clan2Id);
+        // Step 5: Group Clan Availabilities by Start Time
+        Map<OffsetDateTime, List<ClanAvailability>> availabilitiesGroupedByStartTime =
+                clanAvailabilities.stream()
+                        .filter(ClanAvailability::isAvailable)
+                        .collect(Collectors.groupingBy(ClanAvailability::getStartTime));
 
-                // Fetch their availabilities
-                List<ClanAvailability> clan1Availabilities = clanAvailabilities.stream()
-                        .filter(ca -> ca.getClanId().equals(clan1Id))
-                        .collect(Collectors.toList());
+        // Step 6: Schedule Games by Pairing Clans Based on ELO and Availability
+        for (Map.Entry<String, List<Long>> eloGroupEntry : clansGroupedByElo.entrySet()) {
+            String eloRank = eloGroupEntry.getKey();
+            List<Long> clansInEloGroup = eloGroupEntry.getValue();
 
-                List<ClanAvailability> clan2Availabilities = clanAvailabilities.stream()
-                        .filter(ca -> ca.getClanId().equals(clan2Id))
-                        .collect(Collectors.toList());
+            System.out.printf("Processing Clan War scheduling for ELO Rank: %s with %d clans%n", eloRank, clansInEloGroup.size());
 
-                // Find overlapping availability slots
-                List<TimeSlot> overlappingSlots = findOverlappingTimeSlots(clan1Availabilities, clan2Availabilities);
+            Collections.shuffle(clansInEloGroup);
 
-                if (overlappingSlots.isEmpty()) {
-                    System.out.printf("No overlapping availability between Clan %s and Clan %s%n", clan1Id, clan2Id);
-                    continue; // Skip scheduling if no overlapping slots
+            for (OffsetDateTime startTime : availabilitiesGroupedByStartTime.keySet()) {
+                List<ClanAvailability> availableClansAtTime = availabilitiesGroupedByStartTime.get(startTime);
+
+                // Filter clans in the ELO group that have available players at this start time
+                List<Long> availableClanIds = availableClansAtTime.stream()
+                        .map(ClanAvailability::getClanId)
+                        .filter(clansInEloGroup::contains)
+                        .distinct()
+                        .toList();
+
+                for (int i = 0; i < availableClanIds.size() - 1; i += 2) {
+                    Long clan1Id = availableClanIds.get(i);
+                    Long clan2Id = availableClanIds.get(i + 1);
+
+                    System.out.printf("Attempting to schedule a game between Clan %d and Clan %d at %s%n", clan1Id, clan2Id, startTime);
+
+                    List<Long> clan1UserIds = availableClanUserIdsMap.getOrDefault(clan1Id, Collections.emptyList());
+                    List<Long> clan2UserIds = availableClanUserIdsMap.getOrDefault(clan2Id, Collections.emptyList());
+
+                    List<Long> clan1AvailablePlayerIds = availableClansAtTime.stream()
+                            .filter(ca -> ca.getClanId().equals(clan1Id))
+                            .map(ClanAvailability::getPlayerId)
+                            .filter(clan1UserIds::contains)
+                            .toList();
+
+                    List<Long> clan2AvailablePlayerIds = availableClansAtTime.stream()
+                            .filter(ca -> ca.getClanId().equals(clan2Id))
+                            .map(ClanAvailability::getPlayerId)
+                            .filter(clan2UserIds::contains)
+                            .toList();
+
+                    if (clan1AvailablePlayerIds.isEmpty() || clan2AvailablePlayerIds.isEmpty()) {
+                        System.out.printf("Skipping game between Clan %d and Clan %d due to insufficient available players%n", clan1Id, clan2Id);
+                        continue;
+                    }
+
+                    OffsetDateTime endTime = startTime.plusHours(1);  // Example game duration
+                    Game game = gameService.createClanWarGame(
+                            tournamentId,
+                            List.of(clan1Id, clan2Id),
+                            startTime,
+                            endTime,
+                            Game.GameStatus.SCHEDULED
+                    );
+
+                    if (game != null) {
+                        scheduledGames.add(game);
+                        System.out.printf("Scheduled Clan War game between Clan %d and Clan %d from %s to %s%n",
+                                clan1Id, clan2Id, startTime, endTime);
+                    }
                 }
 
-                // For simplicity, schedule at the earliest overlapping slot
-                TimeSlot selectedSlot = overlappingSlots.get(0);
-
-                // Create and save the Clan War game
-                Game game = gameService.createClanWarGame(
-                        tournamentId,
-                        List.of(clan1Id, clan2Id),
-                        selectedSlot.getStartTime(),
-                        selectedSlot.getEndTime(),
-                        Game.GameStatus.SCHEDULED
-                );
-
-                if (game != null) {
-                    scheduledGames.add(game);
-                    System.out.printf("Scheduled Clan War game between Clan %d and Clan %d at %s%n",
-                            clan1Id, clan2Id, selectedSlot.getStartTime());
+                if (availableClanIds.size() % 2 != 0) {
+                    Long unpairedClanId = availableClanIds.get(availableClanIds.size() - 1);
+                    System.out.printf("Odd number of clans available in ELO rank %s at %s. Clan %d will not be paired.%n", eloRank, startTime, unpairedClanId);
                 }
-            }
-
-            // Handle odd number of clans within the ELO rank group
-            if (clansInRank.size() % 2 != 0) {
-                Long lastClanId = clansInRank.get(clansInRank.size() - 1);
-                System.out.printf("Odd number of clans in ELO rank %s. Clan %s will not be paired.%n", eloRank, lastClanId);
-                // Optionally, implement logic to pair this clan with a clan from a nearby ELO rank
             }
         }
 
         System.out.println("Completed scheduling Clan War games. Total games scheduled: " + scheduledGames.size());
-
         return scheduledGames;
     }
 
@@ -193,10 +257,22 @@ public class MatchmakingService {
         return scheduledGames;
     }
 
+    // Helper method to check if two availability periods overlap
+    private boolean isPlayerClanAvailabilityOverlapping(PlayerAvailability userAvailability, ClanAvailability clanAvailability) {
+        return userAvailability.getStartTime().isBefore(clanAvailability.getEndTime()) &&
+                userAvailability.getEndTime().isAfter(clanAvailability.getStartTime());
+    }
+
     public Map<OffsetDateTime, List<PlayerAvailability>> groupAvailabilitiesByStartTime(List<PlayerAvailability> availabilities) {
         return availabilities.stream()
                 .filter(PlayerAvailability::isAvailable)
                 .collect(Collectors.groupingBy(PlayerAvailability::getStartTime));
+    }
+
+    public Map<OffsetDateTime, List<ClanAvailability>> groupClanAvailabilitiesByStartTime(List<ClanAvailability> availabilities) {
+        return availabilities.stream()
+                .filter(ClanAvailability::isAvailable)
+                .collect(Collectors.groupingBy(ClanAvailability::getStartTime));
     }
 
     public Map<String, List<PlayerAvailability>> groupPlayersByRank(List<PlayerAvailability> availablePlayers, Map<Long, EloRank> eloRankMap) {
@@ -205,7 +281,11 @@ public class MatchmakingService {
         // Group players by their rank
         for (PlayerAvailability availability : availablePlayers) {
             Long playerId = availability.getPlayerId();
-            String rank = String.valueOf(eloRankMap.get(playerId).getRankThresholdId()); // Get the player's rank
+            EloRank playerEloRank = eloRankMap.get(playerId);
+            if (playerEloRank == null) {
+                continue;
+            }
+            String rank = String.valueOf(playerEloRank.getRankThresholdId()); // Get the player's rank
 
             rankedPlayersMap.computeIfAbsent(rank, k -> new ArrayList<>()).add(availability);
         }
@@ -255,8 +335,12 @@ public class MatchmakingService {
         // For each player ID, call the Feign client to get the player's EloRank and put it in the map
         for (Long playerId : playerIds) {
             try {
-                PlayerEloRank playerEloRank = eloRankingClient.getPlayerEloRank(playerId, tournamentId);
-                eloRankMap.put(playerId, playerEloRank);  // Add to the map
+                // Get the Elo rank in the specified Map<String, Object> format
+                Map<String, Object> res = eloRankingClient.getPlayerEloRank(playerId, tournamentId);
+                PlayerEloRank eloRank = objectMapper.convertValue(res.get("data"), PlayerEloRank.class);
+
+                // Add to the main eloRankMap with playerId as the key
+                eloRankMap.put(playerId, eloRank);
             } catch (Exception e) {
                 // Handle exception if the player EloRank could not be retrieved (optional logging or rethrow)
                 // For now, we'll skip the player if an exception occurs.

@@ -1,9 +1,6 @@
 package com.example.elorankingservice.service;
 
-import com.example.elorankingservice.entity.ClanEloRank;
-import com.example.elorankingservice.entity.ClanGameScore;
-import com.example.elorankingservice.entity.PlayerGameScore;
-import com.example.elorankingservice.entity.PlayerStats;
+import com.example.elorankingservice.entity.*;
 import com.example.elorankingservice.repository.ClanGameScoreRepository;
 import com.example.elorankingservice.repository.PlayerGameScoreRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,6 +98,37 @@ public class GameScoreService {
         System.out.println("Calculated PlayerStats: " + statistics);
 
         return statistics;
+    }
+
+    // Method to retrieve clan statistics for a tournament
+    public ClanStats retrieveClanStatisticsForTournament(Long tournamentId, Long clanId) {
+        // Retrieve all game scores for the specified clan in the specified tournament
+        List<ClanGameScore> allClanGameScores = retrieveClanGameScoresForTournament(tournamentId, clanId);
+        System.out.println("Retrieved ClanGameScores: " + allClanGameScores);
+
+        // Initialize ClanStats object to hold the results
+        ClanStats clanStats = new ClanStats();
+        clanStats.setClanId(clanId.toString());
+        clanStats.setTournamentId(tournamentId);
+
+        // Variables to count wins and losses
+        double wins = 0;
+        double losses = 0;
+
+        // Loop through each game score to calculate wins and losses
+        for (ClanGameScore score : allClanGameScores) {
+            if (score.getResult() == 1) {
+                wins++;
+            } else {
+                losses++;
+            }
+        }
+
+        // Set the calculated wins and losses in the clanStats object
+        clanStats.setWins(wins);
+        clanStats.setLosses(losses);
+
+        return clanStats;
     }
 
     // Helper methods for summing and averaging

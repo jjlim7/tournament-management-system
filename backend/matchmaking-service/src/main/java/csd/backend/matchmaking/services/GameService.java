@@ -76,4 +76,16 @@ public class GameService {
     public List<Game> findUpcomingGamesByPlayerId(long playerId) {
         return gameRepository.findUpcomingGamesByPlayerId(playerId, OffsetDateTime.now());
     }
+
+    public List<Game> findUpcomingGamesByClanId(long clanId) {
+        return gameRepository.findUpcomingGamesByClanId(clanId, OffsetDateTime.now());
+    }
+
+    public List<Game> findGamesByPlayerId(long playerId) {
+        return gameRepository.findGamesByPlayerId(playerId);
+    }
+
+    public List<Game> findGamesByClanId(long clanId) {
+        return gameRepository.findGamesByClanId(clanId);
+    }
 }

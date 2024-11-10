@@ -1,8 +1,8 @@
-package csd.backend.matchmaking.seeddata.playeravailability;
+package csd.backend.matchmaking.seeddata.clanavailability;
 
-import csd.backend.matchmaking.entity.PlayerAvailability;
-import csd.backend.matchmaking.repository.PlayerAvailabilityRepository;
-import csd.backend.matchmaking.services.PlayerAvailabilityService;
+import csd.backend.matchmaking.entity.ClanAvailability;
+import csd.backend.matchmaking.repository.ClanAvailabilityRepository;
+import csd.backend.matchmaking.services.ClanAvailabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.ResourceLoader;
@@ -14,13 +14,12 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 
 @Component
-public class DataLoader implements CommandLineRunner {
+public class ClanDataLoader implements CommandLineRunner {
 
     @Autowired
-    private PlayerAvailabilityService playerAvailabilityService;
+    private ClanAvailabilityService clanAvailabilityService;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -28,17 +27,17 @@ public class DataLoader implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        loadPlayerAvailabilities(true);
+        loadClanAvailabilities(true);
     }
 
-    private void loadPlayerAvailabilities(boolean skip) throws Exception {
+    private void loadClanAvailabilities(boolean skip) throws Exception {
         if (skip) {
-            System.out.println("Skipping player availability data load.");
+            System.out.println("Skipping clan availability data load.");
             return;
         }
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(
-                resourceLoader.getResource("classpath:seed_data/player_availability.csv").getInputStream(), StandardCharsets.UTF_8));
+                resourceLoader.getResource("classpath:seed_data/clan_availability.csv").getInputStream(), StandardCharsets.UTF_8));
 
         // Define interval in hours (adjust if necessary)
         long intervalInHours = 1;
@@ -47,13 +46,14 @@ public class DataLoader implements CommandLineRunner {
         reader.lines().skip(1).forEach(line -> {
             try {
                 String[] fields = line.split(",");
-                long playerId = Long.parseLong(fields[0]);
-                long tournamentId = Long.parseLong(fields[1]);
-                OffsetDateTime startTime = OffsetDateTime.parse(fields[2], DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-                OffsetDateTime endTime = OffsetDateTime.parse(fields[3], DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-                boolean isAvailable = Boolean.parseBoolean(fields[4]);
+                long clanId = Long.parseLong(fields[0]);
+                long playerId = Long.parseLong(fields[1]);  // Parse playerId from the CSV
+                long tournamentId = Long.parseLong(fields[2]);
+                OffsetDateTime startTime = OffsetDateTime.parse(fields[3], DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                OffsetDateTime endTime = OffsetDateTime.parse(fields[4], DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                boolean isAvailable = Boolean.parseBoolean(fields[5]);
 
-                // Create player availability records based on intervals within the range
+                // Create clan availability records based on intervals within the range
                 OffsetDateTime currentStartTime = startTime;
                 while (currentStartTime.isBefore(endTime)) {
                     OffsetDateTime intervalEndTime = currentStartTime.plusHours(intervalInHours);
@@ -61,10 +61,11 @@ public class DataLoader implements CommandLineRunner {
                         intervalEndTime = endTime;
                     }
 
-                    PlayerAvailability availability = new PlayerAvailability(
-                            playerId, tournamentId, currentStartTime, intervalEndTime, isAvailable
+                    // Create ClanAvailability with playerId included
+                    ClanAvailability availability = new ClanAvailability(
+                            clanId, playerId, tournamentId, currentStartTime, intervalEndTime, isAvailable
                     );
-                    playerAvailabilityService.createAvailability(availability);
+                    clanAvailabilityService.createClanAvailability(availability);
 
                     currentStartTime = intervalEndTime;
                 }
@@ -76,4 +77,5 @@ public class DataLoader implements CommandLineRunner {
 
         reader.close();
     }
+
 }

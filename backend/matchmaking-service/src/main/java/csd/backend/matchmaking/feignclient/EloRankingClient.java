@@ -14,7 +14,7 @@ import java.util.Map;
 public interface EloRankingClient {
 
     @GetMapping("/api/elo-ranking/player/{playerId}/tournament/{tournamentId}")
-    PlayerEloRank getPlayerEloRank(@PathVariable long playerId, @PathVariable long tournamentId);
+    Map<String, Object> getPlayerEloRank(@PathVariable long playerId, @PathVariable long tournamentId);
 
     @GetMapping("/api/elo-ranking/player/tournament")
     Map<String, Object> getSelectedPlayerEloRanks(@RequestBody Request.GetSelectedPlayerEloRanks getSelectedPlayerEloRanks);
@@ -23,7 +23,7 @@ public interface EloRankingClient {
     Map<String, Object> getPlayerGameScores(@PathVariable Long playerId, @PathVariable Long tournamentId);
 
     @GetMapping("/api/elo-ranking/clan/{clanId}/tournament/{tournamentId}")
-    ClanEloRank getClanEloRank(@PathVariable Long clanId, @PathVariable Long tournamentId);
+    Map<String, Object> getClanEloRank(@PathVariable Long clanId, @PathVariable Long tournamentId);
 
     @GetMapping("/api/elo-ranking/clan/tournament/{tournamentId}")
     Map<String, Object> getAllClanEloRanks(@PathVariable Long tournamentId);

@@ -14,4 +14,5 @@ public interface ClanService {
     Clan updateClan(Long clanId, Clan newClan);
     void deleteClan(Long clanId);
     ClanEloRank getLatestClanEloRank(Long clanId);
+    ClanStats getClanStats(Long clanId);
 } 

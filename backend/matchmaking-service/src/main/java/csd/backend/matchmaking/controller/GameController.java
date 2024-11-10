@@ -67,9 +67,27 @@ public class GameController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/upcoming")
+    @GetMapping("/upcoming/player")
     public ResponseEntity<List<Game>> getUpcomingGamesByPlayerId(@RequestParam long playerId) {
         List<Game> upcomingGames = gameService.findUpcomingGamesByPlayerId(playerId);
         return new ResponseEntity<>(upcomingGames, HttpStatus.OK);
+    }
+
+    @GetMapping("/upcoming/clan")
+    public ResponseEntity<List<Game>> getUpcomingGamesByClanId(@RequestParam long clanId) {
+        List<Game> upcomingGames = gameService.findUpcomingGamesByClanId(clanId);
+        return new ResponseEntity<>(upcomingGames, HttpStatus.OK);
+    }
+
+    @GetMapping("/player")
+    public ResponseEntity<List<Game>> getGamesByPlayerId(@RequestParam long playerId) {
+        List<Game> games = gameService.findGamesByPlayerId(playerId);
+        return new ResponseEntity<>(games, HttpStatus.OK);
+    }
+
+    @GetMapping("/clan")
+    public ResponseEntity<List<Game>> getGamesByClanId(@RequestParam long clanId) {
+        List<Game> games = gameService.findGamesByClanId(clanId);
+        return new ResponseEntity<>(games, HttpStatus.OK);
     }
 }

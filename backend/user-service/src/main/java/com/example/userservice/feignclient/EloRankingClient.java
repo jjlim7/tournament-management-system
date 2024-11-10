@@ -1,7 +1,6 @@
 package com.example.userservice.feignclient;
 
 import com.example.userservice.feigndto.GameMode;
-import com.example.userservice.feigndto.PlayerStats;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,5 +23,11 @@ public interface EloRankingClient {
             @PathVariable("playerId") Long playerId,
             @PathVariable("tournamentId") Long tournamentId,
             @RequestParam(value = "gameMode", required = false) GameMode gameMode
+    );
+
+    @GetMapping("/api/game-score/clan/{clanId}/tournament/{tournamentId}/stats")
+    ResponseEntity<Map<String, Object>> getClanStatistics(
+            @PathVariable("clanId") Long clanId,
+            @PathVariable("tournamentId") Long tournamentId
     );
 }
