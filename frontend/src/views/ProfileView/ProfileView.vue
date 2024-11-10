@@ -76,16 +76,16 @@
                 <th class="fw-semibold">Date</th>
                 <th class="fw-semibold" v-if="isLargeScreen">KDA</th>
                 <th class="fw-semibold">Mode</th>
-                <th class="fw-semibold">Result</th>
+                <th class="fw-semibold">Placement</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="count in 10" :key="count">
-                <th>{{ matchHistory[0].tournament }}</th>
-                <th>{{ matchHistory[0].date }}</th>
-                <th v-if="isLargeScreen" >{{ matchHistory[0].KDA }}</th>
-                <th>{{ matchHistory[0].gameMode }}</th>
-                <th>{{ matchHistory[0].result }}</th>
+              <tr v-for="(match, index) in matchHistory" :key="`${match.game}-${match.date}-${index}`">
+                <th>{{ match.game }}</th>
+                <th>{{ match.date }}</th>
+                <th v-if="isLargeScreen" >{{ match.KDA }}</th>
+                <th>{{ match.gameMode }}</th>
+                <th>{{ match.placement.toFixed(0) }}</th>
               </tr>
             </tbody>
           </table>
@@ -107,10 +107,10 @@
             gameMode="Battle Royale"
             class="px-2" />
           <RankProgress 
-            :rank="clanStore.rank" 
-            :lowerLimit="userStore.user.eloLowerlimit"
-            :currentElo="clanStore.currentElo" 
-            :upperLimit="clanStore.eloUpperlimit" 
+            :rank="clanRank" 
+            :lowerLimit="eloLowerLimit"
+            :currentElo="currentElo" 
+            :upperLimit="eloUpperLimit" 
             gameMode="Clan War"
             class="px-2" />
         </BlurredBGCard>
@@ -124,6 +124,7 @@ import { useClanStore, useUserStore } from '@/stores/store';
 import BlurredBGCard from '@/components/Cards/BlurredBGCard.vue';
 import { ALLRANKS } from '@/utils/rankImages';
 import RankProgress from '@/components/RankProgress/RankProgress.vue';
+import axios from '@/utils/axiosInstance';
 
 export default {
   name:"ProfileView",
@@ -135,14 +136,19 @@ export default {
       matchHistoryHeader:['Game','Date','KDA','Role','Mode','Result'],
       matchHistory:[
         {
-          tournament: "Game #1",
+          game: "Game #1",
           date: "21/9/2024",
           KDA: "12/3/1",
-          role: '-',
           gameMode: 'Battle Royale',
-          result: 'Victory'
+          placement: 5
         }
-      ]
+      ],
+      currentCWTournament: null,
+      currentBRTournament: null,
+      eloLowerLimit: 0,
+      currentElo: 0,
+      eloUpperLimit: 0,
+      clanRank: "UNRANKED"
     }
   },
   methods: {
@@ -156,15 +162,122 @@ export default {
       console.log("you have logged out")
       this.userStore.logout();
       this.$router.push('/auth');
-    }
+    },
+    fetchTournament() {
+      axios
+        .get('/tournament/api/tournaments')
+        .then((response) => {
+          if (response.status === 404) {
+            return;
+          }
+
+          const allTournaments = response.data;
+          const currentDateTime = new Date();
+
+          allTournaments.forEach((tournament, index) => {
+            const startDate = new Date(tournament.startDate);
+            const endDate = new Date(tournament.endDate);
+
+            if (startDate <= currentDateTime && endDate >= currentDateTime) {
+              const formattedTournament = { ...tournament, startDate, endDate };
+              if (tournament.gameMode === 'BATTLE_ROYALE') {
+                this.currentBRTournament = formattedTournament;
+              }
+              if (tournament.gameMode === 'CLANWAR') {
+                this.currentCWTournament = formattedTournament;
+              }
+            }
+          });
+
+          if (this.currentCWTournament) {
+            this.fetchEloRank();
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching tournaments:', error);
+        });
+    },
+
+    fetchEloRank() {
+      if (this.currentCWTournament == null) return;
+
+      axios.get(`/elo-ranking/api/elo-ranking/clan/${this.userStore.user.clan.clanId}/tournament/${this.currentCWTournament.tournament_id}`)
+        .then((response) => {
+          if (response.status === 200) {
+            const data = response.data.data;
+            this.eloLowerLimit = data.rankThreshold.minRating;
+            this.currentElo = data.meanSkillEstimate;
+            this.eloUpperLimit = data.rankThreshold.maxRating;
+            this.clanRank = data.rankThreshold.rank
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching player\'s elo rank:', error);
+        });
+    },
+    async fetchMatchHistory() {
+      this.matchHistory = [];
+      let BRhistory = [];
+      let CWhistory = [];
+
+      if (this.currentBRTournament) {
+        const response = await axios.get(`/elo-ranking/api/game-score/player/${this.userStore.user.id}/tournament/${this.currentBRTournament.tournament_id}`);
+        if (response.status === 200) {
+          BRhistory = await fetchMatchDetails(response.data.playerGameScores, this.currentBRTournament, 'Battle Royale');
+        }
+      }
+
+      if (this.currentCWTournament) {
+        const response = await axios.get(`/elo-ranking/api/game-score/clan/${this.userStore.user.clan.clanId}/tournament/${this.currentCWTournament.tournament_id}`);
+        if (response.status === 200) {
+          CWhistory = await fetchMatchDetails(response.data.clanGameScores, this.currentCWTournament, 'Clan War');
+        }
+      }
+
+      this.matchHistory = BRhistory.concat(CWhistory).sort((a, b) => {
+        const dateA = new Date(a.date.split('/').reverse().join('-'));
+        const dateB = new Date(b.date.split('/').reverse().join('-'));
+        return dateB - dateA; // Sort descending (most recent first)
+      });
+
+    },
+    async fetchMatchDetails (matches, tournament, mode) {
+      const history = [];
+      await Promise.all(
+        matches.map(async (match) => {
+          let buildMatch = {
+            game: tournament.name,
+            KDA: `${match.kills}/${match.deaths}/${match.assists}`,
+            gameMode: mode,
+            placement: match.placement.toFixed(0),
+          };
+
+          // Fetch and format the match date
+          const response = await axios.get(`/matchmaking/api/games/${match.gameId}`);
+          if (response.status === 200) {
+            const matchDate = new Date(response.data.startTime);
+            const day = String(matchDate.getDate()).padStart(2, '0');
+            const month = String(matchDate.getMonth() + 1).padStart(2, '0');
+            const year = matchDate.getFullYear();
+            buildMatch.date = `${day}/${month}/${year}`;
+          }
+          history.push(buildMatch);
+        })
+      );
+      return history;
+    },
+
   },
   setup(){
     const userStore = useUserStore();
     const clanStore = useClanStore();
+    console.log(userStore.user)
     return {userStore,clanStore}
   },
   async created() {
       window.addEventListener("resize", this.checkScreenSize);
+      this.fetchTournament();
+      this.fetchMatchHistory();
   },
   destroyed() {
     window.removeEventListener("resize", this.checkScreenSize);

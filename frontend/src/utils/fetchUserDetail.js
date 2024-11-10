@@ -16,8 +16,8 @@ export function getUserDetails(){
           userInfo['eloLowerlimit'] = data.eloRank.rankThreshold.minRating;
           userInfo['currentElo'] = data.eloRank.meanSkillEstimate;
           userInfo['eloUpperlimit'] = data.eloRank.rankThreshold.maxRating;
-          console.log(userInfo);
-          this.userStore.setUser(userInfo);
+          userStore.setUser(userInfo);
+          console.log(userStore.user)
         }
       })
 }

@@ -354,6 +354,10 @@ export default {
 
           // console.log(this.upcomingTournaments);
           // console.log(this.currentTournament);
+          // Fetch Elo rank if the current tournament exists
+          if (this.currentTournament) {
+            this.fetchEloRank();
+          }
         })
         .catch((error) => {
           console.error('Error fetching tournaments:', error);

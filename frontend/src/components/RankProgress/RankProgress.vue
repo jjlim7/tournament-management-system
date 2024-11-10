@@ -19,7 +19,7 @@ image can be found here LOL:  https://leagueoflegends.fandom.com/wiki/Rank_(Leag
             <div class="float-end" style="padding-right: 20px;">
             {{ 
                 upperLimit && lowerLimit && currentElo !== null && currentElo !== undefined && (upperLimit - lowerLimit) !== 0
-                ? ((currentElo - lowerLimit) / (upperLimit - lowerLimit) * 100).toFixed(2)
+                ? ((currentElo - lowerLimit) / (upperLimit - lowerLimit) * 100).toFixed(0)
                 : "0"
             }} / 100
             </div>
