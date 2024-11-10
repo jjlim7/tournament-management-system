@@ -327,11 +327,23 @@ export default {
           let bookingEndTime = new Date(booking.endTime);
           this.myAvailabilites.push({...booking,"tournament": this.tournamentCache[tournamentId], "startTime": bookingStartTime, "endTime":bookingEndTime});
         }
+        console.log(this.myAvailabilites)
       }catch(error){
         console.log("error fetching player's availabilities. Erorr message: ", error.message)
         return
       }
       // console.log(this.myBookings)
+    },
+    async fetchGames(){
+      try{
+        // const response = await axios.get(`/tournaments/api/games/upcoming?playerId={}`);
+        const games = response.data;
+        
+        
+      } catch(error){
+        console.log("error fetching player's upcoming games. Erorr message: ", error.message)
+        return
+      }
     },
     bookCurrentTournament() {
       const activeIndex = this.getActiveCarouselIndex();
@@ -379,6 +391,7 @@ export default {
   mounted(){
     this.fetchTournament();
     this.fetchPlayerAvail();
+    this.fetchGames();
   },
   destroyed() {
     window.removeEventListener("resize", this.checkScreenSize);

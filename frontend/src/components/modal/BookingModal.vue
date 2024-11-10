@@ -128,6 +128,7 @@ mounted() {
         this.selectedTournament = this.tournament;
         if (this.isEditing) {
             this.selectedTournament = this.tournament.tournament;
+
             this.setDateRange(this.tournament.tournament);
             
             // Parse the tournament start and end times into dates
@@ -173,11 +174,12 @@ methods: {
                             tournamentId: this.selectedTournament.tournament_id,
                             startTime: startDateTime.toISOString(),
                             endTime: endDateTime.toISOString(),
-                            available: true
+                            interval: 1,
                         };
+                        console.log(formattedBooking)
 
                         // Send formattedBooking to backend
-                        const response = await axios.post(`/matchmaking/api/playersAvailability`, formattedBooking);
+                        const response = await axios.post(`/matchmaking/api/playersAvailability/bulkCreateByTimeRange`, formattedBooking);
                     }
                     this.bookSuccess('You have succesfully made the bookings');
                     console.log("now fetching the things")
