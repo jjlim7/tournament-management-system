@@ -37,9 +37,10 @@
           <span class="fw-semibold py-1">Rank Progress</span>
           <BlurredBGCard class="mb-2 mt-1">
             <RankProgress 
-              :rank="rank" 
-              :currentElo="currentElo" 
-              :upperLimit="eloUpperLimit" 
+              :rank="this.userStore.user.rank" 
+              :currentElo="this.userStore.user.currentElo" 
+              :lowerLimit="this.userStore.user.eloLowerlimit" 
+              :upperLimit="this.userStore.user.eloUpperlimit" 
               gameMode="Battle Royale"
               class="p-2" />
           </BlurredBGCard>
@@ -190,9 +191,6 @@ export default {
       currentTournament:null,
       upcomingTournaments:[],
       selectedUpcomingTournament: '',
-      currentElo: 0,
-      eloUpperLimit: 0,
-      rank: "Unranked",
       upcomingGames: []
     };
   },
@@ -301,6 +299,8 @@ export default {
         if(this.currentTournament!=null){
           this.fetchEloRank();
         }
+        console.log(this.upcomingTournaments)
+        console.log(this.currentTournament)
       } catch (error) {
         console.error('Error fetching tournaments:', error);
         throw error;

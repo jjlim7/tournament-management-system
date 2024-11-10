@@ -3,7 +3,7 @@
         <div class="fs-3 fw-bold">{{gameMode}}</div>
 
         <BlurredBGCard class="mt-1">
-            <div class="rounded-4" style="background-color: rgba(0, 0, 0, 0.2);">
+            <div v-if="allranking.length > 0" class="rounded-4" style="background-color: rgba(0, 0, 0, 0.2);">
                 <table class="table align-middle scrollable-table m-0">
                     <thead>
                     <tr>
@@ -11,24 +11,23 @@
                     </tr>
                     <tr>
                         <th class="fw-bold text-primary fs-3">{{ myranking.num }}</th>
-                        <th> <img :src="myranking.profile" alt="" style="max-width: 70px;" class="img-fluid"></th>
                         <th class="text-primary fw-semibold">{{ myranking.name }}</th>
                         <th class="text-primary fw-semibold">{{ myranking.rank }}</th>
                         <th class="text-primary fw-semibold">{{ myranking.elo }}</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr v-for="count in 10" :key="count">
+                    <tr v-for="ranking in allranking" :key="ranking.num">
                         <!-- <th>{{ BRranking[0].num }}</th> -->
-                        <th class="fw-bold fs-3">{{ count }}</th>
-                        <th> <img :src="allranking[0].profile" alt="" style="max-width: 70px;" class="img-fluid"></th>
-                        <th>{{ allranking[0].name }}</th>
-                        <th>{{ allranking[0].rank }}</th>
-                        <th>{{ allranking[0].elo }}</th>
+                        <th class="fw-bold fs-3">{{ ranking.num }}</th>
+                        <th>{{ ranking.name }}</th>
+                        <th>{{ ranking.rank }}</th>
+                        <th>{{ ranking.elo }}</th>
                     </tr>
                     </tbody>
                 </table>
             </div>
+            <div class="p-3" v-else >Ranking not Available :(</div>
         </BlurredBGCard>
     </div>
   </template>
@@ -42,7 +41,7 @@
     props:['allranking','myranking','gameMode'],
     data(){
       return{
-        headers:['No.','Profile','Name','Rank','Elo'],
+        headers:['No.','Name','Rank','Elo'],
       }
     }
   }

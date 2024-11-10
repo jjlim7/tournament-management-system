@@ -333,6 +333,17 @@ export default {
       }
       // console.log(this.myBookings)
     },
+    async fetchGames(){
+      try{
+        const response = await axios.get(`/tournaments/api/games/upcoming?playerId={}`);
+        const games = response.data;
+        
+        
+      } catch(error){
+        console.log("error fetching player's upcoming games. Erorr message: ", error.message)
+        return
+      }
+    },
     bookCurrentTournament() {
       const activeIndex = this.getActiveCarouselIndex();
       this.selectedTournament = this.tournaments[activeIndex];
@@ -379,6 +390,7 @@ export default {
   mounted(){
     this.fetchTournament();
     this.fetchPlayerAvail();
+    this.fetchGames();
   },
   destroyed() {
     window.removeEventListener("resize", this.checkScreenSize);

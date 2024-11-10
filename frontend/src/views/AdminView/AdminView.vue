@@ -326,7 +326,7 @@ export default {
     },
     async createAdmin(){
       try {
-        const response = await axios.post('/userclan/api/users', this.createAdminField);
+        const response = await axios.post('/clanuser/api/users', this.createAdminField);
         console.log(response.data);
         Swal.fire({
             title: "Created!",
