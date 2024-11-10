@@ -11,6 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Table(name = "clan_game_score", schema = "elo-ranking")
 public class ClanGameScore extends GameScore {
 
     @Column(name = "clan_id", nullable = false)

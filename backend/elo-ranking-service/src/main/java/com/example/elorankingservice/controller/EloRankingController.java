@@ -3,6 +3,7 @@ package com.example.elorankingservice.controller;
 import com.example.elorankingservice.dto.Request;
 import com.example.elorankingservice.entity.ClanEloRank;
 import com.example.elorankingservice.entity.PlayerEloRank;
+import com.example.elorankingservice.entity.RankThreshold;
 import com.example.elorankingservice.repository.PlayerEloRankRepository;
 import com.example.elorankingservice.service.EloRankingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,23 +27,25 @@ public class EloRankingController {
     }
 
     @GetMapping("/player/{playerId}/tournament/{tournamentId}")
-    public ResponseEntity<PlayerEloRank> getPlayerEloRank(
+    public ResponseEntity<Map<String, Object>> getPlayerEloRank(
             @PathVariable Long playerId,
             @PathVariable Long tournamentId) {
 
         return eloRankingService.retrievePlayerEloRank(playerId, tournamentId)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .map(rank -> ResponseEntity.ok(Map.of("status", "success", "data", rank)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("status", "not_found", "message", "Player Elo rank for the specified tournament not found")));
     }
 
     @GetMapping("/clan/{clanId}/tournament/{tournamentId}")
-    public ResponseEntity<ClanEloRank> getClanEloRank(
+    public ResponseEntity<Map<String, Object>> getClanEloRank(
             @PathVariable Long clanId,
             @PathVariable Long tournamentId) {
 
         return eloRankingService.retrieveClanEloRank(clanId, tournamentId)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .map(rank -> ResponseEntity.ok(Map.of("status", "success", "data", rank)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("status", "not_found", "message", "Clan Elo rank not found for the specified tournament")));
     }
 
     @GetMapping("/clan/tournament/{tournamentId}")
@@ -52,6 +55,34 @@ public class EloRankingController {
             return ResponseEntity.status(HttpStatus.OK).body(
                     Map.of("status", "success", "clanEloRanks", clanEloRanks)
             );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    Map.of("status", "error", "message", e.getMessage())
+            );
+        }
+    }
+
+    @GetMapping("/player/{playerId}/latest-rank")
+    public ResponseEntity<Map<String, Object>> getLatestPlayerRank(@PathVariable Long playerId) {
+        try {
+            return eloRankingService.retrievePlayerEloRankByLatestTournament(playerId)
+                    .map(rank -> ResponseEntity.ok(Map.of("status", "success", "data", rank)))
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(Map.of("status", "not_found", "message", "Player Elo rank not found")));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    Map.of("status", "error", "message", e.getMessage())
+            );
+        }
+    }
+
+    @GetMapping("/clan/{clanId}/latest-rank")
+    public ResponseEntity<Map<String, Object>> getLatestClanRank(@PathVariable Long clanId) {
+        try {
+            return eloRankingService.retrieveClanEloRankByLatestTournament(clanId)
+                    .map(rank -> ResponseEntity.ok(Map.of("status", "success", "data", rank)))
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(Map.of("status", "not_found", "message", "Clan Elo rank not found")));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     Map.of("status", "error", "message", e.getMessage())
@@ -134,7 +165,7 @@ public class EloRankingController {
     }
 
     @PostMapping("/player/bulk")
-    public ResponseEntity<Map<String, String>> bulkCreatePlayerEloRank(
+    public ResponseEntity<Map<String, Object>> bulkCreatePlayerEloRank(
             @RequestBody Request.BulkCreatePlayerEloRank bulkPlayersEloRankRequest) {
         try {
             Long tournamentId = bulkPlayersEloRankRequest.getTournamentId();
@@ -142,7 +173,7 @@ public class EloRankingController {
 
             List<PlayerEloRank> result = eloRankingService.bulkCreatePlayerEloRanks(playerIds, tournamentId);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("status", "success", "message", "Elo ranks created successfully"));
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("status", "success", "message", "Elo ranks created successfully", "result", result));
         } catch (IllegalArgumentException e) {
             // Return a conflict response with a message
             return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -154,7 +185,7 @@ public class EloRankingController {
     }
 
     @PostMapping("/clan/bulk")
-    public ResponseEntity<List<ClanEloRank>> bulkCreateClanEloRank(
+    public ResponseEntity<Map<String, Object>> bulkCreateClanEloRank(
             @RequestBody Request.BulkCreateClanEloRank bulkClanEloRankRequest) {
         try {
             Long tournamentId = bulkClanEloRankRequest.getTournamentId();
@@ -163,14 +194,16 @@ public class EloRankingController {
             // Call the service method to perform bulk creation
             List<ClanEloRank> result = eloRankingService.bulkCreateClanEloRanks(clanIds, tournamentId);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(result);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("status", "created", "data", result));
         } catch (IllegalArgumentException e) {
             // Return a conflict response if any clan already has an Elo ranking
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(null);  // Optionally, return an error message
+                    .body(Map.of("status", "conflict", "message", e.getMessage()));
         } catch (Exception e) {
             // Return an internal server error for unexpected issues
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("status", "error", "message", "An unexpected error occurred"));
         }
     }
 }

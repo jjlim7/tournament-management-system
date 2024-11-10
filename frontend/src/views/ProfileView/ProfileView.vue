@@ -1,7 +1,11 @@
 <template>
   <div class="d-flex row w-75 mx-auto m-5">
     <!-- left side show user and clan details  -->
-     <div class="col-lg-4 col-12 mb-5  mb-lg-0">
+     <div 
+      data-aos="fade-right"
+      data-aos-offset="500"
+      data-aos-duration="500"
+      class="col-lg-4 col-12 mb-5  mb-lg-0">
       <div class="d-flex justify-content-between aliign-items-center">
         <div class="fs-5 fw-semibold">My Profile</div>
         <!-- log out button -->        
@@ -25,15 +29,19 @@
         <div class="text-center p-4">
           <img :src="clanStore.image" alt="" class="rounded-circle border border-primary border-2" style="width: 120px; height: 120px; object-fit: cover;">
   
-          <div class="fw-semibold">{{ clanStore.name }}</div>
-          <div>Clan Role: <span class="fw-semibold">{{ userStore.user.clanRole }}</span></div>
+          <div class="fw-semibold">{{ userStore.user.clan.clanName }}</div>
+          <div>Clan Role: <span class="fw-semibold">{{ userStore.user.clanRole}}</span></div>
         </div>
       </BlurredBGCard>
      </div>
 
     <!-- right side show statistic and match history and rank progress details  -->
     <div class="col d-flex flex-column justify-content-between mx-3">
-      <div>
+      <div
+        data-aos="fade-up"
+        data-aos-offset="500"
+        data-aos-duration="500"
+      >
         <div class="fs-5 fw-semibold">My Statistic</div>
         <BlurredBGCard class="p-4 d-flex justify-content-between align-items-center">
           <!-- show BR rank -->
@@ -43,18 +51,22 @@
           </div>
           <!-- show total win -->
           <div class="fs-2 fw-bold text-center">
-              {{ userStore.user.totalWins }}
+              {{ userStore.user.stats.avgKillDeathRatio.toFixed(2) }}
               <br>
-              <span>Wins</span>
+              <span>Average KDA</span>
           </div>
           <div class="fs-2 fw-bold text-center">
-              {{ userStore.user.winRatio }}
+              {{ userStore.user.stats.avgAccuracy.toFixed(2) }}
               <br>
-              <span>Win Ratio</span>
+              <span>Average Accuracy</span>
           </div>
         </BlurredBGCard>
       </div>
-      <div>
+      <div
+        data-aos="fade-up"
+        data-aos-offset="500"
+        data-aos-duration="600"
+      >
         <div class="fs-5 fw-semibold">Match History</div>
         <BlurredBGCard class="mt-1">
           <table class="table align-middle scrollable-table" v-if="matchHistory.length>0">
@@ -63,7 +75,6 @@
                 <th class="fw-semibold">Game</th>
                 <th class="fw-semibold">Date</th>
                 <th class="fw-semibold" v-if="isLargeScreen">KDA</th>
-                <th class="fw-semibold" v-if="isLargeScreen">Role</th>
                 <th class="fw-semibold">Mode</th>
                 <th class="fw-semibold">Result</th>
               </tr>
@@ -73,7 +84,6 @@
                 <th>{{ matchHistory[0].tournament }}</th>
                 <th>{{ matchHistory[0].date }}</th>
                 <th v-if="isLargeScreen" >{{ matchHistory[0].KDA }}</th>
-                <th v-if="isLargeScreen" >{{ matchHistory[0].role }}</th>
                 <th>{{ matchHistory[0].gameMode }}</th>
                 <th>{{ matchHistory[0].result }}</th>
               </tr>
@@ -82,17 +92,23 @@
           <div v-else class="p-3"> You do not have a match history</div>
         </BlurredBGCard>
       </div>
-      <div>
+      <div
+        data-aos="fade-up"
+        data-aos-offset="500"
+        data-aos-duration="700"
+      >
         <div class="fs-5 fw-semibold">My Tournament Rank</div>
         <BlurredBGCard>
           <RankProgress 
             :rank="userStore.user.rank" 
-              :currentElo="userStore.user.currentElo" 
-              :upperLimit="userStore.user.eloUpperlimit" 
-              gameMode="Battle Royale"
-              class="px-2" />
+            :currentElo="userStore.user.currentElo"
+            :lowerLimit="userStore.user.eloLowerlimit"
+            :upperLimit="userStore.user.eloUpperlimit" 
+            gameMode="Battle Royale"
+            class="px-2" />
           <RankProgress 
             :rank="clanStore.rank" 
+            :lowerLimit="userStore.user.eloLowerlimit"
             :currentElo="clanStore.currentElo" 
             :upperLimit="clanStore.eloUpperlimit" 
             gameMode="Clan War"
