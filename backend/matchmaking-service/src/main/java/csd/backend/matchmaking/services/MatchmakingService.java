@@ -76,7 +76,7 @@ public class MatchmakingService {
                 ClanEloRank eloRank = objectMapper.convertValue(res.get("data"), ClanEloRank.class);
 
                 // Add to the main eloRankMap with playerId as the key
-                clanEloRankMap.put(clanId, eloRank.getRankThreshold().toString());
+                clanEloRankMap.put(clanId, eloRank.getRankThreshold().getRank().toString());
             } catch (Exception e) {
                 System.out.printf("Failed to retrieve ELO rank for clan %d in tournament %d: %s%n", clanId, tournamentId, e.getMessage());
                 throw new Exception(String.format("Failed to retrieve ELO rank for clan %d in tournament %d: %s", clanId, tournamentId, e.getMessage()));
@@ -92,7 +92,11 @@ public class MatchmakingService {
 
         System.out.printf("Clans grouped by ELO rank: %s%n", objectMapper.writeValueAsString(clansGroupedByElo));
 
-        // Step 4: Pair Clans Within Each ELO Rank Group Based on Overlapping Availability
+        // Step 4: Group Clan Availabilities by Start Time
+        Map<OffsetDateTime, List<ClanAvailability>> availabilitiesGroupedByStartTime =
+                groupClanAvailabilitiesByStartTime(clanAvailabilities);
+
+        // Step 5: Pair Clans Within Each ELO Rank Group Based on Overlapping Availability
         List<Game> scheduledGames = new ArrayList<>();
 
         for (Map.Entry<String, List<Long>> entry : clansGroupedByElo.entrySet()) {
@@ -104,54 +108,48 @@ public class MatchmakingService {
             // Shuffle the list to randomize pairings within the same ELO rank
             Collections.shuffle(clansInRank);
 
-            // Pair clans sequentially
-            for (int i = 0; i < clansInRank.size() - 1; i += 2) {
-                Long clan1Id = clansInRank.get(i);
-                Long clan2Id = clansInRank.get(i + 1);
-
-                System.out.printf("Attempting to pair Clan %d with Clan %d%n", clan1Id, clan2Id);
-
-                // Fetch their availabilities
-                List<ClanAvailability> clan1Availabilities = clanAvailabilities.stream()
-                        .filter(ca -> ca.getClanId().equals(clan1Id))
-                        .collect(Collectors.toList());
-
-                List<ClanAvailability> clan2Availabilities = clanAvailabilities.stream()
-                        .filter(ca -> ca.getClanId().equals(clan2Id))
-                        .collect(Collectors.toList());
-
-                // Find overlapping availability slots
-                List<TimeSlot> overlappingSlots = findOverlappingTimeSlots(clan1Availabilities, clan2Availabilities);
-
-                if (overlappingSlots.isEmpty()) {
-                    System.out.printf("No overlapping availability between Clan %s and Clan %s%n", clan1Id, clan2Id);
-                    continue; // Skip scheduling if no overlapping slots
+            for (OffsetDateTime startTime : availabilitiesGroupedByStartTime.keySet()) {
+                List<ClanAvailability> availableClansAtTime = availabilitiesGroupedByStartTime.get(startTime);
+                if (availableClansAtTime.size() <= 1) {
+                    continue;
                 }
 
-                // For simplicity, schedule at the earliest overlapping slot
-                TimeSlot selectedSlot = overlappingSlots.get(0);
+                List<Long> availableClanIds = availableClansAtTime.stream()
+                        .map(ClanAvailability::getClanId)
+                        .filter(clansInRank::contains)
+                        .distinct()
+                        .toList();
 
-                // Create and save the Clan War game
-                Game game = gameService.createClanWarGame(
-                        tournamentId,
-                        List.of(clan1Id, clan2Id),
-                        selectedSlot.getStartTime(),
-                        selectedSlot.getEndTime(),
-                        Game.GameStatus.SCHEDULED
-                );
+                // Pair clans sequentially at each start time
+                for (int i = 0; i < availableClanIds.size() - 1; i += 2) {
+                    Long clan1Id = availableClanIds.get(i);
+                    Long clan2Id = availableClanIds.get(i + 1);
 
-                if (game != null) {
-                    scheduledGames.add(game);
-                    System.out.printf("Scheduled Clan War game between Clan %d and Clan %d at %s%n",
-                            clan1Id, clan2Id, selectedSlot.getStartTime());
+                    System.out.printf("Attempting to pair Clan %d with Clan %d at %s%n", clan1Id, clan2Id, startTime);
+
+                    // Create and save the Clan War game
+                    Game game = gameService.createClanWarGame(
+                            tournamentId,
+                            List.of(clan1Id, clan2Id),
+                            startTime,
+                            startTime.plusHours(1), // Example game duration
+                            Game.GameStatus.SCHEDULED
+                    );
+
+                    if (game != null) {
+                        scheduledGames.add(game);
+                        System.out.printf("Scheduled Clan War game between Clan %d and Clan %d at %s%n",
+                                clan1Id, clan2Id, startTime);
+                    }
                 }
-            }
 
-            // Handle odd number of clans within the ELO rank group
-            if (clansInRank.size() % 2 != 0) {
-                Long lastClanId = clansInRank.get(clansInRank.size() - 1);
-                System.out.printf("Odd number of clans in ELO rank %s. Clan %s will not be paired.%n", eloRank, lastClanId);
-                // Optionally, implement logic to pair this clan with a clan from a nearby ELO rank
+                // Handle odd number of clans within the ELO rank group
+                if (availableClanIds.size() % 2 != 0) {
+                    Long lastClanId = availableClanIds.get(availableClanIds.size() - 1);
+                    System.out.printf("Odd number of clans in ELO rank %s at %s. Clan %s will not be paired.%n",
+                            eloRank, startTime, lastClanId);
+                    // Optionally, implement logic to pair this clan with a clan from a nearby ELO rank
+                }
             }
         }
 
@@ -202,6 +200,12 @@ public class MatchmakingService {
         return availabilities.stream()
                 .filter(PlayerAvailability::isAvailable)
                 .collect(Collectors.groupingBy(PlayerAvailability::getStartTime));
+    }
+
+    public Map<OffsetDateTime, List<ClanAvailability>> groupClanAvailabilitiesByStartTime(List<ClanAvailability> availabilities) {
+        return availabilities.stream()
+                .filter(ClanAvailability::isAvailable)
+                .collect(Collectors.groupingBy(ClanAvailability::getStartTime));
     }
 
     public Map<String, List<PlayerAvailability>> groupPlayersByRank(List<PlayerAvailability> availablePlayers, Map<Long, EloRank> eloRankMap) {

@@ -83,12 +83,26 @@ public class EloRankingService {
 
     // Retrieve the Clan Elo Rank for a specific clan in a particular tournament
     public Optional<ClanEloRank> retrieveClanEloRank(Long clanId, Long tournamentId) {
-        return clanEloRankRepository.findByClanIdAndTournamentId(clanId, tournamentId);
+        return clanEloRankRepository.findByClanIdAndTournamentId(clanId, tournamentId)
+                .or(() -> {
+                    // Initialize a new PlayerEloRank if not found
+                    RankThreshold defaultRank = rankService.retrieveRankThresholdByRank(ORIGIN_RANK);
+                    ClanEloRank newRank = new ClanEloRank(clanId, defaultRank, INITIAL_MEAN, INITIAL_SIGMA, tournamentId);
+                    clanEloRankRepository.save(newRank);
+                    return Optional.of(newRank);
+                });
     }
 
     // Retrieve the Player Elo Rank for a specific player in a particular tournament
     public Optional<PlayerEloRank> retrievePlayerEloRank(Long playerId, Long tournamentId) {
-        return playerEloRankRepository.findByPlayerIdAndTournamentId(playerId, tournamentId);
+        return playerEloRankRepository.findByPlayerIdAndTournamentId(playerId, tournamentId)
+                .or(() -> {
+                    // Initialize a new PlayerEloRank if not found
+                    RankThreshold defaultRank = rankService.retrieveRankThresholdByRank(ORIGIN_RANK);
+                    PlayerEloRank newRank = new PlayerEloRank(playerId, defaultRank, INITIAL_MEAN, INITIAL_SIGMA, tournamentId);
+                    playerEloRankRepository.save(newRank);
+                    return Optional.of(newRank);
+                });
     }
 
     // Retrieve all Clan Elo Ranks for a given tournament

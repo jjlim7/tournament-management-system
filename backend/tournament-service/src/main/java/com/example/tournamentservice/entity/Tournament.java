@@ -72,10 +72,10 @@ public class Tournament {
 	@Enumerated(EnumType.STRING)
 	private GameMode gameMode;
 
-//	@ElementCollection
-//	@CollectionTable(name = "tournament_games", joinColumns = @JoinColumn(name = "tournament_id"))
-//	@Column(name = "game_id")
-//	private List<Long> gameList = new ArrayList<>();
+	@ElementCollection
+	@CollectionTable(name = "tournament_games", joinColumns = @JoinColumn(name = "tournament_id"))
+	@Column(name = "game_id")
+	private List<Long> gameList = new ArrayList<>();
 
 	@Column(name = "admin_id", nullable = false)
     private Long adminId;

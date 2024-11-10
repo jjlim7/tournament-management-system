@@ -45,5 +45,5 @@ public class Tournament {
     // You can include playerIds if needed, or exclude it based on your requirements
     private List<Long> playerIds;
 
-//    private List<Long> gameList;
+    private List<Long> gameList;
 }
