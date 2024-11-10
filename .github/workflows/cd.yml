@@ -1,11 +1,10 @@
 name: CD Pipelines
 
 on:
-  push:
-    branches:
-      - feat/tournamentservicev2
-      - staging
-      - main
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
 
 jobs:
   deploy:
