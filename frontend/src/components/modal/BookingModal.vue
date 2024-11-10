@@ -32,8 +32,8 @@ this is what is needed to pass in for booking modal component
       :prevModalID="prevModalID"
     >
         <div class="mb-3 d-flex justify-content-between">
-            <div class="fw-semibold">Booking for {{ selectedTournament.name }}</div>
-            <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{formmattedMode}}</div>
+            <div class="fw-semibold">Booking for {{ tournament.name }}</div>
+            <div class="text-black border border-primary border-2 rounded-5 fw-semibold px-1 bg-secondary">{{tournament.gameMode}}</div>
         </div>
         <div v-for="(booking,index) in bookings" :key="index" class="mb-3 w-100 h-100 row container d-flex align-items-end">
             <div class="col-12 col-sm-5">
@@ -70,12 +70,11 @@ import Modal from './Modal.vue';
 import DatePicker from 'primevue/datepicker';
 import Swal from 'sweetalert2'
 import { Modal as bsModal } from 'bootstrap';
-import axios from '@/utils/axiosInstance';
 
   
 export default {
 name: "BookingModal",
-props: ['modalID', 'tournament','prevModalID','isEditing', 'existingAvailability'],
+props: ['modalID', 'tournament','prevModalID','isEditing'],
 components: { Modal, DatePicker },
 data() {
     return {
@@ -86,19 +85,6 @@ data() {
             endTime: null,
         }
     ],
-    selectedTournament: {
-        tournament_id: null,
-        name: null,
-        description: null,
-        startDate: null,
-        endDate: null,
-        playerCapacity: null,
-        status: null,
-        gameMode: null,
-        gameList: null,
-        adminId: null,
-        playerIds: null
-    },
     minDate: new Date(),
     maxDate: new Date(),
     hours: [
@@ -109,13 +95,6 @@ data() {
         ],
     };
 },
-computed:{
-    formmattedMode(){
-        if(this.selectedTournament.gameMode == "BATTLE_ROYALE") return "Battle Royale";
-        if(this.selectedTournament.gameMode == "CLANWAR") return "Clan War";
-    },
-},
-
 setup() {
     const userStore = useUserStore();
     return {userStore}
@@ -124,20 +103,15 @@ mounted() {
     //this will retrieve the tournament period and set the min and max
     const myModalEl = document.getElementById(this.modalID)
     myModalEl.addEventListener('show.bs.modal', event => {
-        this.setDateRange(this.tournament);
-        this.selectedTournament = this.tournament;
-        if (this.isEditing) {
-            this.selectedTournament = this.tournament.tournament;
-            this.setDateRange(this.tournament.tournament);
-            
-            // Parse the tournament start and end times into dates
-            const startDate = new Date(this.tournament.startTime);
-            const endDate = new Date(this.tournament.endTime);
-
-            // Set the `bookings[0]` fields with the tournament details
-            this.bookings[0].date = startDate.toISOString().split('T')[0]; // Set the date part only
-            this.bookings[0].startTime = this.getCurrentHourLabel(startDate); // Format start time
-            this.bookings[0].endTime = this.getCurrentHourLabel(endDate); // Format end time
+        this.setDateRange();
+        if(this.isEditing){
+            //setting the date, start time and end time to existing booking
+            this.bookings[0].date = new Date();
+            this.bookings[0].startTime = this.getCurrentHourLabel(new Date());
+    
+            const endTime = new Date();
+            endTime.setHours(endTime.getHours() + 1); // Add 1 hour to the current time
+            this.bookings[0].endTime = this.getCurrentHourLabel(endTime);
         }
     })
     //make sure that when it is hidden, clear all value
@@ -146,66 +120,51 @@ mounted() {
     })
 },
 methods: {
-    async confirmBooking() {
+    confirmBooking() {
+        // console.log(this.bookings);
         if(this.validateBookings()){
             //if user is making an edit
             if(this.isEditing){
                 console.log("update successfully")
             }
             else{ // if user is making a new booking
-                if(this.selectedTournament.gameMode === 'CLANWAR' && this.userStore.user.clanRole==='ROLE_PLAYER'){
-                    this.showErrorAlert("Only the Clan Admin can book Clan War", "Access denied");
+                if(this.tournament.gameMode === 'Clan War' && this.userStore.user.clanRole==='member'){
+                    this.showErrorAlert("Only the Clan Admin can book Clan War");
                     return;
                 }
-                // add player availability to backend
-                try{
-                    for (let booking of this.bookings) {
-                        // Create formatted start and end times as ISO strings
-                        const startDateTime = new Date(booking.date);
-                        const endDateTime = new Date(booking.date);
-
-                        // Convert selected times to 24-hour format and set to booking date
-                        startDateTime.setHours(this.hours.indexOf(booking.startTime));
-                        endDateTime.setHours(this.hours.indexOf(booking.endTime));
-
-                        let formattedBooking = {
-                            playerId: this.userStore.user.id,
-                            tournamentId: this.selectedTournament.tournament_id,
-                            startTime: startDateTime.toISOString(),
-                            endTime: endDateTime.toISOString(),
-                            available: true
-                        };
-
-                        // Send formattedBooking to backend
-                        const response = await axios.post(`/matchmaking/api/playersAvailability`, formattedBooking);
-                    }
-                    this.bookSuccess('You have succesfully made the bookings');
-                    console.log("now fetching the things")
-                } catch (error) {
-                    console.error('Error adding player\'s availability:', error);
-                    throw error;
-                }
-
+                this.bookSuccess('You have succesfully made the bookings');
                 const existingModal = bsModal.getInstance(document.getElementById(this.modalID));
                 existingModal.hide();
             }
-            this.$emit("fetchPlayerAvail");
         }
     },
+    //in the future: pass in start date and end date retrieved from backend
     // this function is used for both editing and making new booking
-    setDateRange(tournament) {
-        const today = new Date();
-        const startDate = new Date(tournament.startDate);
-        const endDate = new Date(tournament.endDate);
+    setDateRange() {
+        let today = new Date();
         
-        // Set the minimum date to today or the tournament start date, in UTC
-        this.minDate = today > startDate 
-            ? new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()))
-            : new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
+        // set the minimum date to today
+        this.minDate = new Date(today);
 
-        // Set the max date to the tournament end date, in UTC
-        this.maxDate = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
+        // calculate end date
+        let nextMonth = today.getMonth() + 1;
+        let nextYear = today.getFullYear();
 
+        // if it's December, go to January of the next year (end date)
+        if (nextMonth > 11) {
+            nextMonth = 0;
+            nextYear++;
+        }
+
+        // set the maximum date
+        this.maxDate = new Date(today);
+        this.maxDate.setMonth(nextMonth);
+        this.maxDate.setFullYear(nextYear);
+
+        // handle cases where next month doesn't have the same day (e.g., February 30th doesn't exist)
+        if (this.maxDate.getMonth() !== nextMonth) {
+            this.maxDate.setDate(0); // Set to the last day of the previous month
+        }
     },
     addMoreBooking(){
         this.bookings.push({
@@ -219,7 +178,6 @@ methods: {
             Swal.fire({
                 title: "Confirm Delete?",
                 icon: "warning",
-                reverseButtons: true, // Swaps the position of confirm and cancel buttons
                 showCancelButton: true,
                 cancelButtonColor: "#DDDDDD",
                 confirmButtonColor: "#FA9021",
@@ -253,7 +211,7 @@ methods: {
 
         // ensure that the end time is after the start time
         if (startIndex >= endIndex) {
-            this.showErrorAlert("End time must be after start time!", "Invalid Input");
+            this.showErrorAlert("End time must be after start time!");
             booking.startTime = null; // reset
             booking.endTime = null; // reset
             return false;
@@ -281,7 +239,7 @@ methods: {
 
                 // Check if time slots overlap
                 if (currentStartTime<otherEndTime && otherStartTime<currentEndTime) {
-                    this.showErrorAlert("Overlapping bookings detected!","Invalid Input");
+                    this.showErrorAlert("Overlapping bookings detected!");
                     currentBooking.startTime = null;
                     currentBooking.endTime = null;
                     return false;
@@ -295,7 +253,7 @@ methods: {
         for (let index=0 ; index < this.bookings.length; index++) {
             let booking = this.bookings[index];
             if (!booking.date || !booking.startTime || !booking.endTime) {
-                this.showErrorAlert("Please fill in all booking fields.", "Invalid Input");
+                this.showErrorAlert("Please fill in all booking fields.");
                 return false;
             }
             if(!this.validateTime(index)){
@@ -324,12 +282,11 @@ methods: {
 
         return label;
     },
-    showErrorAlert(errorMessage, title){
+    showErrorAlert(errorMessage){
         Swal.fire({
-            toast: true,
             position: "top-end",
             icon: "error",
-            title: title,
+            title: "Invalid Input",
             text: errorMessage,
             showConfirmButton: false,
             timer: 1500
@@ -337,7 +294,6 @@ methods: {
     },
     bookSuccess(successMessage){
         Swal.fire({
-            toast: true,
             position: "top-end",
             icon: "success",
             title: "Booked!",

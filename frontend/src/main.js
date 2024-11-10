@@ -24,10 +24,6 @@ const SwalOptions = {
 //import cookie
 import VueCookies from 'vue-cookies'
 
-// Initialize the token when the app loads
-import { loadAuthToken } from './utils/axiosInstance'
-loadAuthToken();
-
 //import primevue and configure it
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
@@ -36,10 +32,6 @@ import Aura from '@primevue/themes/aura';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { fas } from '@fortawesome/free-solid-svg-icons'; // Use solid icons
-
-//temp. remove before production
-// import { setAuthToken } from './utils/axiosInstance'
-// setAuthToken("eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJrYWlqaWVwbGF5ZXJAZ21haWwuY29tIiwicm9sZSI6IlJPTEVfUExBWUVSIiwiaWF0IjoxNzMwODY0NDE3LCJleHAiOjE3MzA5NTA4MTd9.TShqOgz7pn61RIwXdsUYbVxVzDOHDG5wNnnrn_j-Jqh3kGlDsa2s88Cz3AhsPKmY")
 
 
 library.add(fas);
@@ -61,6 +53,6 @@ app.use(PrimeVue, {
 });
 app.use(createPinia())
 app.use(router)
-app.use(VueCookies)
+app.use(VueCookies, { expires: '7d'})
 app.use(VueSweetalert2,SwalOptions);
 app.mount('#app')

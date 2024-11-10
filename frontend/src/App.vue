@@ -27,7 +27,7 @@ export default{
   data(){
     return{
       BACKGOUNDIMAGE:{
-        '/home':'https://eu-images.contentstack.com/v3/assets/blt740a130ae3c5d529/blt1672290e8640ef07/6568662857c00e040aafe9ce/black_myth_wukong.png?width=1280&auto=webp&quality=95&format=jpg&disable=upscale',
+        '/':'https://eu-images.contentstack.com/v3/assets/blt740a130ae3c5d529/blt1672290e8640ef07/6568662857c00e040aafe9ce/black_myth_wukong.png?width=1280&auto=webp&quality=95&format=jpg&disable=upscale',
         '/about':'https://cdn.mos.cms.futurecdn.net/TmezMwAfXatkL7M2TDotkM-1200-80.jpg',
         '/auth':'https://mustsharenews.com/wp-content/uploads/2024/08/Black-Myth-Wukong.jpg',
         '/battleroyale':'https://cdn.mos.cms.futurecdn.net/sgFRba5wiRrXrWh2bVkF5a-1920-80.jpg.webp',
@@ -37,6 +37,7 @@ export default{
         '/leaderboard':'https://i0.wp.com/theguidehall.com/wp-content/uploads/2024/08/Black-Myth_-Wukong_20240823164851.jpg',
         '/profile':'https://images5.alphacoders.com/112/1129255.jpg',
         '/admin':'https://gamingbolt.com/wp-content/uploads/2024/08/Black-Myth-Wukong-Featured-Image.jpg',
+        
       },
       isLogin: true,
     }
@@ -48,7 +49,7 @@ export default{
     },
     isHomePage(){
       const route = useRoute();
-      return route.path == '/home'; 
+      return route.path == '/'; 
     }
   },
   methods:{

@@ -3,7 +3,6 @@
         class="nav-link py-0 px-2 d-flex mx-auto " 
         :to="eachLink.routeTo"
         @click="collapseNavbar"
-        v-if="hasNoClan"
     >
         <li class="nav-item mx-3" >
             <div :class="checkCurrentPage(eachLink.routeTo)" >{{eachLink.linkName}}</div> 
@@ -13,7 +12,6 @@
 <script>
 import { RouterLink } from 'vue-router';
 import { Collapse } from 'bootstrap';
-import { useClanStore, useUserStore } from '@/stores/store';
 
 export default {
     name: "NavbarLink",
@@ -21,14 +19,6 @@ export default {
         RouterLink
     },
     props:['eachLink'],
-    computed:{
-        hasNoClan(){
-            if(this.eachLink.linkName == 'CLAN WAR' && this.userStore.user.clan==null){
-                return false;
-            }
-            return true;
-        }
-    },
     methods:{
         checkCurrentPage(link){
             return this.$route.path.startsWith(link) ? "active-link" : "inactive-link"
@@ -45,13 +35,7 @@ export default {
                 bsCollapse.toggle();
             }
         }
-    },
-    setup() {
-        const clanStore = useClanStore();
-        const userStore = useUserStore();
-        return { userStore, clanStore };
-    },
-    
+    }
 }
 </script>
 

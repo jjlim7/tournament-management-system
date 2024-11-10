@@ -15,7 +15,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Table(name = "player_game_score", schema = "elo-ranking")
 public class PlayerGameScore extends GameScore {
 
     public enum GameMode {

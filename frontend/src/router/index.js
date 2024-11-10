@@ -19,26 +19,9 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'root',
-      redirect: () => {
-        const userStore = useUserStore();
-        const userRole = userStore.user?.role;
-
-        if (userRole === 'ROLE_ADMIN') {
-          return { name: 'admin' };
-        } else if (userRole === 'ROLE_PLAYER') {
-          return { name: 'home' };
-        } else {
-          return { name: 'auth' };
-        }
-      },
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/home',
       name: 'home',
       component: HomeView,
-      meta: { requiresAuth: true, roles: ['ROLE_PLAYER'] },
+      meta: { requiresAuth: true, roles: ['Member'] },
     },
     {
       path: '/about',
@@ -54,43 +37,43 @@ const router = createRouter({
       path: '/battleroyale',
       name: 'battleroyale',
       component: BattleRoyaleView,
-      meta: { requiresAuth: true, roles: ['ROLE_PLAYER'] },
+      meta: { requiresAuth: true, roles: ['Member'] },
     },
     {
       path: '/clanwar',
       name: 'clanwar',
       component: ClanWarView,
-      meta: { requiresAuth: true, roles: ['ROLE_PLAYER'] },
+      meta: { requiresAuth: true, roles: ['Member'] },
     },
     {
       path: '/booking',
       name: 'booking',
       component: BookingView,
-      meta: { requiresAuth: true, roles: ['ROLE_PLAYER'] },
+      meta: { requiresAuth: true, roles: ['Member'] },
     },
     {
       path: '/Clan',
       name: 'clan',
       component: ClanView,
-      meta: { requiresAuth: true, roles: ['ROLE_PLAYER'] },
+      meta: { requiresAuth: true, roles: ['Member'] },
     },
     {
       path: '/leaderboard',
       name: 'leaderboard',
       component: LeaderBoardView,
-      meta: { requiresAuth: true, roles: ['ROLE_PLAYER'] },
+      meta: { requiresAuth: true, roles: ['Member'] },
     },
     {
       path: '/profile',
       name: 'profile',
       component: ProfileView,
-      meta: { requiresAuth: true, roles: ['ROLE_PLAYER'] },
+      meta: { requiresAuth: true, roles: ['Member'] },
     },
     {
       path: '/admin',
       name: 'admin',
       component: AdminView,
-      meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
+      meta: { requiresAuth: true, roles: ['Admin'] },
     },
     {
       path: '/:pathMatch(.*)*',
