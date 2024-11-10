@@ -3,6 +3,7 @@ name: CD Pipelines
 on:
   push:
     branches:
+      - feat/tournamentservicev2
       - staging
       - main
 
