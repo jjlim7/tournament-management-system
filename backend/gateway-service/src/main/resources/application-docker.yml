@@ -108,9 +108,13 @@ route-roles:
     "tournament.api.tournaments.GET":
       - ROLE_ADMIN
       - ROLE_PLAYER
-    "clanuser.api.clanusers.clan.clanId.GET":
+    "clanuser.api.clanusers.clan.{clanId}.GET":
       - ROLE_PLAYER
       - ROLE_ADMIN
+    "clanuser.api.clans.{clanId}.GET":
+      - ROLE_PLAYER
+      - ROLE_ADMIN
+
 logging:
   level:
     root: INFO

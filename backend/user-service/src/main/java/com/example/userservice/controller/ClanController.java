@@ -107,4 +107,17 @@ public class ClanController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not retrieve Elo rank at this time.");
         }
     }
+
+    @Operation(summary = "get clan details", description = "")
+    @GetMapping("/clans/{clanId}/overall")
+    public ResponseEntity<?> getClanOverall(@PathVariable Long clanId) {
+        try {
+            ClanStats clanStatsLatest = clanService.getClanStats(clanId);
+            return ResponseEntity.ok(clanStatsLatest);
+        } catch (Exception e) {
+            log.error("Failed to retrieve clan details for clan: {}", clanId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not retrieve user details for clan.");
+        }
+    }
+
 }

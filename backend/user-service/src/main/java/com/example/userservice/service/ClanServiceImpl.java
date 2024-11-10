@@ -80,4 +80,32 @@ public class ClanServiceImpl implements ClanService {
         }
         return (ClanEloRank) Objects.requireNonNull(resp.getBody()).get("data");
     }
+
+    @Override
+    @Transactional
+    public ClanStats getClanStats(Long clanId) {
+        // guard statement
+        Optional<Clan> optionalClan = clanDB.findById(clanId);
+        if (optionalClan.isEmpty()) {
+            return null;
+        }
+
+        System.out.println("found clan " + clanId);
+        ResponseEntity<Map<String, Object>> resp = eloRankingClient.getClanLatestRank(clanId);
+        if (!resp.getStatusCode().is2xxSuccessful()) {
+            return null;
+        }
+        ClanEloRank cer = (ClanEloRank) Objects.requireNonNull(resp.getBody()).get("data");
+
+        System.out.println("retrieved clan elo rank");
+
+        ResponseEntity<Map<String, Object>> resp1 = eloRankingClient.getClanStatistics(clanId, cer.getTournamentId());
+        if (!resp.getStatusCode().is2xxSuccessful()) {
+            return null;
+        }
+        ClanStats cs = (ClanStats) Objects.requireNonNull(resp1.getBody()).get("data");
+
+        System.out.println("retrieved clan stats");
+        return cs;
+    }
 }

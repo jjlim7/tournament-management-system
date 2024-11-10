@@ -2,6 +2,7 @@ package com.example.elorankingservice.controller;
 
 import com.example.elorankingservice.dto.Request;
 import com.example.elorankingservice.entity.ClanGameScore;
+import com.example.elorankingservice.entity.ClanStats;
 import com.example.elorankingservice.entity.PlayerGameScore;
 import com.example.elorankingservice.entity.PlayerStats;
 import com.example.elorankingservice.service.GameScoreService;
@@ -88,6 +89,31 @@ public class GameScoreController {
             PlayerStats playerStats = gameScoreService.retrievePlayerStatisticsForTournament(tournamentId, playerId, gameMode);
             return ResponseEntity.status(HttpStatus.OK).body(
                     Map.of("status", "success", "playerStats", playerStats)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "status", "failed",
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
+    @GetMapping("/clan/{clanId}/tournament/{tournamentId}/stats")
+    public ResponseEntity<Map<String, Object>> getClanStatistics(
+            @PathVariable Long clanId,
+            @PathVariable Long tournamentId,
+            @RequestParam(required = false) PlayerGameScore.GameMode gameMode
+    ) {
+        if (tournamentId == null || clanId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", "failed",
+                    "message", "missing params"
+            ));
+        }
+        try {
+            ClanStats clanStats = gameScoreService.retrieveClanStatisticsForTournament(tournamentId, clanId);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    Map.of("status", "success", "data", clanStats)
             );
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
