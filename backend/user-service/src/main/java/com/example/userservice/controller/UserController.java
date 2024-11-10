@@ -145,6 +145,7 @@ public class UserController {
                 System.out.println("????");
                 defaultUser.put("clanRole", "ROLE_PLAYER");
                 defaultUser.put("role", "ROLE_PLAYER");
+                defaultUser.put("user", basicUserDetails);
 
                 Map<String, Object> stats = new HashMap<>();
                 stats.put("playerId", basicUserDetails.getUserId());
