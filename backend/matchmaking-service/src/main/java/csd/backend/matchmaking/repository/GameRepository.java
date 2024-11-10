@@ -19,4 +19,13 @@ public interface GameRepository extends JpaRepository<Game, Long> {
 
     @Query("SELECT g FROM Game g WHERE :playerId MEMBER OF g.playerIds AND g.startTime > :currentDateTime")
     List<Game> findUpcomingGamesByPlayerId(@Param("playerId") long playerId, @Param("currentDateTime") OffsetDateTime currentDateTime);
+
+    @Query("SELECT g FROM Game g WHERE :clanId MEMBER OF g.clanIds AND g.startTime > :currentDateTime")
+    List<Game> findUpcomingGamesByClanId(@Param("clanId") long clanId, @Param("currentDateTime") OffsetDateTime currentDateTime);
+
+    @Query("SELECT g FROM Game g WHERE :playerId MEMBER OF g.playerIds")
+    List<Game> findGamesByPlayerId(@Param("playerId") long playerId);
+
+    @Query("SELECT g FROM Game g WHERE :clanId MEMBER OF g.clanIds")
+    List<Game> findGamesByClanId(@Param("clanId") long clanId);
 }
