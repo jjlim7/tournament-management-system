@@ -48,6 +48,7 @@ public class AuthenticationService {
         if(userRepository.findByEmail(request.getUsername()).isPresent()) {
             return new AuthenticationResponse(null, "User already exist" , null);
         }
+        System.out.println("Registering user " + request.getUsername());
         //create new person
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         User newUser = userRepository.save(request);
@@ -71,10 +72,16 @@ public class AuthenticationService {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new BadAuthenticationException("User not found"));
 
-            // Fetch ClanUser details
-            ClanUserDTO clanUserDTO = clanUserFeignClient.getClanUserIfExists(user.getUserId()).getBody();
 
-            System.out.println("clan DTO: " + clanUserDTO.getIsClanLeader());
+            // Fetch ClanUser details with fallback to null if not found
+            ClanUserDTO clanUserDTO = null;
+            try {
+                clanUserDTO = clanUserFeignClient.getClanUserIfExists(user.getUserId()).getBody();
+            } catch (Exception feignException) {
+                System.out.println("ClanUser details not found for userId: " + user.getUserId() + feignException);
+                // clanUserDTO remains null if not found or if an error occurs
+            }
+
             // Set user JWT with clan leader status
             boolean isClanLeader = (clanUserDTO != null) && clanUserDTO.getIsClanLeader();
             UserJWT userjwt = UserJWT.newUserJWT(user, isClanLeader);

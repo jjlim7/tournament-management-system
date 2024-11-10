@@ -126,7 +126,68 @@ public class UserController {
             return ResponseEntity.ok(partialStatsNoClanData);
         } catch (Exception e) {
             log.error("Failed to retrieve player details for player: {}", userId, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not retrieve user details for player.");
+
+            try {
+                // Attempt to retrieve basic user information as a fallback
+                User basicUserDetails = userService.getUser(userId);
+
+                System.out.println("fall back," + basicUserDetails.toString());
+
+                Map<String, Object> defaultUser = new HashMap<>();
+                defaultUser.put("id", basicUserDetails.getUserId());
+                defaultUser.put("name", basicUserDetails.getName() != null ? basicUserDetails.getName() : "");
+                defaultUser.put("rank", "UNRANKED");
+                defaultUser.put("eloLowerlimit", 0);
+                defaultUser.put("currentElo", 0);
+                defaultUser.put("eloUpperlimit", 0);
+                defaultUser.put("totalWins", 0);
+                defaultUser.put("winRatio", 0);
+                System.out.println("????");
+                defaultUser.put("clanRole", "ROLE_PLAYER");
+                defaultUser.put("role", "ROLE_PLAYER");
+
+                Map<String, Object> stats = new HashMap<>();
+                stats.put("playerId", basicUserDetails.getUserId());
+                stats.put("tournamentId", null);
+                stats.put("totalMatches", 0);
+                stats.put("gameMode", null);
+                stats.put("totalKills", 0);
+                stats.put("totalDeaths", 0);
+                stats.put("avgKillDeathRatio", 0.0);
+                stats.put("avgAccuracy", 0.0);
+                stats.put("avgHeadshotAccuracy", 0.0);
+                stats.put("avgHealingDonePerSecond", 0.0);
+                stats.put("avgDamageDonePerSecond", 0.0);
+                stats.put("avgDamageTanked", 0.0);
+                stats.put("totalAssists", 0);
+                stats.put("totalRevives", 0);
+                stats.put("totalShotsFired", 0);
+                stats.put("totalShotsHit", 0);
+                defaultUser.put("stats", stats);
+
+                Map<String, Object> eloRank = new HashMap<>();
+                eloRank.put("id", null);
+                eloRank.put("rankThresholdId", null);
+                eloRank.put("meanSkillEstimate", 0.0);
+                eloRank.put("uncertainty", 0.0);
+                eloRank.put("tournamentId", null);
+                eloRank.put("playerId", basicUserDetails.getUserId());
+
+                Map<String, Object> rankThreshold = new HashMap<>();
+                rankThreshold.put("minRating", 0.0);
+                rankThreshold.put("maxRating", 0.0);
+                rankThreshold.put("rank", null);
+                eloRank.put("rankThreshold", rankThreshold);
+
+                defaultUser.put("eloRank", eloRank);
+
+                return ResponseEntity.status(HttpStatus.OK).body(defaultUser);
+
+            } catch (Exception fallbackException) {
+                log.error("Failed to retrieve fallback user details for player: {}", userId, fallbackException);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not retrieve user details for player.");
+            }
         }
     }
+
 }
