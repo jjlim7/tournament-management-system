@@ -213,6 +213,7 @@ export default {
       if (mode == "CLANWAR") return "Clan War";
     },
     startCountdown() {
+      console.log(this.nextMatch)
       if (this.nextMatch == null) return
       const targetTime = new Date(this.nextMatch?.startTime).getTime();
       let modalShown = false;
@@ -372,23 +373,24 @@ export default {
       this.upcomingGames = [];
       axios.get(`/matchmaking/api/games/upcoming/player?playerId=${this.userStore.user.id}`)
         .then((response) => {
-          // Ensure a successful response
-          console.log(response)
+          console.log(response); // Log the response
           if (response.status === 200) {
             const gamesArr = response.data;
 
             // Sort the games array by startTime (earliest first)
             gamesArr.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
 
-            // Assign the sorted games array to upcomingGames
             this.upcomingGames = gamesArr;
 
-            // Assign the first game as the nextMatch, if games exist
+            // Assign the first game as the nextMatch
             if (gamesArr.length > 0) {
               this.nextMatch = gamesArr[0];
+              console.log("Next match inside .then:", this.nextMatch); // Correctly logs
             } else {
-              this.nextMatch = null; // No games available
+              this.nextMatch = null;
             }
+            // count down if there is a upcoming game
+            this.startCountdown();
           }
         })
         .catch((error) => {
@@ -411,8 +413,6 @@ export default {
     this.fetchTournament();
     //fetch games
     this.fetchGames();
-    // count down if there is a upcoming game
-    this.startCountdown();
   },
   destroyed() {
     window.removeEventListener("resize", this.checkScreenSize);
