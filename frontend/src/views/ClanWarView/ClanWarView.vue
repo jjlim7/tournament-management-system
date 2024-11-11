@@ -162,21 +162,7 @@ export default {
         seconds: 0
       },
       intervalId: null,
-      nextMatch: {
-        gameId: 1,
-        tournamentId: 1,
-        startTime: "2024-11-11T08:00:00.000Z",
-        endTime: "2024-12-07T11:00:00.000Z",
-        playerIds: [
-          22,
-          11,
-          48
-        ],
-        clanIds: [],
-        winner: null,
-        gameMode: "CLANWAR",
-        gameStatus: "SCHEDULED"
-      },
+      nextMatch: null,
       currentTournament: null,
       upcomingTournaments: [],
       selectedUpcomingTournament: '',
