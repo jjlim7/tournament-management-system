@@ -85,7 +85,7 @@
                 <th>{{ match.date }}</th>
                 <th v-if="isLargeScreen" >{{ match.KDA }}</th>
                 <th>{{ match.gameMode }}</th>
-                <th>{{ match.placement.toFixed(0) }}</th>
+                <th>{{ match.placement }}</th>
               </tr>
             </tbody>
           </table>
@@ -219,25 +219,54 @@ export default {
       let BRhistory = [];
       let CWhistory = [];
 
-      if (this.currentBRTournament) {
-        const response = await axios.get(`/elo-ranking/api/game-score/player/${this.userStore.user.id}/tournament/${this.currentBRTournament.tournament_id}`);
-        if (response.status === 200) {
-          BRhistory = await fetchMatchDetails(response.data.playerGameScores, this.currentBRTournament, 'Battle Royale');
-        }
-      }
+      // if (this.currentBRTournament) {
+      //   const response = await axios.get(`/elo-ranking/api/game-score/player/${this.userStore.user.id}/tournament/${this.currentBRTournament.tournament_id}`);
+      //   if (response.status === 200) {
+      //     BRhistory = await fetchMatchDetails(response.data.playerGameScores, this.currentBRTournament, 'Battle Royale');
+      //   }
+      // }
+      
+      ///////// start of hardcoding /////////
+      const response = await axios.get(`elo-ranking/api/game-score/player/5/tournament/16`);
+      console.log(response.data.playerGameScores)
+      let hardcoreMatchHistory = response.data.playerGameScores;
+      // Start date
+      let date = new Date("2024-11-11");
 
-      if (this.currentCWTournament) {
-        const response = await axios.get(`/elo-ranking/api/game-score/clan/${this.userStore.user.clan.clanId}/tournament/${this.currentCWTournament.tournament_id}`);
-        if (response.status === 200) {
-          CWhistory = await fetchMatchDetails(response.data.clanGameScores, this.currentCWTournament, 'Clan War');
-        }
-      }
+      for (let match of hardcoreMatchHistory) {
+        // Format the date to "dd MMM yyyy" (e.g., "11 Nov 2024")
+        let formattedDate = date.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
 
-      this.matchHistory = BRhistory.concat(CWhistory).sort((a, b) => {
-        const dateA = new Date(a.date.split('/').reverse().join('-'));
-        const dateB = new Date(b.date.split('/').reverse().join('-'));
-        return dateB - dateA; // Sort descending (most recent first)
-      });
+        BRhistory.push({
+          date: formattedDate,
+          game: match.gameId,
+          KDA: `${match.kills}/${match.deaths}/${match.assists}`,
+          gameMode: match.gameMode,
+          placement: match.placement.toFixed(0),
+        });
+
+        // Decrement the date by one day
+        date.setDate(date.getDate() - 1);
+      }
+    ///////// end of hardcoding /////////
+
+      // if (this.currentCWTournament) {
+      //   const response = await axios.get(`/elo-ranking/api/game-score/clan/${this.userStore.user.clan.clanId}/tournament/${this.currentCWTournament.tournament_id}`);
+      //   if (response.status === 200) {
+      //     CWhistory = await this.fetchMatchDetails(response.data.clanGameScores, this.currentCWTournament, 'Clan War');
+      //   }
+      // }
+
+      // this.matchHistory = BRhistory.concat(CWhistory).sort((a, b) => {
+      //   const dateA = new Date(a.date.split('/').reverse().join('-'));
+      //   const dateB = new Date(b.date.split('/').reverse().join('-'));
+      //   return dateB - dateA; // Sort descending (most recent first)
+      // });
+      this.matchHistory = BRhistory;
 
     },
     async fetchMatchDetails (matches, tournament, mode) {

@@ -18,7 +18,7 @@
                 <th class="fw-semibold">Date</th>
                 <th class="fw-semibold" v-if="isLargeScreen">Time</th>
                 <th class="fw-semibold">Game Mode</th>
-                <th class="fw-semibold text-center">Action</th>
+                <!-- <th class="fw-semibold text-center">Action</th> -->
               </tr>
             </thead>
             <tbody>
@@ -27,7 +27,7 @@
                 <th>{{ formatDate(game.startTime) }}</th>
                 <th v-if="isLargeScreen">{{ extractTime(game.startTime, game.endTime) }}</th>
                 <th>{{ game.gameMode }}</th>
-                <th class="d-flex justify-content-center p-1"><button class="btn btn-primary fw-semibold" @click="deleteGame(game)">Delete</button></th>
+                <!-- <th class="d-flex justify-content-center p-1"><button class="btn btn-primary fw-semibold" @click="deleteGame(game)">Delete</button></th> -->
               </tr>
             </tbody>
           </table>

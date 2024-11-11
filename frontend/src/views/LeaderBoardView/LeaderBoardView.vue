@@ -2,11 +2,11 @@
   <div class="mx-auto" style="min-height: 90vh;">
     <!-- showing battle royale ranking -->
      <!-- options to choose which tournament to view -->
-      <div class="d-flex justify-content-between">
+      <!-- <div class="d-flex justify-content-between">
         <div class="mb-3 w-100 text-center">
           <label for="tournament-select" class="form-label">Select Battle Royale Tournament:</label>
           <select id="tournament-select" class="form-select w-50 mx-auto" v-model="selectedBRTournament" @change="fetchBRTournamentRankings">
-            <option v-for="tournament in tournaments" :key="tournament.id" :value="tournament.id">
+            <option v-for="tournament in BRtournaments" :key="tournament.id" :value="tournament.id">
               {{ tournament.name }}
             </option>
           </select>
@@ -14,14 +14,14 @@
         <div class="mb-3 w-100 text-center" v-if="this.userStore.user.clan != null">
           <label for="tournament-select" class="form-label">Select Clan War Tournament:</label>
           <select id="tournament-select" class="form-select w-50 mx-auto" v-model="selectedCWTournament" @change="fetchCWTournamentRankings">
-            <option v-for="tournament in tournaments" :key="tournament.id" :value="tournament.id">
+            <option v-for="tournament in CWtournaments" :key="tournament.id" :value="tournament.id">
               {{ tournament.name }}
             </option>
           </select>
         </div>
-      </div>
+      </div> -->
     <!-- leaderboard section -->
-     <div class="d-flex align-items-end w-100 justify-content-between mx-auto m-3 row">
+     <div class="d-flex align-items-start w-100 justify-content-between mx-auto m-3 row">
 
        <LeaderBoardTable 
          data-aos="fade-right"
@@ -86,6 +86,7 @@ export default {
           }
 
           const allTournaments = response.data;
+          console.log(allTournaments)
           const currentDateTime = new Date();
 
           for (let i = 0; i < allTournaments.length; i++) {
@@ -94,7 +95,7 @@ export default {
             const endDate = new Date(tournament.endDate);
             let formattedTournament = { ...tournament, startDate: startDate, endDate: endDate };
 
-            if (tournament.gameMode !== "BATTLE_ROYALE") {
+            if (tournament.gameMode == "BATTLE_ROYALE") {
               if (startDate <= currentDateTime && endDate >= currentDateTime) {
                 // Tournament is currently active
                 activeBRTournaments.push(formattedTournament);
@@ -104,7 +105,7 @@ export default {
               }
             }
 
-            if (tournament.gameMode !== "CLANWAR") {
+            if (tournament.gameMode == "CLANWAR") {
               if (startDate <= currentDateTime && endDate >= currentDateTime) {
                 // Tournament is currently active
                 activeCWTournaments.push(formattedTournament);
@@ -116,11 +117,13 @@ export default {
           }
 
           this.BRtournaments = activeBRTournaments.concat(pastBRTournament);
+          console.log(this.BRtournaments)
+          
           this.CWtournaments = activeCWTournaments.concat(pastCWTournament);
+          console.log(this.CWtournaments)
+
           this.selectedBRTournament = this.BRtournaments[0];
           this.selectedCWTournament = this.CWtournaments[0];
-          console.log("this is the active and past BR tournament"+this.BRtournaments)
-          console.log("this is the active and past CW tournament"+this.CWtournaments)
         })
         .catch((error) => {
           console.error('Error fetching tournaments:', error);
@@ -143,9 +146,11 @@ export default {
 
       // Get ranking of all players for a BR tournament
       console.log(this.selectedBRTournament)
-      if(this.selectedBRTournament == null) return;
-      axios.get(`/elo-ranking/api/elo-ranking/player/tournament/${this.selectedBRTournament.tournament_id}`)
+      // if(this.selectedBRTournament == null) return;
+      // axios.get(`/elo-ranking/api/elo-ranking/player/tournament/${this.selectedBRTournament.tournament_id}`)
+      axios.get(`/elo-ranking/api/elo-ranking/player/tournament/16`)
         .then((response) => {
+          console.log(response.data)
           if (response.status === 200) {
             const data = response.data.playerEloRanks;
             const rankingPromises = data.map((player) => {
@@ -154,7 +159,7 @@ export default {
                   'id' : player.playerId,
                   "name": userResponse.data.name,
                   "rank": player.rankThreshold.rank,
-                  "elo": player.meanSkillEstimate,
+                  "elo": player.meanSkillEstimate.toFixed(0),
                 };
               });
             });
@@ -171,16 +176,21 @@ export default {
                 ...player,
                 num: `#${index + 1}`,
               }));
+              ///// start of hardcoding ///////
+              this.BRranking.push({
+                'id' : this.userStore.user.id,
+                "name": this.userStore.user.name,
+                "rank": this.userStore.user.rank,
+                "elo": this.userStore.user.currentElo.toFixed(0),
+                'num': `# ${this.BRranking.length+1}`
+              })
+              this.myBRrank = this.BRranking[this.BRranking.length-1]
+              ///// end of hardcoding ///////
             });
           }
         });
-        // get my elo ranking
-        for(let element in this.BRranking){
-          if (element.id == this.userStore.user.id){
-            this.myBRrank = element
-            break;
-          }
-        }
+        
+
     },
 
     fetchCWTournamentRankings() {
@@ -216,16 +226,16 @@ export default {
                 ...player,
                 num: `#${index + 1}`,
               }));
+              // get my elo ranking
+              for(let element in this.CWranking){
+               if (element.id == this.userStore.user.clan.clanId){
+                 this.CWranking = element
+                 break;
+               }
+             }
             });
           }
         });
-         // get my elo ranking
-         for(let element in this.CWranking){
-          if (element.id == this.userStore.user.clan.clanId){
-            this.myBRrank = element
-            break;
-          }
-        }
     },
 
   },
