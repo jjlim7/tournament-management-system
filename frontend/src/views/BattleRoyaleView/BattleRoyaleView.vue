@@ -234,8 +234,8 @@ export default {
           clearInterval(this.intervalId);
           this.countdown = { days: 0, hours: 0, minutes: 0, seconds: 0 };
 
-          if (!modalShown) {  // Only show the modal if it hasn't been shown already
-            modalShown = true;  // Set the flag to prevent showing the modal again
+          if (!this.modalShown) {  // Only show the modal if it hasn't been shown already
+            this.modalShown = true;  // Set the flag to prevent showing the modal again
             Swal.fire({
               title: "Start Game?",
               reverseButtons: true,
@@ -251,13 +251,6 @@ export default {
                 // Open the game link in a new tab
                 window.open(`http://13.228.120.122:9000?gameId=${gameId}`, '_blank');
 
-                Swal.fire({
-                  title: "Started!",
-                  text: "Your game has started.",
-                  icon: "success",
-                  timer: 1500
-                });
-
                 // Assuming res.data contains an array of players with placementId
                 const players = res.data?.result;
                 const winner = players.find(player => player.placement == 1);
@@ -265,14 +258,12 @@ export default {
                 console.log(winner);
 
                 // TODO: Add Modal for Winner
+                Swal.fire({
+                  title: `The Winner is ${winner.playerId}`,
+                });
               }
             });
           }
-          //fetch games
-          this.fetchGames();
-          // count down if there is a upcoming game
-          this.startCountdown();
-
         } else {
           this.countdown.days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
           this.countdown.hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
