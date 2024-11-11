@@ -121,8 +121,16 @@ public class UserController {
         try {
             ClanUser associatedClanDetails = clanUserService.getClanUserByUserId(userId);
             PlayerOverallStats partialStatsNoClanData = userService.getPlayerOverallForLatestTournament(userId);
-            associatedClanDetails.setUser(userService.getUser(userId));
-            associatedClanDetails.setClan(null);
+
+
+            System.out.println("checking id "+ userId);
+            System.out.println("data: " + associatedClanDetails);
+            // Check if associatedClanDetails is null before setting user and clan
+            if (associatedClanDetails == null) {
+                associatedClanDetails.setUser(userService.getUser(userId));
+                associatedClanDetails.setClan(null); // Set clan to null explicitly
+            }
+
             partialStatsNoClanData.setClanUser(associatedClanDetails);
             return ResponseEntity.ok(partialStatsNoClanData);
         } catch (Exception e) {

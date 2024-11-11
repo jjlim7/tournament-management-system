@@ -190,11 +190,11 @@ public class EloRankingService {
     }
 
     // Update Player Elo rankings
-    public void updatePlayerEloRanking(Map<Long, List<Double>> finalPlayerEloRating) throws Exception {
+    public void updatePlayerEloRanking(Map<Long, List<Double>> finalPlayerEloRating, Long tournamentId) throws Exception {
         for (Map.Entry<Long, List<Double>> entry : finalPlayerEloRating.entrySet()) {
             long playerId = entry.getKey();
             List<Double> newEloRank = entry.getValue();
-            PlayerEloRank playerEloRank = playerEloRankRepository.findById(playerId)
+            PlayerEloRank playerEloRank = playerEloRankRepository.findByPlayerIdAndTournamentId(playerId,tournamentId)
                     .orElseThrow(() -> new IllegalArgumentException("Player not found with ID: " + playerId));
 
             // get new mse and uncertainty and rank threshold based on new mse
@@ -214,6 +214,7 @@ public class EloRankingService {
 
     public void processUpdateBattleRoyaleResults(List<PlayerGameScore> battleRoyaleResults) throws Exception {
         List<PlayerEloRank> playersEloRank = new ArrayList<>();
+        Long targetTournamentId = battleRoyaleResults.get(0).getTournamentId();
         for (PlayerGameScore playerGameScore : battleRoyaleResults) {
             Long playerId = playerGameScore.getPlayerId();
             Long tournamentId = playerGameScore.getTournamentId();
@@ -225,7 +226,7 @@ public class EloRankingService {
         }
         Map<Long, List<Double>> finalResult = computeResultantPlayerEloRating(playersEloRank, battleRoyaleResults);
         logger.error("Final result: {}", finalResult);
-        updatePlayerEloRanking(finalResult);
+        updatePlayerEloRanking(finalResult,targetTournamentId);
     }
 
     // Compute resultant player Elo ratings
