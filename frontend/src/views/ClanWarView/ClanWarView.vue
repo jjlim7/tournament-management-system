@@ -19,9 +19,7 @@
           <BlurredBGCard v-if="currentTournament == null">
             <div class="text-center">No Active Tournament</div>
           </BlurredBGCard>
-          <BlurredBGCard v-if="currentTournament" :style="{
-            'background-image': 'url(' + currentTournament.image + ')'
-          }" class="imageProperties text-center mb-2 mt-1">
+          <BlurredBGCard v-if="currentTournament" :style="{'background-image': 'url(' + currentTournament.image + ')'}" class="imageProperties text-center mb-2 mt-1">
             <div class=" rounded-4 p-2" style="background-color: rgba(0, 0, 0, 0.4);">
               <h5 class="fw-semibold"> {{ currentTournament.name }} </h5>
               <div style="max-height: 70px;" class="overflow-y-hidden text-wrap">{{ currentTournament.description }}
@@ -251,8 +249,8 @@ export default {
           clearInterval(this.intervalId);
           this.countdown = { days: 0, hours: 0, minutes: 0, seconds: 0 };
 
-          if (!modalShown) {  // Only show the modal if it hasn't been shown already
-            modalShown = true;  // Set the flag to prevent showing the modal again
+          if (!this.modalShown) {  // Only show the modal if it hasn't been shown already
+            this.modalShown = true;  // Set the flag to prevent showing the modal again
             Swal.fire({
               title: "Start Game?",
               reverseButtons: true,
@@ -282,13 +280,13 @@ export default {
                 console.log(winner);
 
                 // TODO: Add Modal for Winner
+                Swal.fire({
+                  title: `The Winner is ${winner.clanId}`,
+                });
+                
               }
             });
           }
-          //fetch games
-          this.fetchGames();
-          // count down if there is a upcoming game
-          this.startCountdown();
 
         } else {
           this.countdown.days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
@@ -379,7 +377,7 @@ export default {
     },
     fetchGames() {
       this.upcomingGames = [];
-      axios.get(`/matchmaking/api/games/upcoming/clan?clanId=${this.clanId}`)
+      axios.get(`/matchmaking/api/games/upcoming/clan?clanId=${this.userStore.user.clan.clanId}`)
         .then((response) => {
           // Ensure a successful response
           if (response.status === 200) {

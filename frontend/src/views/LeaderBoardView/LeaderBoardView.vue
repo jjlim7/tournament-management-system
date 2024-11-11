@@ -180,7 +180,7 @@ export default {
               this.BRranking.push({
                 'id' : this.userStore.user.id,
                 "name": this.userStore.user.name,
-                "rank": this.userStore.user.rank,
+                "rank": this.userStore.user.rank || "UNRANKED",
                 "elo": this.userStore.user.currentElo.toFixed(0),
                 'num': `# ${this.BRranking.length+1}`
               })
