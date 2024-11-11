@@ -24,8 +24,8 @@
             <tbody>
               <tr v-for="game in games" :key="game.id">
                 <th>{{ game.name }}</th>
-                <th>{{ game.date }}</th>
-                <th v-if="isLargeScreen">{{ game.time }}</th>
+                <th>{{ formatDate(game.startTime) }}</th>
+                <th v-if="isLargeScreen">{{ extractTime(game.startTime, game.endTime) }}</th>
                 <th>{{ game.gameMode }}</th>
                 <th class="d-flex justify-content-center p-1"><button class="btn btn-primary fw-semibold" @click="deleteGame(game)">Delete</button></th>
               </tr>
@@ -302,6 +302,8 @@ export default {
       }
     },
     async fetchPlayerAvail(){
+      this.myAvailabilites = []
+      console.log("wait wait wait")
       try{
         const response = await axios.get(`/matchmaking/api/playersAvailability?playerId=${this.userStore.user.id}`);
         const playerAvail = response.data;
@@ -327,23 +329,50 @@ export default {
           let bookingEndTime = new Date(booking.endTime);
           this.myAvailabilites.push({...booking,"tournament": this.tournamentCache[tournamentId], "startTime": bookingStartTime, "endTime":bookingEndTime});
         }
-        console.log(this.myAvailabilites)
+        // console.log(this.myAvailabilites)
+        this.myAvailabilites = this.mergeConsecutiveBookings(this.myAvailabilites)
       }catch(error){
         console.log("error fetching player's availabilities. Erorr message: ", error.message)
         return
       }
-      // console.log(this.myBookings)
     },
-    async fetchGames(){
-      try{
-        // const response = await axios.get(`/tournaments/api/games/upcoming?playerId={}`);
-        const games = response.data;
-        
-        
-      } catch(error){
-        console.log("error fetching player's upcoming games. Erorr message: ", error.message)
-        return
-      }
+    fetchGames() {
+      this.upcomingGames =[];
+      axios.get(`/matchmaking/api/games/upcoming/player?playerId=${this.userStore.user.id}`)
+        .then((response) => {
+          // Ensure a successful response
+          console.log(response)
+          if (response.status === 200) {
+            const gamesArr = response.data;
+
+            // Sort the games array by startTime (earliest first)
+            gamesArr.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+            for(let i = 0; i < gamesArr.length; i++){
+              let game = gamesArr[i]
+              let tournamentId = game.tournamentId;
+              
+              try{
+                axios.get(`/tournament/api/tournaments/${tournamentId}`).then((response)=>{
+                  let getTournament = response.data
+                  let gameStartTime = new Date(game.startTime);
+                  let gameEndTime = new Date(game.endTime);
+                  this.games.push({...game,"tournament": this.tournamentCache[tournamentId], "startTime": gameStartTime, "endTime":gameEndTime, "name": getTournament.name});
+                })
+              }catch(error){
+                console.error('Error fetching tournament info:', error);
+                return
+              }
+              
+              // console.log(this.tournamentCache)
+              
+            }
+            // console.log(this.games)
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching upcoming games:', error);
+        });
     },
     bookCurrentTournament() {
       const activeIndex = this.getActiveCarouselIndex();
@@ -383,7 +412,48 @@ export default {
     },
     deleteGame(){
       console.log("delete game")
+    },
+    mergeConsecutiveBookings(bookings) {
+        // Sort the bookings by startTime
+        bookings.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+        const result = [];
+        let currentGroup = null;
+
+        bookings.forEach(booking => {
+            if (
+                currentGroup &&
+                currentGroup.tournamentId === booking.tournamentId &&
+                new Date(currentGroup.endTime).getTime() === new Date(booking.startTime).getTime() // Explicitly compare times
+            ) {
+                // Merge with the current group
+                currentGroup.playerAvailabilityId.push(booking.playerAvailabilityId);
+                currentGroup.endTime = booking.endTime;
+            } else {
+                // Push the current group to result and start a new group
+                if (currentGroup) {
+                    result.push(currentGroup);
+                }
+                currentGroup = {
+                    playerAvailabilityId: [booking.playerAvailabilityId],
+                    playerId: booking.playerId,
+                    tournamentId: booking.tournamentId,
+                    startTime: booking.startTime,
+                    endTime: booking.endTime,
+                    available: booking.available,
+                    tournament: booking.tournament,
+                };
+            }
+        });
+
+        // Push the last group
+        if (currentGroup) {
+            result.push(currentGroup);
+        }
+
+        return result;
     }
+
   },
   async created() {
       window.addEventListener("resize", this.checkScreenSize);

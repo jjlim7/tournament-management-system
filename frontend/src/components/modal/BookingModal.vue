@@ -128,6 +128,7 @@ mounted() {
         this.selectedTournament = this.tournament;
         if (this.isEditing) {
             this.selectedTournament = this.tournament.tournament;
+            console.log(this.tournament)
 
             this.setDateRange(this.tournament.tournament);
             
@@ -151,7 +152,49 @@ methods: {
         if(this.validateBookings()){
             //if user is making an edit
             if(this.isEditing){
-                console.log("update successfully")
+                // delete all records
+                try{
+                    for(let avail of this.tournament.playerAvailabilityId){
+                        await axios.delete(`/matchmaking/api/playersAvailability/${avail}`);
+                    }
+                }catch(error){
+                    this.showErrorAlert("Error updating user")
+                }
+                // and create again
+                // Create formatted start and end times as ISO strings
+                
+                const startDateTime = new Date(this.bookings[0].date);
+                const endDateTime = new Date(this.bookings[0].date);
+
+                // Convert selected times to 24-hour format and set to booking date
+                startDateTime.setHours(this.hours.indexOf(this.bookings[0].startTime));
+                endDateTime.setHours(this.hours.indexOf(this.bookings[0].endTime));
+
+                let formattedBooking = {
+                    playerId: this.userStore.user.id,
+                    tournamentId: this.selectedTournament.tournament_id,
+                    startTime: startDateTime.toISOString(),
+                    endTime: endDateTime.toISOString(),
+                    interval: 1,
+                };
+                // console.log(formattedBooking)
+
+                // Send formattedBooking to backend
+                try{
+                    await axios.post(`/matchmaking/api/playersAvailability/bulkCreateByTimeRange`, formattedBooking);
+                }catch(error){
+                    this.showErrorAlert("Error updating user")
+                }
+            
+                Swal.fire({
+                    title: "Updated!",
+                    text: "Your booking has been updated.",
+                    icon: "success",
+                    timer: 1500
+                });
+                // console.log(document.getElementById(this.modalID))
+                const existingModal = bsModal.getInstance(document.getElementById(this.modalID));
+                existingModal.hide();
             }
             else{ // if user is making a new booking
                 if(this.selectedTournament.gameMode === 'CLANWAR' && this.userStore.user.clanRole==='ROLE_PLAYER'){
@@ -226,20 +269,31 @@ methods: {
                 cancelButtonColor: "#DDDDDD",
                 confirmButtonColor: "#FA9021",
                 confirmButtonText: "Yes, delete it!"
-                }).then((result) => {
+                }).then(async (result) => {
                     if (result.isConfirmed) {
-                            Swal.fire({
-                                title: "Deleted!",
-                                text: "Your booking has been deleted.",
-                                icon: "success",
-                                timer: 1500
-                            });
-                            // console.log(document.getElementById(this.modalID))
-                            const existingModal = bsModal.getInstance(document.getElementById(this.modalID));
-                            existingModal.hide();
-                            
+                        // delete all records
+                        try{
+                            console.log(this.tournament.playerAvailabilityId)
+                            for(let avail of this.tournament.playerAvailabilityId){
+                                let temp = await axios.delete(`/matchmaking/api/playersAvailability/${avail}`);
+                                console.log(temp)
+                            }
+                        }catch(error){
+                            this.showErrorAlert("Error updating user")
+                        }
+
+                        Swal.fire({
+                            title: "Deleted!",
+                            text: "Your booking has been deleted.",
+                            icon: "success",
+                            timer: 1500
+                        });
+                        // console.log(document.getElementById(this.modalID))
+                        const existingModal = bsModal.getInstance(document.getElementById(this.modalID));
+                        existingModal.hide();
                     }
             });
+            // this.$emit("fetchPlayerAvail");
         }else{
             this.bookings.splice(index,1)
         }

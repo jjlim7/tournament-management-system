@@ -18,9 +18,7 @@
           <BlurredBGCard v-if="currentTournament == null">
             <div class="text-center">No Active Tournament</div>
           </BlurredBGCard>
-          <BlurredBGCard v-if="currentTournament" :style="{
-            'background-image': 'url(' + currentTournament.image + ')'
-          }" class="imageProperties text-center mb-2 mt-1">
+          <BlurredBGCard v-if="currentTournament" :style="{'background-image': 'url(' + currentTournament.image + ')'}" class="imageProperties text-center mb-2 mt-1">
             <div class=" rounded-4 p-2" style="background-color: rgba(0, 0, 0, 0.4);">
               <h5 class="fw-semibold"> {{ currentTournament.name }} </h5>
               <div style="max-height: 70px;" class="overflow-y-hidden text-wrap">{{ currentTournament.description }}
@@ -165,21 +163,7 @@ export default {
         seconds: 0
       },
       intervalId: null,
-      nextMatch: {
-        gameId: 1,
-        tournamentId: 1,
-        startTime: "2024-11-10T16:40:00.000Z",
-        endTime: "2024-12-07T11:00:00.000Z",
-        playerIds: [
-          22,
-          11,
-          48
-        ],
-        clanIds: [],
-        winner: null,
-        gameMode: "BATTLE_ROYALE",
-        gameStatus: "SCHEDULED"
-      },
+      nextMatch: null,
       currentTournament: null,
       upcomingTournaments: [],
       selectedUpcomingTournament: '',
@@ -389,6 +373,7 @@ export default {
       axios.get(`/matchmaking/api/games/upcoming/player?playerId=${this.userStore.user.id}`)
         .then((response) => {
           // Ensure a successful response
+          console.log(response)
           if (response.status === 200) {
             const gamesArr = response.data;
 
