@@ -88,6 +88,8 @@ export const useUserStore = defineStore('user', {
       if (user && isAuthenticated) {
         this.user = JSON.parse(user);
         this.isAuthenticated = true;
+        // uncomment this if i want user's clan to be nu''
+        // this.user.clan = null;
       }
     },
     setIsAuth(){
