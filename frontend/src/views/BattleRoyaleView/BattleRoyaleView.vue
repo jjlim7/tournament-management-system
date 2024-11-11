@@ -214,16 +214,16 @@ export default {
     },
     startCountdown() {
       if (this.nextMatch == null) return
-      const targetTime = new Date(this.nextMatch.startTime).getTime();
+      const targetTime = new Date(this.nextMatch?.startTime).getTime();
       let modalShown = false;
       console.log(this.nextMatch)
 
       const req = {
-        "playerIds": this.nextMatch.playerIds,
-        "tournamentId": this.nextMatch.tournamentId,
-        "gameId": this.nextMatch.gameId,
+        "playerIds": this.nextMatch?.playerIds,
+        "tournamentId": this.nextMatch?.tournamentId,
+        "gameId": this.nextMatch?.gameId,
       };
-      const gameId = this.nextMatch.gameId;
+      const gameId = this.nextMatch?.gameId;
 
       this.intervalId = setInterval(() => {
         const now = new Date().getTime();
@@ -233,8 +233,8 @@ export default {
           clearInterval(this.intervalId);
           this.countdown = { days: 0, hours: 0, minutes: 0, seconds: 0 };
 
-          if (!this.modalShown) {  // Only show the modal if it hasn't been shown already
-            this.modalShown = true;  // Set the flag to prevent showing the modal again
+          if (!modalShown) {  // Only show the modal if it hasn't been shown already
+            modalShown = true;  // Set the flag to prevent showing the modal again
             Swal.fire({
               title: "Start Game?",
               reverseButtons: true,
