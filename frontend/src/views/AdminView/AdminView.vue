@@ -9,7 +9,7 @@
     <div class="d-flex justify-content-between">
         <h4 class="fw-semibold">Welcome Admin, {{ this.userStore.user.name }}</h4>
         <div>
-          <button class="btn btn-secondary fw-semibold text-dark mx-2" @click="showCreateAdminModal">Create Admin</button>
+          <!-- <button class="btn btn-secondary fw-semibold text-dark mx-2" @click="showCreateAdminModal">Create Admin</button> -->
           <button class="btn btn-primary fw-semibold text-white mx-2" @click="showAdminModal">Create Tournament</button>
         </div>
     </div>
