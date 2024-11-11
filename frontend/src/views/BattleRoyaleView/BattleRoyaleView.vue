@@ -259,7 +259,19 @@ export default {
 
                 // TODO: Add Modal for Winner
                 Swal.fire({
-                  title: `The Winner is ${winner.playerId}`,
+                    title: "Game Winner Details",
+                    html: `
+                        <div style="text-align: left;">
+                            <p><strong>Player ID:</strong> ${winner.playerId}</p>
+                            <p><strong>Placement:</strong> ${winner.placement}</p>
+                            <p><strong>Kills:</strong> ${winner.kills}</p>
+                            <p><strong>Deaths:</strong> ${winner.deaths}</p>
+                            <p><strong>Damage Done:</strong> ${winner.damageDone}</p>
+                            <p><strong>Rank:</strong> ${winner.playerEloRank?.rankThreshold.rank || "N/A"} (${winner.playerEloRank?.meanSkillEstimate.toFixed(2)})</p>
+                        </div>
+                    `,
+                    icon: "success",
+                    confirmButtonText: "Close"
                 });
               }
             });
