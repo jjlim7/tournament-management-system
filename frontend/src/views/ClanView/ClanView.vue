@@ -1,5 +1,5 @@
 <template>
-    <div v-if="this.userStore.hasClan"
+    <div v-if="this.userStore.user.clan != null"
     data-aos="fade-up"
     data-aos-offset="500"
     data-aos-duration="500">
@@ -113,7 +113,7 @@
 
       <div class="fs-4 text-white ms-4" :style="{ alignSelf: 'flex-start' }">
         <br>
-        <h1>{{ this.userStore.user.clan.clanName }} Members</h1>
+        <h1>{{ this.userStore.user.clan?.clanName }} Members</h1>
       </div>
 
       <div class="p-4 rounded my-3 d-flex justify-content-center overflow-auto w-100 border border-primary border-2 rounded-5 text-center blurred-bg-card">
@@ -283,6 +283,7 @@
 
     mounted() {
         this.fetchData();
+        console.log(this.userStore.user)
       },
 
     setup() {
@@ -296,113 +297,82 @@
 
       async fetchData() {
         try {
-          this.loading = true;  // Start loading
+            this.loading = true; // Start loading
 
-          const [clansResponse, tournamentsResponse, membersResponse] = await Promise.all([
-            axios.get('/clanuser/api/clans'),
-            axios.get(`/tournament/api/tournaments`), 
-            axios.get(`/clanuser/api/clanusers/clan/${this.userStore.user.clan.clanId}`), 
-          ]);
+            // Check if user has a clan
+            const clanId = this.userStore.user.clan?.clanId;
 
-          const clansData = clansResponse.data;
-            
-          // Get member counts for each clan asynchronously
-          const memberCountsPromises = clansData.map(clan => this.countMembersInClan(clan.clanId));
-          const memberCounts = await Promise.all(memberCountsPromises);
+            // Define API calls conditionally
+            const promises = [
+                axios.get('/clanuser/api/clans'),
+                axios.get(`/tournament/api/tournaments`)
+            ];
 
-          this.availableclans = clansResponse.data.map((clandata, index) => ({
-            clanId: clandata.clanId,
-            clanicon: "https://cdn-icons-png.flaticon.com/512/11619/11619566.png",  // You can set a default icon or fetch from somewhere
-            clanname: clandata.clanName,  // Backend returns `clanName`, you can use it as is
-            members: memberCounts[index],
-            rank: "null",  // You can hardcode or determine this dynamically
-            elo: 1000,  // Same for Elo, hardcoded for now or calculated dynamically
-            request: false,  // This can be set based on your logic
-          }));
+            if (clanId) {
+                promises.push(axios.get(`/clanuser/api/clanusers/clan/${clanId}`));
+            }
 
-          // Transform members
-          this.members = membersResponse.data.map(member => ({
-              userId: member.user.userId,
-              position: member.position,  // The position is directly available from the member object
-              profile: "https://cdn-icons-png.flaticon.com/512/11619/11619566.png",  // Access profilePic from the nested user object, fallback to null if user is missing
-              username: member.user.name,  
-              email: member.user.email,
-              rank: "unranked",
-          }));
+            const [clansResponse, tournamentsResponse, membersResponse] = await Promise.all(promises);
 
-          // Filter tournaments with gamemode 'CLANWAR'
-          this.upcomingTournaments = tournamentsResponse.data
-            .filter(tournament => tournament.gameMode === 'CLANWAR')  // Filter only clanwar tournaments
-            .map((tournament, index) => ({
-              tournamentId: tournament.tournament_id,
-              name: tournament.name,  // Tournament name from backend
-              image: tournamentImage[index] || 'https://assetsio.gnwcdn.com/blackmythwukong1.jpg?width=1200&height=1200&fit=bounds&quality=70&format=jpg&auto=webp',  // Placeholder if no image is available
-              description: tournament.description || 'No description available',  // Default description if missing
+            const clansData = clansResponse.data;
+
+            // Get member counts for each clan asynchronously
+            const memberCountsPromises = clansData
+                .filter(clan => clan) // Filter out null or undefined clans
+                .map(clan => this.countMembersInClan(clan.clanId));
+            const memberCounts = await Promise.all(memberCountsPromises);
+
+            this.availableclans = clansResponse.data.map((clandata, index) => ({
+                clanId: clandata.clanId,
+                clanicon: "https://cdn-icons-png.flaticon.com/512/11619/11619566.png", // Default icon
+                clanname: clandata.clanName, // Backend returns `clanName`
+                members: memberCounts[index],
+                rank: "null", // Placeholder or calculate dynamically
+                elo: 1000, // Placeholder or calculate dynamically
+                request: false, // Logic to set request status
             }));
 
-          this.memberssignedup = tournamentsResponse.data
-            .filter(tournament => tournament.gameMode === 'CLANWAR')  // Filter only clanwar tournaments
-            .map((person, index) => ({
-              number: index + 1,  // Player number, starting from 1
-              clanName: "null",
-              username: person.playerIds[index],  // Placeholder for missing usernames
-              position: 'Unknown',  // Default position if not provided
-            }));
+            // Transform members only if membersResponse exists
+            if (membersResponse) {
+                this.members = membersResponse.data.map(member => ({
+                    userId: member.user.userId,
+                    position: member.position, // Position directly available
+                    profile: "https://cdn-icons-png.flaticon.com/512/11619/11619566.png", // Default profile pic
+                    username: member.user.name,
+                    email: member.user.email,
+                    rank: "unranked",
+                }));
+            }
 
-          await this.UpdateTable();
-          this.loading = false;  // End loading
+            // Filter tournaments with gamemode 'CLANWAR'
+            this.upcomingTournaments = tournamentsResponse.data
+                .filter(tournament => tournament.gameMode === 'CLANWAR') // Filter only clanwar tournaments
+                .map((tournament, index) => ({
+                    tournamentId: tournament.tournament_id,
+                    name: tournament.name, // Tournament name from backend
+                    image: tournamentImage[index] || 'https://assetsio.gnwcdn.com/blackmythwukong1.jpg?width=1200&height=1200&fit=bounds&quality=70&format=jpg&auto=webp', // Placeholder if no image
+                    description: tournament.description || 'No description available', // Default description
+                }));
+
+            this.memberssignedup = tournamentsResponse.data
+                .filter(tournament => tournament.gameMode === 'CLANWAR') // Filter only clanwar tournaments
+                .map((person, index) => ({
+                    number: index + 1, // Player number
+                    clanName: "null",
+                    username: person.playerIds[index], // Placeholder for usernames
+                    position: 'Unknown', // Default position
+                }));
+
+            await this.UpdateTable();
+            this.loading = false; // End loading
 
         } catch (error) {
-          console.error(error);  // Log error for debugging
-          this.error = 'Failed to load data. Please try again later.';  // Handle error
-          this.loading = false;  // End loading
+            console.error(error); // Log error for debugging
+            this.error = 'Failed to load data. Please try again later.'; // Handle error
+            this.loading = false; // End loading
         }
-      },
-
-      async UpdateTable() {
-        for (const member of this.members) {
-          try {
-            console.log(`Fetching Rank for user ID: ${member.userId}`);
-            
-            // Make the API call
-            const RankResponse = await axios.get(`/elo-ranking/api/elo-ranking/player/${member.userId}/latest-rank`);
-            
-            // Log the API response to inspect the structure
-            console.log('Rank Response:', RankResponse.data);
-
-            member.rank = RankResponse.data.data.rankThreshold.rank;
-            
-            // Log the updated member Rank
-            console.log(`Updated member Rank for ${member.userId}: ${member.rank}`);
-          } catch (error) {
-            console.error(`Failed to load Rank for user ID: ${member.userId}`, error);
-            member.rank = 'Failed to load';  // Fallback in case of an error
-          }
-        }
-
-        for (const clandata of this.availableclans) {
-          try {
-            const RankResponse = await axios.get(`/elo-ranking/api/elo-ranking/clan/${clandata.clanId}/latest-rank`);
-
-            clandata.rank = RankResponse.data.data.rankThreshold.rank;
-          } catch (error) {
-            console.error(`Failed to load Rank for user ID: ${clandata.clanId}`, error);
-            clandata.rank = 'Unranked';  // Fallback in case of an error
-          }
-        }
-
-        for (const player of this.memberssignedup) {
-            try {
-              console.log(`Fetching Clan Name for player ID: ${player.username}`);
-              const playerResponse = await axios.get(`/clanuser/api/clanusers/search?userId=${player.username}`);
-              player.clanName = playerResponse.data.clan?.clanName || 'Unnamed';
-              console.log(`Updated Clan Name for player ${player.username}: ${player.clanName}`);
-          } catch (error) {
-            console.error(`Failed to load Clan Name for player ID: ${player.username}`, error);
-            player.clanName = 'Unnamed';
-          }
-        }
-      },
+    }
+,
 
       async selectClanWarTournament(tournamentId) {
 
@@ -469,7 +439,7 @@
               // Use GET instead of POST if you are simply fetching data
               const membersinclanresponse = await axios.get(`/clanuser/api/clanusers/clan/${countingfromclanId}`);
 
-              const clanMembers = membersinclanresponse.data;  // Get the members list directly
+              const clanMembers = membersinclanresponse?.data;  // Get the members list directly
 
               return clanMembers.length;  // Return the count of members
           } catch (error) {

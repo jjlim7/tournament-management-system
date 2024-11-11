@@ -227,7 +227,7 @@ export default {
       // }
       
       ///////// start of hardcoding /////////
-      const response = await axios.get(`elo-ranking/api/game-score/player/5/tournament/16`);
+      const response = await axios.get(`elo-ranking/api/game-score/player/6/tournament/16`);
       console.log(response.data.playerGameScores)
       let hardcoreMatchHistory = response.data.playerGameScores;
       // Start date
@@ -266,7 +266,12 @@ export default {
       //   const dateB = new Date(b.date.split('/').reverse().join('-'));
       //   return dateB - dateA; // Sort descending (most recent first)
       // });
-      this.matchHistory = BRhistory;
+      
+      // start of hardcoding 
+      if(this.userStore.user.id == 6){
+        this.matchHistory = BRhistory;
+      }
+      // end of hardcoding 
 
     },
     async fetchMatchDetails (matches, tournament, mode) {

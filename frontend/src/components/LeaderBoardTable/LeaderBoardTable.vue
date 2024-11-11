@@ -21,7 +21,7 @@
                         <!-- <th>{{ BRranking[0].num }}</th> -->
                         <th class="fw-bold fs-3">{{ ranking.num }}</th>
                         <th>{{ ranking.name }}</th>
-                        <th>{{ ranking.rank }}</th>
+                        <th>{{ ranking.rank || "UNRANKED" }}</th>
                         <th>{{ ranking.elo }}</th>
                     </tr>
                     </tbody>
