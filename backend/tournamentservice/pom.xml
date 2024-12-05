@@ -80,7 +80,7 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>7.0.0.Final</version> <!-- Updated version -->
+            <version>7.0.5.Final</version> <!-- Updated version -->
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
